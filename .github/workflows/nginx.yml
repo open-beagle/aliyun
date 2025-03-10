@@ -38,8 +38,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 构建所有架构镜像，但分别输出不同标签
-      - name: Build and push all Docker images
+      # 构建多架构镜像
+      - name: Build and push multi-platform Docker images
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -57,11 +57,42 @@ jobs:
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          # 输出单架构镜像
-          outputs: |
-            type=registry,name=registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64,platform=linux/amd64
-            type=registry,name=registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64,platform=linux/arm64
-            type=registry
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./.bealge/alpine.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64
+          platforms: linux/amd64
+          build-args: |
+            BASE=nginx:1.27.4-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.27.4
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./.bealge/alpine.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
+          platforms: linux/arm64
+          build-args: |
+            BASE=nginx:1.27.4-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.27.4
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       # 更新缓存
       - name: Move cache
