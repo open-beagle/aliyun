@@ -6,7 +6,7 @@ on:
       - nginx-*
 
 jobs:
-  nginx-1.27:
+  nginx127:
     if: github.ref == 'refs/heads/nginx-1.27'
     runs-on: ubuntu-latest
 
@@ -51,7 +51,7 @@ jobs:
             BASE=nginx:1.27.4-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=1.27.4
-          
+
       - name: Create and push manifest
         run: |
           docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine \
@@ -62,7 +62,7 @@ jobs:
           docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
           docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine
-          
+
       - name: Create and push additional manifests
         run: |
           docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
@@ -73,7 +73,7 @@ jobs:
           docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
           docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4
-          
+
           docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
