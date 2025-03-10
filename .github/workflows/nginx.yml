@@ -65,7 +65,8 @@ jobs:
 
       - name: Create and push additional manifests
         run: |
-          docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
+          docker manifest rm registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 || true
+          docker manifest create --amend registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
           docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
@@ -74,13 +75,10 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
           docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4
 
-          docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
+          docker manifest rm registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 || true
+          docker manifest create --amend registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 --os linux --arch amd64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
           docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27
 
       - name: Image push success
