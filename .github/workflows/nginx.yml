@@ -16,6 +16,20 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          # 启用 buildx 缓存导出功能
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      # 设置缓存
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v2
@@ -24,62 +38,36 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      - name: Build and push Docker image for AMD64
+      # 构建所有架构镜像，但分别输出不同标签
+      - name: Build and push all Docker images
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./.bealge/alpine.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64
-          platforms: linux/amd64
+            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine
+            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4
+            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27
+          platforms: linux/amd64,linux/arm64
           build-args: |
             BASE=nginx:1.27.4-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=1.27.4
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          # 输出单架构镜像
+          outputs: |
+            type=registry,name=registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64,platform=linux/amd64
+            type=registry,name=registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64,platform=linux/arm64
+            type=registry
 
-      - name: Build and push Docker image for ARM64
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./.bealge/alpine.dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          platforms: linux/arm64
-          build-args: |
-            BASE=nginx:1.27.4-alpine
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=1.27.4
-
-      - name: Create and push manifest
+      # 更新缓存
+      - name: Move cache
         run: |
-          docker manifest create registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 --os linux --arch amd64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
-          docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine
-
-      - name: Create and push additional manifests
-        run: |
-          docker manifest rm registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 || true
-          docker manifest create --amend registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 --os linux --arch amd64
-          docker manifest annotate registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64 --os linux --arch arm64
-          docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4
-
-          docker manifest rm registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 || true
-          docker manifest create --amend registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          docker manifest push registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/nginx"
