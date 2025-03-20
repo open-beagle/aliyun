@@ -6,7 +6,7 @@ on:
       - golang-1.24
 
 jobs:
-  golang124-alpine:
+  golang-alpine:
     runs-on: ubuntu-latest
 
     steps:
@@ -104,7 +104,7 @@ jobs:
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
 
-  golang124-bullseye:
+  golang-bullseye:
     runs-on: ubuntu-latest
 
     steps:
@@ -163,7 +163,7 @@ jobs:
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
 
-  golang124-bookworm:
+  golang-bookworm:
     runs-on: ubuntu-latest
 
     steps:
