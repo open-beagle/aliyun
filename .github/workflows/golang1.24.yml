@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-alpine.dockerfile
+          file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine
@@ -62,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-alpine.dockerfile
+          file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine-amd64
@@ -81,7 +81,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-alpine.dockerfile
+          file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine-arm64
@@ -119,15 +119,6 @@ jobs:
             image=moby/buildkit:master
             network=host
 
-      # 设置缓存
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v2
         with:
@@ -140,7 +131,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-bullseye.dockerfile
+          file: ./golang/golang1.24-bullseye.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye-amd64
@@ -158,7 +149,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-bullseye-arch.dockerfile
+          file: ./golang/golang1.24-bullseye-arch.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye-arm64
@@ -168,12 +159,6 @@ jobs:
             BASE=golang:1.24.1-bullseye
             AUTHOR=${{ github.repository_owner }}
             VERSION=1.24.1
-
-      # 更新缓存
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
@@ -193,15 +178,6 @@ jobs:
             image=moby/buildkit:master
             network=host
 
-      # 设置缓存
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v2
         with:
@@ -214,7 +190,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-bookworm.dockerfile
+          file: ./golang/golang1.24-bookworm.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bookworm-amd64
@@ -232,7 +208,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/golang1.24-bookworm-arch.dockerfile
+          file: ./golang/golang1.24-bookworm-arch.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bookworm-arm64
@@ -242,12 +218,6 @@ jobs:
             BASE=golang:1.24.1-bookworm
             AUTHOR=${{ github.repository_owner }}
             VERSION=1.24.1
-
-      # 更新缓存
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
