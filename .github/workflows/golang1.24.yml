@@ -137,6 +137,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye-amd64
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24-bullseye
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
