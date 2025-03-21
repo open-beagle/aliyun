@@ -43,7 +43,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/alpine.dockerfile
+          file: ./.beagle/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine
@@ -63,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/alpine.dockerfile
+          file: ./.beagle/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64
@@ -81,7 +81,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./.bealge/alpine.dockerfile
+          file: ./.beagle/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
