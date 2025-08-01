@@ -37,7 +37,7 @@ RUN apt update && \
         openssh-server \
         openssh-client \
         podman \
-        crun  \
+        crun \
         fuse-overlayfs && \
   apt clean && \
   sed -i 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config  && \

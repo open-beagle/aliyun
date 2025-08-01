@@ -7,7 +7,7 @@ on:
       - ide
 
 jobs:
-  build-and-push-nginx:
+  build-and-push:
     runs-on: ubuntu-latest
     
     # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./debian/debian.dockerfile
+          file: ./ide/debian.dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
