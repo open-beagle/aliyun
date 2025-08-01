@@ -6,7 +6,7 @@ ARG AUTHOR
 ARG VERSION
 LABEL maintainer=${AUTHOR} version=${VERSION}
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
   cat  /etc/apk/repositories && \
   apk --no-cache --update add bash ca-certificates tzdata curl && \
   cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
