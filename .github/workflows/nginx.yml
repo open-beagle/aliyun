@@ -2,103 +2,72 @@ name: Nginx
 
 on:
   push:
+    # 既然版本号来自环境变量，我们将触发器改回为监视分支的推送
     branches:
       - nginx-*
 
 jobs:
-  nginx127:
-    if: github.ref == 'refs/heads/nginx-1.27'
+  build-and-push-nginx:
     runs-on: ubuntu-latest
+    
+    # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
+    env:
+      BUILD_VERSION: 1.27.4
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          # 启用 buildx 缓存导出功能
-          driver-opts: |
-            image=moby/buildkit:master
-            network=host
-
-      # 设置缓存
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Aliyun Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 构建多架构镜像
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v4
+      # 关键改动(2): 修改 metadata-action 的 tags 规则来使用环境变量
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: registry.cn-qingdao.aliyuncs.com/wod/nginx
+          tags: |
+            # 类型'raw'：直接使用环境变量的值作为标签
+            type=raw,value=${{ env.BUILD_VERSION }}
+            
+            # 类型'semver'：我们告诉它不要去读Git标签，而是解析我们通过'value'传入的环境变量
+            # 这样它就能从中提取出 major 和 minor 部分
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.BUILD_VERSION }}
+            
+            # 类型'raw'：组合环境变量和静态字符串
+            type=raw,value=${{ env.BUILD_VERSION }}-alpine
+            type=raw,value=${{ env.BUILD_VERSION }}-alpine-{{platform_arch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./.beagle/alpine.dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27
+          file: ./alpine/alpine.dockerfile
           platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=nginx:1.27.4-alpine
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=1.27.4
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      # 构建并推送 AMD64 架构镜像
-      - name: Build and push AMD64 Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./.beagle/alpine.dockerfile
           push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-amd64
-          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            BASE=nginx:1.27.4-alpine
+            # build-args 也可以使用环境变量
+            BASE=nginx:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.27.4
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      # 构建并推送 ARM64 架构镜像
-      - name: Build and push ARM64 Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./.beagle/alpine.dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/nginx:1.27.4-alpine-arm64
-          platforms: linux/arm64
-          build-args: |
-            BASE=nginx:1.27.4-alpine
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=1.27.4
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      # 更新缓存
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
+            VERSION=${{ env.BUILD_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
       - name: Image push success
-        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/nginx"
+        run: |
+          echo "Docker images and manifests pushed successfully!"
+          echo "Pushed tags:"
+          echo "${{ steps.meta.outputs.tags }}"
