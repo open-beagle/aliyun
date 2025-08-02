@@ -30,7 +30,9 @@ RUN apt update && \
         lsof \
         iputils-ping \
         sudo \
-        file && \
+        file \
+        iptables \
+        iproute2 && \
   apt install -y \
         python3 \
         connect-proxy \
