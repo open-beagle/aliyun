@@ -1,10 +1,10 @@
-name: Debian
+name: Alpine
 
 on:
   push:
     # 既然版本号来自环境变量，我们将触发器改回为监视分支的推送
     branches:
-      - debian
+      - alpine
 
 jobs:
   build-and-push:
@@ -12,7 +12,7 @@ jobs:
     
     # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
-      BUILD_VERSION: bookworm
+      BUILD_VERSION: 3.22.1
 
     steps:
       - name: Checkout code
@@ -36,25 +36,31 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: registry.cn-qingdao.aliyuncs.com/wod/debian
+          images: registry.cn-qingdao.aliyuncs.com/wod/alpine
           tags: |          
+            # 类型'semver'：我们告诉它不要去读Git标签，而是解析我们通过'value'传入的环境变量
+            # 这样它就能从中提取出 major 和 minor 部分
+            type=semver,pattern={{major}},value=${{ env.BUILD_VERSION }}
+            type=semver,pattern={{major}}-{{platform_arch}},value=${{ env.BUILD_VERSION }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.BUILD_VERSION }}
+            type=semver,pattern={{major}}.{{minor}}-{{platform_arch}},value=${{ env.BUILD_VERSION }}
+            
             # 类型'raw'：组合环境变量和静态字符串
-            type=raw,value=12
             type=raw,value=${{ env.BUILD_VERSION }}
             type=raw,value=${{ env.BUILD_VERSION }}-{{platform_arch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./debian
-          file: ./debian/debian.dockerfile
+          context: .
+          file: ./alpine/alpine.dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             # build-args 也可以使用环境变量
-            BASE=debian:${{ env.BUILD_VERSION }}
+            BASE=alpine:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
           cache-from: type=gha

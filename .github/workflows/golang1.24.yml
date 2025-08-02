@@ -6,7 +6,7 @@ on:
       - golang-1.24
 
 jobs:
-  golang-alpine:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
