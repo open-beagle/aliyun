@@ -37,6 +37,7 @@ jobs:
           file: ./ubuntu/Dockerfile
           platforms: linux/amd64
           push: true
+          provenance: false
           tags: |
             ${{ env.IMAGE_NAME }}:16.04-amd64
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
@@ -54,6 +55,7 @@ jobs:
           file: ./ubuntu/Dockerfile
           platforms: linux/arm64
           push: true
+          provenance: false
           tags: |
             ${{ env.IMAGE_NAME }}:16.04-arm64
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
