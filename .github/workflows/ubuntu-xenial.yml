@@ -40,7 +40,7 @@ jobs:
           tags: |          
             # 类型'raw'：组合环境变量和静态字符串
             type=raw,value=16.04
-             type=raw,value=16.04-{{platform_arch}}
+            type=raw,value=16.04-{{platform_arch}}
             type=raw,value=${{ env.BUILD_VERSION }}
             type=raw,value=${{ env.BUILD_VERSION }}-{{platform_arch}}
 
