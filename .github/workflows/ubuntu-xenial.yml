@@ -8,9 +8,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
     env:
       BUILD_VERSION: xenial
+      IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/ubuntu
 
     steps:
       - name: Checkout code
@@ -29,47 +29,58 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # --- CRITICAL FIX: Replace the metadata action with this step ---
-      - name: Generate tags
-        id: tagger
-        run: |
-          IMAGE_NAME="registry.cn-qingdao.aliyuncs.com/wod/ubuntu"
-          TAGS=""
-          
-          # Add base tags
-          TAGS="${TAGS},${IMAGE_NAME}:16.04"
-          TAGS="${TAGS},${IMAGE_NAME}:${{ env.BUILD_VERSION }}"
-          
-          # Add platform-specific tags
-          for PLATFORM in amd64 arm64; do
-            TAGS="${TAGS},${IMAGE_NAME}:16.04-${PLATFORM}"
-            TAGS="${TAGS},${IMAGE_NAME}:${{ env.BUILD_VERSION }}-${PLATFORM}"
-          done
-          
-          # Remove leading comma and set as output
-          TAGS=$(echo $TAGS | sed 's/^,//')
-          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+      # --- 关键修正：分三步进行构建和推送 ---
 
-      - name: Build and push Docker image
+      # 第 1 步：构建并推送多架构镜像，只打多架构标签
+      - name: Build and push multi-platform image
         uses: docker/build-push-action@v5
         with:
           context: ./ubuntu
           file: ./ubuntu/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          # Use the tags generated from our custom script
-          tags: ${{ steps.tagger.outputs.tags }}
-          # We are not generating labels anymore, so remove this line
-          # labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:16.04
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}
           build-args: |
             BASE=ubuntu:${{ env.BUILD_VERSION }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
+          # 开启缓存，为后续步骤加速
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          
-      - name: Image push success
-        run: |
-          echo "Docker images and manifests pushed successfully!"
-          echo "Pushed tags:"
-          echo "${{ steps.tagger.outputs.tags }}"
+
+      # 第 2 步：构建并推送 AMD64 镜像，只打 amd64 专属标签
+      - name: Build and push AMD64-specific image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ubuntu
+          file: ./ubuntu/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:16.04-amd64
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
+          build-args: |
+            BASE=ubuntu:${{ env.BUILD_VERSION }}
+          # 使用缓存，此步骤会非常快
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 第 3 步：构建并推送 ARM64 镜像，只打 arm64 专属标签
+      - name: Build and push ARM64-specific image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ubuntu
+          file: ./ubuntu/Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:16.04-arm64
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
+          build-args: |
+            BASE=ubuntu:${{ env.BUILD_VERSION }}
+          # 使用缓存，此步骤会非常快
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: All builds complete
+        run: echo "All images and tags pushed successfully!"
