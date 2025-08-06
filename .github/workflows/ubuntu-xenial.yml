@@ -2,7 +2,6 @@ name: Ubuntu Xenial
 
 on:
   push:
-    # 既然版本号来自环境变量，我们将触发器改回为监视分支的推送
     branches:
       - ubuntu-xenial
 
@@ -10,7 +9,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     
-    # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
       BUILD_VERSION: xenial
 
@@ -31,18 +29,26 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: registry.cn-qingdao.aliyuncs.com/wod/ubuntu
-          tags: |
-            type=raw,value=16.04
-            type=raw,value=${{ env.BUILD_VERSION }}
-          flavor: |
-            latest=false
-            prefix=
-            suffix=-{{platform_arch}}
+      # --- CRITICAL FIX: Replace the metadata action with this step ---
+      - name: Generate tags
+        id: tagger
+        run: |
+          IMAGE_NAME="registry.cn-qingdao.aliyuncs.com/wod/ubuntu"
+          TAGS=""
+          
+          # Add base tags
+          TAGS="${TAGS},${IMAGE_NAME}:16.04"
+          TAGS="${TAGS},${IMAGE_NAME}:${{ env.BUILD_VERSION }}"
+          
+          # Add platform-specific tags
+          for PLATFORM in amd64 arm64; do
+            TAGS="${TAGS},${IMAGE_NAME}:16.04-${PLATFORM}"
+            TAGS="${TAGS},${IMAGE_NAME}:${{ env.BUILD_VERSION }}-${PLATFORM}"
+          done
+          
+          # Remove leading comma and set as output
+          TAGS=$(echo $TAGS | sed 's/^,//')
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -51,10 +57,11 @@ jobs:
           file: ./ubuntu/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          # Use the tags generated from our custom script
+          tags: ${{ steps.tagger.outputs.tags }}
+          # We are not generating labels anymore, so remove this line
+          # labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            # build-args 也可以使用环境变量
             BASE=ubuntu:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
@@ -65,4 +72,4 @@ jobs:
         run: |
           echo "Docker images and manifests pushed successfully!"
           echo "Pushed tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+          echo "${{ steps.tagger.outputs.tags }}"
