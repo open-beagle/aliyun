@@ -31,18 +31,18 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 关键改动(2): 修改 metadata-action 的 tags 规则来使用环境变量
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: registry.cn-qingdao.aliyuncs.com/wod/ubuntu
-          tags: |          
-            # 类型'raw'：组合环境变量和静态字符串
+          tags: |
             type=raw,value=16.04
-            type=raw,value=16.04-{{platform_arch}}
             type=raw,value=${{ env.BUILD_VERSION }}
-            type=raw,value=${{ env.BUILD_VERSION }}-{{platform_arch}}
+          flavor: |
+            latest=false
+            prefix=
+            suffix=-{{platform_arch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
