@@ -12,7 +12,9 @@ jobs:
     
     # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
-      BUILD_VERSION: bookworm
+      BUILD_NUMBER: "13"
+      BUILD_VERSION: trixie
+      IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/ide
 
     steps:
       - name: Checkout code
@@ -28,36 +30,50 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 关键改动(2): 修改 metadata-action 的 tags 规则来使用环境变量
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: registry.cn-qingdao.aliyuncs.com/wod/ide
-          tags: |          
-            # 类型'raw'：组合环境变量和静态字符串
-            type=raw,value=${{ env.BUILD_VERSION }}
-            type=raw,value=${{ env.BUILD_VERSION }}-{{platform_arch}}
-
-      - name: Build and push Docker image
+      # --- Step 1a: Build and push the AMD64 image ---
+      - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./ide/debian.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-amd64
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
           build-args: |
-            # build-args 也可以使用环境变量
             BASE=debian:${{ env.BUILD_VERSION }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
+          # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          
-      - name: Image push success
+
+      # --- Step 1b: Build and push the ARM64 image ---
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./ide/debian.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
+          build-args: |
+            BASE=ubuntu:${{ env.BUILD_VERSION }}
+          # Enable caching
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # --- Step 2: Create and push the multi-architecture manifest ---
+      - name: Create and push manifest list
         run: |
-          echo "Docker images and manifests pushed successfully!"
-          echo "Pushed tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+          docker buildx imagetools create \
+            --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}} \
+            --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }} \
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-amd64 \
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64            
+
+      - name: All builds and manifests complete
+        run: echo "Single-architecture images and multi-arch manifests pushed successfully!"
