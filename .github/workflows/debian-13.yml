@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: debian-latest
     
     # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
@@ -61,7 +61,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
           build-args: |
-            BASE=ubuntu:${{ env.BUILD_VERSION }}
+            BASE=debian:${{ env.BUILD_VERSION }}
           # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
