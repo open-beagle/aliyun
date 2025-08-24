@@ -5,7 +5,7 @@ ARG AUTHOR
 ARG VERSION
 LABEL maintainer=$AUTHOR version=$VERSION
 
-COPY debian.sources /etc/apt/sources.list.d/debian.sources
+COPY debian-13.sources /etc/apt/sources.list.d/debian.sources
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update -y && \

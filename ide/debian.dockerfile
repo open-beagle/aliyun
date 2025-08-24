@@ -46,7 +46,7 @@ RUN apt update && \
   chmod 600 /etc/ssh/ssh_host*  && \
   echo "export PATH=$HOME/.local/bin:$PATH" >> $HOME/.bashrc
 
-COPY ./debian/debian.sources /etc/apt/sources.list.d/debian.sources
+COPY ./debian/debian-13.sources /etc/apt/sources.list.d/debian.sources
 
 RUN adduser --gecos '' --disabled-password code && \
   echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd 
