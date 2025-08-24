@@ -14,6 +14,7 @@ jobs:
     env:
       BUILD_NUMBER: "13"
       BUILD_VERSION: trixie
+      IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/debian
 
     steps:
       - name: Checkout code

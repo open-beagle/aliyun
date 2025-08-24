@@ -12,7 +12,9 @@ jobs:
     
     # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
+      BUILD_NUMBER: "12"
       BUILD_VERSION: bookworm
+      IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/debian
 
     steps:
       - name: Checkout code
