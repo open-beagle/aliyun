@@ -2,7 +2,6 @@ name: Debian 12
 
 on:
   push:
-    # 既然版本号来自环境变量，我们将触发器改回为监视分支的推送
     branches:
       - debian-12
 
@@ -10,7 +9,6 @@ jobs:
   build-and-push:
     runs-on: debian-latest
     
-    # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
     env:
       BUILD_NUMBER: "12"
       BUILD_VERSION: bookworm
@@ -30,7 +28,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # --- Step 1a: Build and push the AMD64 image ---
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
@@ -44,11 +41,9 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
           build-args: |
             BASE=debian:${{ env.BUILD_VERSION }}
-          # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Step 1b: Build and push the ARM64 image ---
       - name: Build and push ARM64 image
         uses: docker/build-push-action@v5
         with:
@@ -62,11 +57,9 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
           build-args: |
             BASE=debian:${{ env.BUILD_VERSION }}
-          # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Step 2: Create and push the multi-architecture manifest ---
       - name: Create and push manifest list
         run: |
           docker buildx imagetools create \
@@ -74,6 +67,3 @@ jobs:
             --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }} \
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-amd64 \
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64            
-
-      - name: All builds and manifests complete
-        run: echo "Single-architecture images and multi-arch manifests pushed successfully!"
