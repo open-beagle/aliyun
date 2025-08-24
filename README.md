@@ -37,3 +37,23 @@ docker pull ubuntu:24.04 && \
 docker tag ubuntu:24.04 registry.cn-qingdao.aliyuncs.com/wod/ubuntu:24.04 && \
 docker push registry.cn-qingdao.aliyuncs.com/wod/ubuntu:24.04
 ```
+
+## debian
+
+<https://hub.docker.com/_/debian>
+
+### debian-13
+
+```bash
+docker pull debian:trixie && \
+docker tag debian:trixie registry.cn-qingdao.aliyuncs.com/wod/debian:trixie && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/debian:trixie
+```
+
+### debian-12
+
+```bash
+docker pull debian:bookworm && \
+docker tag debian:bookworm registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm
+```
