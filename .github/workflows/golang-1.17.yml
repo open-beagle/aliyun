@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./golang/golang1.14-alpine.dockerfile
+          file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-alpine
@@ -62,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./golang/golang1.14-alpine.dockerfile
+          file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-alpine-amd64
