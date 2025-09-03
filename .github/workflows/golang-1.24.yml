@@ -45,14 +45,14 @@ jobs:
           file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-alpine
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24-alpine
           platforms: linux/amd64,linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-alpine
+            BASE=golang:1.24.6-alpine
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1 
+            VERSION=1.24.6 
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -65,13 +65,13 @@ jobs:
           file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-alpine-amd64
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-alpine
+            BASE=golang:1.24.6-alpine
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1 
+            VERSION=1.24.6 
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -84,13 +84,13 @@ jobs:
           file: ./golang/golang1.24-alpine.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-alpine-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-alpine-arm64
           platforms: linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-alpine
+            BASE=golang:1.24.6-alpine
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1            
+            VERSION=1.24.6            
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -134,16 +134,16 @@ jobs:
           file: ./golang/golang1.24-bullseye.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye-amd64
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bullseye-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bullseye
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24-bullseye
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-bullseye
+            BASE=golang:1.24.6-bullseye
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1
+            VERSION=1.24.6
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image
@@ -153,13 +153,13 @@ jobs:
           file: ./golang/golang1.24-bullseye-arch.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bullseye-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bullseye-arm64
           platforms: linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-bullseye
+            BASE=golang:1.24.6-bullseye
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1
+            VERSION=1.24.6
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
@@ -194,15 +194,15 @@ jobs:
           file: ./golang/golang1.24-bookworm.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bookworm-amd64
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bookworm-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bookworm
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.24-bookworm
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-bookworm
+            BASE=golang:1.24.6-bookworm
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1
+            VERSION=1.24.6
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image
@@ -212,13 +212,13 @@ jobs:
           file: ./golang/golang1.24-bookworm-arch.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.1-bookworm-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-bookworm-arm64
           platforms: linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:1.6.1
-            BASE=golang:1.24.1-bookworm
+            BASE=golang:1.24.6-bookworm
             AUTHOR=${{ github.repository_owner }}
-            VERSION=1.24.1
+            VERSION=1.24.6
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
