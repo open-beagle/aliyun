@@ -1,0 +1,224 @@
+name: golang-1.17
+
+on:
+  push:
+    branches:
+      - golang-1.17
+
+jobs:
+  golang-alpine:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          # 启用 buildx 缓存导出功能
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      # 设置缓存
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      # 构建多架构镜像
+      - name: Build and push multi-platform Docker images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-alpine.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-alpine
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17-alpine
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-alpine.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-alpine-amd64
+          platforms: linux/amd64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-alpine.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-alpine-arm64
+          platforms: linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 更新缓存
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Image push success
+        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
+
+  golang-bullseye:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          # 启用 buildx 缓存导出功能
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-bullseye.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bullseye-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bullseye
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17-bullseye
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17
+          platforms: linux/amd64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-bullseye
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-bullseye-arch.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bullseye-arm64
+          platforms: linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-bullseye
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+
+      - name: Image push success
+        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
+
+  golang-bookworm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          # 启用 buildx 缓存导出功能
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-bookworm.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bookworm-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17-bookworm
+          platforms: linux/amd64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-bookworm
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./golang/golang1.17-bookworm-arch.dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/golang:1.17.13-bookworm-arm64
+          platforms: linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:1.6.1
+            BASE=golang:1.17.13-bookworm
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=1.17.13
+
+      - name: Image push success
+        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
