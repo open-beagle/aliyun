@@ -2,7 +2,6 @@ name: Alpine
 
 on:
   push:
-    # 既然版本号来自环境变量，我们将触发器改回为监视分支的推送
     branches:
       - alpine
 
@@ -10,16 +9,24 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    # 关键改动(1): 在 job 级别定义环境变量，作为版本号的唯一来源
-    env:
-      BUILD_VERSION: 3.22.1
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v3
@@ -28,41 +35,58 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 关键改动(2): 修改 metadata-action 的 tags 规则来使用环境变量
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Build and push multi-platform Docker images
+        uses: docker/build-push-action@v4
         with:
-          images: registry.cn-qingdao.aliyuncs.com/wod/alpine
+          context: .
+          file: ./alpine/alpine.dockerfile
+          push: true
           tags: |
-            # 类型'raw'：组合环境变量和静态字符串
-            type=raw,value=${{ env.BUILD_VERSION }}
-            type=raw,value=${{ env.BUILD_VERSION }}-{{platform_arch}}
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BASE=alpine:3.22.1
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=3.22.1
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-            # 类型'semver'：我们告诉它不要去读Git标签，而是解析我们通过'value'传入的环境变量
-            # 这样它就能从中提取出 major 和 minor 部分
-            type=semver,pattern={{major}},value=${{ env.BUILD_VERSION }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ env.BUILD_VERSION }}
-
-      - name: Build and push Docker image
+      - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./alpine/alpine.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3-amd64
           build-args: |
-            # build-args 也可以使用环境变量
-            BASE=alpine:${{ env.BUILD_VERSION }}
+            BASE=alpine:3.22.1
             AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
+            VERSION=3.22.1
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Image push success
-        run: |
-          echo "Docker images and manifests pushed successfully!"
-          echo "Pushed tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./alpine/alpine.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3-arm64
+          build-args: |
+            BASE=alpine:3.22.1
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=3.22.1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
