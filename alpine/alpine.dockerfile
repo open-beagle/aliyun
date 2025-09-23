@@ -10,5 +10,4 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
   cat  /etc/apk/repositories && \
   apk --no-cache --update add bash ca-certificates tzdata curl iptables iproute2 && \
   cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-  echo "Asia/Shanghai" >  /etc/timezone && \
-  apk del tzdata
+  echo "Asia/Shanghai" >  /etc/timezone
