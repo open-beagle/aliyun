@@ -1,0 +1,7 @@
+ARG BASE=calciumion/new-api:v0.9.22
+
+FROM ${BASE}
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION=v0.9.22
+LABEL maintainer=${AUTHOR} version=${VERSION}
