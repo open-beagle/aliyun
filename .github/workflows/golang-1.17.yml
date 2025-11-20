@@ -39,7 +39,7 @@ jobs:
 
       # 构建多架构镜像
       - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./golang/golang1.24-alpine.dockerfile
@@ -59,7 +59,7 @@ jobs:
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./golang/golang1.24-alpine.dockerfile
@@ -78,7 +78,7 @@ jobs:
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./golang/golang1.24-alpine.dockerfile
@@ -128,7 +128,7 @@ jobs:
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./golang/golang1.24-bullseye.dockerfile
@@ -147,7 +147,7 @@ jobs:
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./golang/golang1.24-bullseye-arch.dockerfile
