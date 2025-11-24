@@ -12,8 +12,8 @@ COPY --from=xx / /
 
 ENV GOPROXY=https://goproxy.cn
 
-RUN git config --global --add safe.directory '*'
-
 RUN sed -i "s@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g" /etc/apk/repositories && \
   apk update && \
-  apk --no-cache --update add bash curl tzdata alpine-sdk linux-headers
+  apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers
+
+RUN git config --global --add safe.directory '*'
