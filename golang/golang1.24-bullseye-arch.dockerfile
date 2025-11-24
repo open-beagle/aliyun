@@ -11,6 +11,9 @@ LABEL maintainer=${AUTHOR} version=${VERSION}
 COPY --from=xx / /
 
 ENV GOPROXY=https://goproxy.cn
+
+RUN git config --global --add safe.directory '*'
+
 RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
   sed -i 's/http\:\/\/security.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
   sed -i 's/http\:\/\/snapshot.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
