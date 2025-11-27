@@ -14,8 +14,11 @@ ENV GOPROXY=https://goproxy.cn
 
 RUN sed -i "s@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g" /etc/apk/repositories && \
   apk update && \
-  apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers
+  apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers sudo
 
 RUN git config --global --add safe.directory '*'
+
+RUN adduser -D -u 1000 -h /home/code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 WORKDIR /workspace

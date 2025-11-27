@@ -16,7 +16,10 @@ RUN git config --global --add safe.directory '*'
 
 RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/ftp.cn.debian.org/g' /etc/apt/sources.list.d/debian.sources && \
   apt update -y && apt install apt-transport-https ca-certificates -y && \
-  apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 && \
+  apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 sudo && \
   apt clean
+
+RUN useradd -m -u 1000 -d /home/code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 WORKDIR /workspace

@@ -20,6 +20,9 @@ sed -i 's/http\:\/\/snapshot.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g
 apt update -y && apt install apt-transport-https ca-certificates -y && \
 sed -i 's/http\:\/\/mirrors.tuna.tsinghua.edu.cn/https\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
 apt update -y && \
-apt install -y rsync pkg-config build-essential crossbuild-essential-arm64
+apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 sudo
+
+RUN useradd -m -u 1000 -d /home/code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 WORKDIR /workspace
