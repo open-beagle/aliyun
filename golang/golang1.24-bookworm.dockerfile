@@ -20,15 +20,15 @@ RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/ftp.cn.debian.org/g' /etc/apt/s
   apt clean
 
 # 创建 UID 1000 的用户
-RUN groupadd -g 1000 golang && \
-  useradd -m -u 1000 -g golang -s /bin/bash golang && \
-  echo "golang ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-  mkdir -p /home/golang/go && \
-  chown -R golang:golang /home/golang
+RUN groupadd -g 1000 code && \
+  useradd -m -u 1000 -g code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  mkdir -p /home/code/go && \
+  chown -R code:code /home/code
 
 # 设置用户环境变量
-ENV HOME=/home/golang
-ENV GOPATH=/home/golang/go
+ENV HOME=/home/code
+ENV GOPATH=/home/code/go
 
-USER golang
-WORKDIR /home/golang
+USER code
+WORKDIR /home/code
