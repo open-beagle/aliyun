@@ -20,4 +20,6 @@ RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g'
   apt update -y && apt install apt-transport-https ca-certificates -y && \
   sed -i 's/http\:\/\/mirrors.tuna.tsinghua.edu.cn/https\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
   apt update -y && \
-  apt install -y rsync pkg-config build-essential sudo
+  apt install -y rsync pkg-config build-essential
+
+WORKDIR /workspace
