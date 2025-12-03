@@ -1,12 +1,12 @@
-name: node-14
+name: node-20
 
 on:
   push:
     branches:
-      - node-14
+      - node-20
 
 env:
-  BUILD_VERSION: 14.21.3
+  BUILD_VERSION: 20.18.1
 
 jobs:
   node-alpine:
