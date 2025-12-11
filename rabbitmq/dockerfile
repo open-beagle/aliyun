@@ -1,0 +1,7 @@
+ARG BASE=rabbitmq:3.13.7
+
+FROM ${BASE}
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION=3.13.7
+LABEL maintainer=${AUTHOR} version=${VERSION}
