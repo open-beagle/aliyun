@@ -1,0 +1,41 @@
+name: TensorFlow
+
+on:
+  push:
+    branches:
+      - tensorflow
+  workflow_dispatch:
+
+jobs:
+  pull-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Pull TensorFlow official image
+        run:    docker pull tensorflow/tensorflow:2.14.0-gpu
+
+      - name: Tag and push TensorFlow image (without -amd64)
+        run: |
+          docker tag tensorflow/tensorflow:2.14.0-gpu registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu
+          docker push registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu
+
+      - name: Tag and push TensorFlow image (with -amd64)
+        run: |
+          docker tag tensorflow/tensorflow:2.14.0-gpu registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu-amd64
+          docker push registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu-amd64
+
+      - name: Clean up local images
+        run: |
+          docker rmi tensorflow/tensorflow:2.14.0-gpu || true
+          docker rmi registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu || true
+          docker rmi registry.cn-qingdao.aliyuncs.com/wod/tensorflow:2.14.0-gpu-amd64 || true
