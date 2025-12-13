@@ -18,7 +18,12 @@ RUN sed -i "s@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g" /etc/apk/repositories
 
 RUN git config --global --add safe.directory '*'
 
-RUN adduser -D -u 1000 -h /home/code -s /bin/bash code && \
-  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN addgroup -g 1000 code && \
+  adduser -D -u 1000 -G code -h /home/code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  echo 'export GOPROXY=https://goproxy.cn' >> /home/code/.bashrc && \
+  echo 'export GOPATH=/home/code/go' >> /home/code/.bashrc && \
+  echo 'export GOCACHE=/home/code/.cache/go-build' >> /home/code/.bashrc && \
+  echo 'export GOMODCACHE=/home/code/go/pkg/mod' >> /home/code/.bashrc
 
 WORKDIR /workspace

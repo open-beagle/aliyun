@@ -19,7 +19,12 @@ RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/ftp.cn.debian.org/g' /etc/apt/s
   apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 sudo && \
   apt clean
 
-RUN useradd -m -u 1000 -d /home/code -s /bin/bash code && \
-  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN groupadd -g 1000 code && \
+  useradd -m -u 1000 -g 1000 -d /home/code -s /bin/bash code && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  echo 'export GOPROXY=https://goproxy.cn' >> /home/code/.bashrc && \
+  echo 'export GOPATH=/home/code/go' >> /home/code/.bashrc && \
+  echo 'export GOCACHE=/home/code/.cache/go-build' >> /home/code/.bashrc && \
+  echo 'export GOMODCACHE=/home/code/go/pkg/mod' >> /home/code/.bashrc
 
 WORKDIR /workspace
