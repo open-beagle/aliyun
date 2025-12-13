@@ -152,7 +152,9 @@ jobs:
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-bookworm-amd64
             registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}
             registry.cn-qingdao.aliyuncs.com/wod/golang:${{ steps.version.outputs.release }}-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ steps.version.outputs.release }}
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
