@@ -6,7 +6,8 @@ on:
       - python-3.12
 
 env:
-  BUILD_VERSION: 3.12.12
+  BUILD_VERSION: "3.12.12"
+  RELEASE_VERSION: "3.12"
 
 jobs:
   python-alpine:
@@ -19,7 +20,7 @@ jobs:
       - name: Calculate release version
         id: version
         run: |
-          RELEASE_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1)
+          RELEASE_VERSION=$(echo "3.12.12" | awk -F. '{print $1"."$2}')
           echo "release=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
@@ -120,7 +121,7 @@ jobs:
       - name: Calculate release version
         id: version
         run: |
-          RELEASE_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1)
+          RELEASE_VERSION=$(echo "3.12.12" | awk -F. '{print $1"."$2}')
           echo "release=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
