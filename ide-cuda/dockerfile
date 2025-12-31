@@ -48,8 +48,13 @@ RUN apt update && \
   chmod 600 /etc/ssh/ssh_host*  && \
   echo "export PATH=$HOME/.local/bin:$PATH" >> $HOME/.bashrc
 
-RUN groupadd -g 1000 code && \
-  useradd -m -u 1000 -g code -s /bin/bash -d /home/code code && \
+RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
+  if [ -n "$existing_user" ] && [ "$existing_user" != "code" ]; then \
+    usermod -l code -d /home/code -m "$existing_user" && \
+    groupmod -n code $(getent group 1000 | cut -d: -f1); \
+  elif [ -z "$existing_user" ]; then \
+    useradd -m -u 1000 -s /bin/bash -d /home/code code; \
+  fi && \
   echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd && \
   chmod 0440 /etc/sudoers.d/nopasswd
 
