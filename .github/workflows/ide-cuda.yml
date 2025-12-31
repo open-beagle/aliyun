@@ -39,8 +39,6 @@ jobs:
             ${{ env.IMAGE_NAME }}:cuda${{ env.BUILD_VERSION }}
           build-args: |
             BASE=nvidia/cuda:${{ env.BUILD_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Build complete
         run: echo "IDE-CUDA image pushed successfully!"
