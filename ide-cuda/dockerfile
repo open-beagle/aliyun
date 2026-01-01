@@ -8,10 +8,12 @@ LABEL maintainer=$AUTHOR version=$VERSION
 ENV PATH=/opt/bin:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib
 ENV _CONTAINERS_USERNS_CONFIGURED=""
+ENV TZ=Asia/Shanghai
 
 COPY ./ide/ssh/ssh* /etc/ssh/
 
 RUN apt update && \
+  ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
   apt install -y \
         curl \
         wget \
