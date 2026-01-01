@@ -62,3 +62,6 @@ RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
 
 USER code
 WORKDIR /home/code
+
+RUN mkdir -p /home/code/.config/containers && \
+  printf '[storage]\ndriver = "vfs"\nrunroot = "/home/code/.local/share/containers/runroot"\ngraphroot = "/home/code/.local/share/containers/storage"\n' > /home/code/.config/containers/storage.conf
