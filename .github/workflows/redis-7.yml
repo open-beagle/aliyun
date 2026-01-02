@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine
@@ -58,7 +58,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine-amd64
@@ -72,7 +72,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/alpine.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine-arm64
@@ -119,7 +119,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/debian.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}
@@ -135,7 +135,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/debian.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-amd64
@@ -149,7 +149,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./redis/dockerfile
+          file: ./redis/debian.dockerfile
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-arm64
