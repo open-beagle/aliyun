@@ -1,0 +1,163 @@
+name: redis-7
+
+on:
+  push:
+    branches:
+      - redis-7
+
+env:
+  BUILD_VERSION: 7.4.2
+
+jobs:
+  redis-alpine:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Calculate release version
+        id: version
+        run: |
+          MAJOR_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1)
+          MINOR_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1,2)
+          echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push multi-platform Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ steps.version.outputs.minor }}-alpine
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ steps.version.outputs.major }}-alpine
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine-amd64
+          platforms: linux/amd64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-alpine-arm64
+          platforms: linux/arm64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Image push success
+        run: echo "Redis alpine images pushed successfully"
+
+  redis:
+    runs-on: ubuntu-latest
+    needs: redis-alpine
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Calculate release version
+        id: version
+        run: |
+          MAJOR_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1)
+          MINOR_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1,2)
+          echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push multi-platform Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ steps.version.outputs.minor }}
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ steps.version.outputs.major }}
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push AMD64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-amd64
+          platforms: linux/amd64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./redis/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/redis:${{ env.BUILD_VERSION }}-arm64
+          platforms: linux/arm64
+          build-args: |
+            BASE=redis:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Image push success
+        run: echo "Redis images pushed successfully"
