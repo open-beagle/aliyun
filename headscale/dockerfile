@@ -1,7 +1,8 @@
+ARG BASE=headscale/headscale:v0.27.1
+
 FROM alpine:latest AS tzdata
 RUN apk add --no-cache tzdata
 
-ARG BASE=headscale/headscale:v0.27.1
 FROM $BASE
 
 ENV TZ=Asia/Shanghai
