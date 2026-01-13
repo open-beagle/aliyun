@@ -11,10 +11,12 @@ LABEL maintainer=${AUTHOR} version=${VERSION}
 COPY --from=xx / /
 
 ENV GOPROXY=https://goproxy.cn
+ENV TZ=Asia/Shanghai
 
 RUN sed -i "s@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g" /etc/apk/repositories && \
   apk update && \
-  apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers sudo
+  apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers sudo && \
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 RUN git config --global --add safe.directory '*'
 
