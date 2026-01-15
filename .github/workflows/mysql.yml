@@ -5,13 +5,22 @@ on:
     branches:
       - mysql
 
+env:
+  BUILD_VERSION: 8.0.44
+
 jobs:
-  build-and-push:
+  mysql-oraclelinux:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Calculate release version
+        id: version
+        run: |
+          RELEASE_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1,2)
+          echo "release=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -42,13 +51,13 @@ jobs:
           file: ./mysql/dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0.44
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}
           platforms: linux/amd64,linux/arm64
           build-args: |
-            BASE=mysql:8.0.44-bookworm
+            BASE=mysql:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
-            VERSION=8.0.44
+            VERSION=${{ env.BUILD_VERSION }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -61,14 +70,13 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0.44-amd64
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-amd64
           build-args: |
-            BASE=mysql:8.0.44-bookworm
+            BASE=mysql:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
-            VERSION=8.0.44
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            VERSION=${{ env.BUILD_VERSION }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Build and push ARM64 image
         uses: docker/build-push-action@v5
@@ -79,11 +87,93 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0.44-arm64
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:8.0-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-arm64
           build-args: |
-            BASE=mysql:8.0.44-bookworm
+            BASE=mysql:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
-            VERSION=8.0.44
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            VERSION=${{ env.BUILD_VERSION }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Image push success
+        run: echo "Docker images pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/mysql"
+
+  mysql-bookworm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Calculate release version
+        id: version
+        run: |
+          RELEASE_VERSION=$(echo "${{ env.BUILD_VERSION }}" | cut -d. -f1,2)
+          echo "release=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push multi-platform Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./mysql/dockerfile
+          push: true
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}-bookworm
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push AMD64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./mysql/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm-amd64
+          build-args: |
+            BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./mysql/dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm-arm64
+          build-args: |
+            BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Image push success
+        run: echo "Docker images pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/mysql"

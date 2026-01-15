@@ -1,4 +1,4 @@
-ARG BASE=mysql:8.0.44-bookworm
+ARG BASE=mysql:8.0.44
 FROM $BASE
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
