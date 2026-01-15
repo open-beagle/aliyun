@@ -1,0 +1,9 @@
+ARG BASE=mysql:8.0.44-bookworm
+FROM $BASE
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION=8.0.44
+LABEL maintainer=$AUTHOR version=$VERSION
+
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
