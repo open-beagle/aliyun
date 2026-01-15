@@ -130,21 +130,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}-bookworm
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
@@ -154,22 +139,9 @@ jobs:
           push: true
           provenance: false
           tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm
             registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm-amd64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
-      - name: Build and push ARM64 image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          platforms: linux/arm64
-          push: true
-          provenance: false
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-bookworm-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}-bookworm
           build-args: |
             BASE=mysql:${{ env.BUILD_VERSION }}-bookworm
             AUTHOR=${{ github.repository_owner }}
