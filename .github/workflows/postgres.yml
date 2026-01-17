@@ -5,8 +5,12 @@ on:
     branches:
       - postgres
 
+env:
+  BUILD_VERSION: "15.15"
+  BUILD_MAJOR: "15"
+
 jobs:
-  build-and-push:
+  postgres-debian:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,18 +19,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: |
-            image=moby/buildkit:master
-            network=host
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v3
@@ -34,22 +26,6 @@ jobs:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
-
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./postgres/dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:15
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=postgres:15
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=15
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
@@ -60,13 +36,11 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:15-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-amd64
           build-args: |
-            BASE=postgres:15
+            BASE=postgres:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
-            VERSION=15
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            VERSION=${{ env.BUILD_VERSION }}
 
       - name: Build and push ARM64 image
         uses: docker/build-push-action@v5
@@ -77,10 +51,71 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:15-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-arm64
           build-args: |
-            BASE=postgres:15
+            BASE=postgres:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
-            VERSION=15
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Create and push manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }} \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_MAJOR }} \
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-arm64
+
+  postgres-alpine:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push AMD64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./postgres/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-amd64
+          build-args: |
+            BASE=postgres:${{ env.BUILD_VERSION }}-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}-alpine
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./postgres/dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-arm64
+          build-args: |
+            BASE=postgres:${{ env.BUILD_VERSION }}-alpine
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}-alpine
+
+      - name: Create and push manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_MAJOR }}-alpine \
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-arm64
