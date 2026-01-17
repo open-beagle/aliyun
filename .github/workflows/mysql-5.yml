@@ -24,18 +24,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: |
-            image=moby/buildkit:master
-            network=host
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v3
@@ -43,23 +31,6 @@ jobs:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
-
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
@@ -70,35 +41,13 @@ jobs:
           push: true
           provenance: false
           tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}
             registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}
           build-args: |
             BASE=mysql:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Build and push ARM64 image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          platforms: linux/arm64
-          push: true
-          provenance: false
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-arm64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image push success
         run: echo "Docker images pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/mysql"
@@ -118,10 +67,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: |
-            image=moby/buildkit:master
-            network=host
 
       - name: Login to Aliyun Container Registry
         uses: docker/login-action@v3
@@ -129,21 +74,6 @@ jobs:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
-
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-debian
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}-debian
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}-debian
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
 
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
@@ -154,22 +84,9 @@ jobs:
           push: true
           provenance: false
           tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-debian
             registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-debian-amd64
-          build-args: |
-            BASE=mysql:${{ env.BUILD_VERSION }}-debian
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
-      - name: Build and push ARM64 image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./mysql/dockerfile
-          platforms: linux/arm64
-          push: true
-          provenance: false
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ env.BUILD_VERSION }}-debian-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/mysql:${{ steps.version.outputs.release }}-debian
           build-args: |
             BASE=mysql:${{ env.BUILD_VERSION }}-debian
             AUTHOR=${{ github.repository_owner }}
