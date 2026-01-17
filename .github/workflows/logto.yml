@@ -1,0 +1,81 @@
+name: logto
+
+on:
+  push:
+    branches:
+      - logto
+
+env:
+  BUILD_VERSION: 1.35.0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push AMD64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./logto/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/logto:${{ env.BUILD_VERSION }}-amd64
+            ghcr.io/${{ github.repository_owner }}/logto:${{ env.BUILD_VERSION }}-amd64
+          build-args: |
+            BASE=svhd/logto:${{ env.BUILD_VERSION }}
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./logto/dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/logto:${{ env.BUILD_VERSION }}-arm64
+            ghcr.io/${{ github.repository_owner }}/logto:${{ env.BUILD_VERSION }}-arm64
+          build-args: |
+            BASE=svhd/logto:${{ env.BUILD_VERSION }}
+
+      - name: Create and push manifest (Aliyun)
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/logto:${{ env.BUILD_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/logto:${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/logto:${{ env.BUILD_VERSION }}-arm64
+
+      - name: Create and push manifest (GHCR)
+        run: |
+          docker buildx imagetools create \
+            --tag ghcr.io/${{ github.repository_owner }}/logto:${{ env.BUILD_VERSION }} \
+            ghcr.io/${{ github.repository_owner }}/logto:${{ env.BUILD_VERSION }}-amd64 \
+            ghcr.io/${{ github.repository_owner }}/logto:${{ env.BUILD_VERSION }}-arm64
+
+      - name: Image build success
+        run: echo "logto:${{ env.BUILD_VERSION }} built and pushed to Aliyun and GHCR successfully!"
