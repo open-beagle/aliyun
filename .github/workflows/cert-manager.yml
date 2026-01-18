@@ -1,0 +1,89 @@
+name: cert-manager
+
+on:
+  push:
+    branches:
+      - cert-manager
+
+env:
+  BUILD_VERSION: v1.19.0
+  ALIDNS_VERSION: "0.1.0"
+  TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/cert-manager
+
+jobs:
+  sync-images:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - source: quay.io/jetstack/cert-manager-controller
+            tag: controller
+          - source: quay.io/jetstack/cert-manager-webhook
+            tag: webhook
+          - source: quay.io/jetstack/cert-manager-cainjector
+            tag: cainjector
+          - source: quay.io/jetstack/cert-manager-startupapicheck
+            tag: startupapicheck
+          - source: quay.io/jetstack/cert-manager-acmesolver
+            tag: acmesolver
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push ${{ matrix.tag }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./cert-manager/dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.TARGET_REGISTRY }}:${{ matrix.tag }}-${{ env.BUILD_VERSION }}
+          build-args: |
+            BASE=${{ matrix.source }}:${{ env.BUILD_VERSION }}
+
+  sync-alidns-webhook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push alidns-webhook
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./cert-manager/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.TARGET_REGISTRY }}:alidns-webhook-${{ env.ALIDNS_VERSION }}
+          build-args: |
+            BASE=pragkent/alidns-webhook:${{ env.ALIDNS_VERSION }}
+
+      - name: Image sync success
+        run: echo "cert-manager images synced successfully!"
