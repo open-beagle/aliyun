@@ -9,6 +9,8 @@ env:
   SIGNOZ_VERSION: v0.107.0
   OTEL_VERSION: v0.129.12
   ZOOKEEPER_VERSION: 3.7.1
+  ALTINITY_VERSION: 0.21.2
+  K8S_WAIT_VERSION: v2.0
 
 jobs:
   build-and-push:
@@ -92,6 +94,48 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/signoz:zookeeper-${{ env.ZOOKEEPER_VERSION }}
           build-args: |
             BASE=signoz/zookeeper:${{ env.ZOOKEEPER_VERSION }}
+
+      - name: Build and push clickhouse-operator (amd64 only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/clickhouse-operator.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/altinity:clickhouse-operator-${{ env.ALTINITY_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/altinity:clickhouse-operator-${{ env.ALTINITY_VERSION }}
+          build-args: |
+            BASE=altinity/clickhouse-operator:${{ env.ALTINITY_VERSION }}
+
+      - name: Build and push metrics-exporter (amd64 only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/metrics-exporter.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/altinity:metrics-exporter-${{ env.ALTINITY_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/altinity:metrics-exporter-${{ env.ALTINITY_VERSION }}
+          build-args: |
+            BASE=altinity/metrics-exporter:${{ env.ALTINITY_VERSION }}
+
+      - name: Build and push k8s-wait-for (amd64 only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/k8s-wait-for.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:k8s-wait-for-${{ env.K8S_WAIT_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:k8s-wait-for-${{ env.K8S_WAIT_VERSION }}
+          build-args: |
+            BASE=groundnuty/k8s-wait-for:${{ env.K8S_WAIT_VERSION }}
 
       - name: All images built
         run: echo "All SigNoz images built and pushed successfully!"
