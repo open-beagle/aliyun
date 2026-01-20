@@ -1,0 +1,82 @@
+name: signoz
+
+on:
+  push:
+    branches:
+      - signoz
+
+env:
+  SIGNOZ_VERSION: 0.55.0
+  OTEL_VERSION: 0.107.0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push query-service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/query-service.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:query-service-${{ env.SIGNOZ_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:query-service-${{ env.SIGNOZ_VERSION }}
+          build-args: |
+            BASE=signoz/query-service:${{ env.SIGNOZ_VERSION }}
+
+      - name: Build and push otel-collector
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/otel-collector.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:otelcontribcol-${{ env.OTEL_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:otelcontribcol-${{ env.OTEL_VERSION }}
+          build-args: |
+            BASE=signoz/signoz-otel-collector:${{ env.OTEL_VERSION }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/frontend.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:frontend-${{ env.SIGNOZ_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:frontend-${{ env.SIGNOZ_VERSION }}
+          build-args: |
+            BASE=signoz/frontend:${{ env.SIGNOZ_VERSION }}
+
+      - name: All images built
+        run: echo "All SigNoz images built and pushed successfully!"
