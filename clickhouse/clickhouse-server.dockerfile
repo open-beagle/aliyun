@@ -1,7 +1,8 @@
-ARG BASE=clickhouse/clickhouse-server:24.1.8-alpine
+ARG BASE=clickhouse/clickhouse-server:25.5.6
 FROM $BASE
 
 ENV TZ=Asia/Shanghai
-RUN apk add --no-cache tzdata && \
+RUN apt update && apt install -y tzdata && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo "Asia/Shanghai" > /etc/timezone
+    echo "Asia/Shanghai" > /etc/timezone && \
+    apt clean

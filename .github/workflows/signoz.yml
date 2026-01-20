@@ -7,6 +7,7 @@ on:
 
 env:
   SIGNOZ_VERSION: v0.107.0
+  OTEL_VERSION: v0.129.12
 
 jobs:
   build-and-push:
@@ -49,5 +50,33 @@ jobs:
           build-args: |
             BASE=signoz/signoz:${{ env.SIGNOZ_VERSION }}
 
-      - name: Image build success
-        run: echo "SigNoz:${{ env.SIGNOZ_VERSION }} built and pushed successfully!"
+      - name: Build and push otel-collector
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/otel-collector.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:otel-collector-${{ env.OTEL_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:otel-collector-${{ env.OTEL_VERSION }}
+          build-args: |
+            BASE=signoz/signoz-otel-collector:${{ env.OTEL_VERSION }}
+
+      - name: Build and push schema-migrator
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/schema-migrator.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:schema-migrator-${{ env.OTEL_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:schema-migrator-${{ env.OTEL_VERSION }}
+          build-args: |
+            BASE=signoz/signoz-schema-migrator:${{ env.OTEL_VERSION }}
+
+      - name: All images built
+        run: echo "All SigNoz images built and pushed successfully!"
