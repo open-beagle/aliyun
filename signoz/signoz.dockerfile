@@ -1,8 +1,7 @@
-ARG BASE=signoz/query-service:0.55.0
-
 FROM alpine:latest AS tzdata
 RUN apk add --no-cache tzdata
 
+ARG BASE=signoz/signoz:0.107.0
 FROM $BASE
 
 ENV TZ=Asia/Shanghai
