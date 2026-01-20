@@ -8,6 +8,7 @@ on:
 env:
   SIGNOZ_VERSION: v0.107.0
   OTEL_VERSION: v0.129.12
+  ZOOKEEPER_VERSION: 3.7.1
 
 jobs:
   build-and-push:
@@ -77,6 +78,20 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/signoz:schema-migrator-${{ env.OTEL_VERSION }}
           build-args: |
             BASE=signoz/signoz-schema-migrator:${{ env.OTEL_VERSION }}
+
+      - name: Build and push zookeeper
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./signoz/zookeeper.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/signoz:zookeeper-${{ env.ZOOKEEPER_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/signoz:zookeeper-${{ env.ZOOKEEPER_VERSION }}
+          build-args: |
+            BASE=signoz/zookeeper:${{ env.ZOOKEEPER_VERSION }}
 
       - name: All images built
         run: echo "All SigNoz images built and pushed successfully!"
