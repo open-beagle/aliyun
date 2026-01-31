@@ -48,7 +48,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64
             ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64
           build-args: |
-            BASE=alpine:latest
+            BASE=anoinex/banana-slides-frontend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.FRONTEND_VERSION }}
 
@@ -64,7 +64,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
             ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
           build-args: |
-            BASE=alpine:latest
+            BASE=anoinex/banana-slides-frontend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.FRONTEND_VERSION }}
 
@@ -123,7 +123,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64
             ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64
           build-args: |
-            BASE=golang:latest-alpine
+            BASE=anoinex/banana-slides-backend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.BACKEND_VERSION }}
 
@@ -139,7 +139,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
             ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
           build-args: |
-            BASE=golang:latest-alpine
+            BASE=anoinex/banana-slides-backend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.BACKEND_VERSION }}
 
