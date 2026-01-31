@@ -36,7 +36,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push AMD64 frontend image
+      - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
           context: ./banana-slides
@@ -45,42 +45,12 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64
-            ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}
           build-args: |
             BASE=anoinex/banana-slides-frontend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.FRONTEND_VERSION }}
-
-      - name: Build and push ARM64 frontend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./banana-slides
-          file: ./banana-slides/dockerfile.frontend
-          platforms: linux/arm64
-          push: true
-          provenance: false
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
-            ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
-          build-args: |
-            BASE=anoinex/banana-slides-frontend:latest
-            AUTHOR=mengkzhaoyun@gmail.com
-            VERSION=${{ env.FRONTEND_VERSION }}
-
-      - name: Create and push manifest (Aliyun - frontend)
-        run: |
-          docker buildx imagetools create \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }} \
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
-
-      - name: Create and push manifest (GHCR - frontend)
-        run: |
-          docker buildx imagetools create \
-            --tag ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }} \
-            ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-amd64 \
-            ghcr.io/${{ github.repository_owner }}/banana-slides:frontend-${{ env.FRONTEND_VERSION }}-arm64
 
       - name: Image build success
         run: echo "banana-slides:frontend-${{ env.FRONTEND_VERSION }} built and pushed successfully!"
@@ -111,7 +81,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push AMD64 backend image
+      - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: ./banana-slides
@@ -120,42 +90,12 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64
-            ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}
           build-args: |
             BASE=anoinex/banana-slides-backend:latest
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.BACKEND_VERSION }}
-
-      - name: Build and push ARM64 backend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./banana-slides
-          file: ./banana-slides/dockerfile.backend
-          platforms: linux/arm64
-          push: true
-          provenance: false
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
-            ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
-          build-args: |
-            BASE=anoinex/banana-slides-backend:latest
-            AUTHOR=mengkzhaoyun@gmail.com
-            VERSION=${{ env.BACKEND_VERSION }}
-
-      - name: Create and push manifest (Aliyun - backend)
-        run: |
-          docker buildx imagetools create \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }} \
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
-
-      - name: Create and push manifest (GHCR - backend)
-        run: |
-          docker buildx imagetools create \
-            --tag ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }} \
-            ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-amd64 \
-            ghcr.io/${{ github.repository_owner }}/banana-slides:backend-${{ env.BACKEND_VERSION }}-arm64
 
       - name: Image build success
         run: echo "banana-slides:backend-${{ env.BACKEND_VERSION }} built and pushed successfully!"
