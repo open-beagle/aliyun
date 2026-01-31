@@ -3,7 +3,7 @@ name: banana-slides
 on:
   push:
     branches:
-      - main
+      - banana-slides
 
 env:
   FRONTEND_VERSION: latest
