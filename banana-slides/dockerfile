@@ -1,0 +1,16 @@
+ARG BASE=debian:latest
+
+FROM ${BASE}
+
+ARG AUTHOR
+ARG VERSION
+LABEL maintainer=${AUTHOR} version=${VERSION}
+
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+  cat /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get install -y bash ca-certificates tzdata curl && \
+  cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+  update-ca-certificates && \
+  npm config set cafile /usr/local/share/ca-certificates/beagle-ca.crt && \
+  echo "Asia/Shanghai" > /etc/timezone
