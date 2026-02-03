@@ -6,7 +6,7 @@ on:
       - cert-manager
 
 env:
-  BUILD_VERSION: v1.19.2
+  BUILD_VERSION: v1.19.3
   ALIDNS_VERSION: "0.1.0"
   REFLECTOR_VERSION: "9.1.45"
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/cert-manager
