@@ -6,7 +6,7 @@ on:
       - golang-1.25
 
 env:
-  BUILD_VERSION: 1.25.5
+  BUILD_VERSION: 1.25.7
   XX_VERSION: 1.9.0
 
 jobs:
