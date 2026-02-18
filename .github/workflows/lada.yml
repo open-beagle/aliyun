@@ -1,0 +1,55 @@
+name: lada
+
+on:
+  push:
+    branches:
+      - lada
+
+env:
+  VERSION: v0.11.0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push lada image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./lada
+          file: ./lada/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            registry.cn-qingdao.aliyuncs.com/wod/lada:${{ env.VERSION }}
+            ghcr.io/${{ github.repository_owner }}/lada:${{ env.VERSION }}
+          build-args: |
+            BASE=ladaapp/lada:${{ env.VERSION }}
+            AUTHOR=mengkzhaoyun@gmail.com
+            VERSION=${{ env.VERSION }}
+
+      - name: Image build success
+        run: echo "lada:${{ env.VERSION }} built and pushed successfully!"
