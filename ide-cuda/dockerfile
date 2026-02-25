@@ -31,6 +31,9 @@ RUN apt update && \
         pkg-config \
         lsof \
         iputils-ping \
+        dnsutils \
+        net-tools \
+        telnet \
         sudo \
         file \
         iptables \
