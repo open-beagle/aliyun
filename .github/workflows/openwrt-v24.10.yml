@@ -34,12 +34,12 @@ jobs:
           file: ./openwrt/dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:x86-64-v24.10.4
+            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:x86-64-v24.10.5
           platforms: linux/amd64
           build-args: |
-            BASE=openwrt/imagebuilder:x86-64-v24.10.4
+            BASE=openwrt/imagebuilder:x86-64-v24.10.5
             AUTHOR=${{ github.repository_owner }}
-            VERSION=v24.10.4
+            VERSION=v24.10.5
 
       - name: Build and push rockchip-armv8 Docker images
         uses: docker/build-push-action@v5
@@ -48,9 +48,9 @@ jobs:
           file: ./openwrt/dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:rockchip-armv8-v24.10.4
+            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:rockchip-armv8-v24.10.5
           platforms: linux/amd64
           build-args: |
-            BASE=openwrt/imagebuilder:rockchip-armv8-v24.10.4
+            BASE=openwrt/imagebuilder:rockchip-armv8-v24.10.5
             AUTHOR=${{ github.repository_owner }}
-            VERSION=v24.10.4
+            VERSION=v24.10.5
