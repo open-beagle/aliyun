@@ -47,7 +47,9 @@ RUN apt update && \
         openssh-client \
         podman \
         crun \
-        fuse-overlayfs && \
+        fuse-overlayfs \
+        postgresql-client \
+        redis-tools && \
   apt clean && \
   sed -i 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config  && \
   chmod 600 /etc/ssh/ssh_host*  && \
