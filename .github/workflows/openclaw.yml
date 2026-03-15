@@ -47,7 +47,7 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/openclaw:${{ env.VERSION }}
             ghcr.io/${{ github.repository_owner }}/openclaw:${{ env.VERSION }}
           build-args: |
-            BASE=justlikemaki/openclaw-docker-cn-im:2026.3.11
+            BASE=justlikemaki/openclaw-docker-cn-im:${{ env.VERSION }}
             AUTHOR=mengkzhaoyun@gmail.com
             VERSION=${{ env.VERSION }}
 
