@@ -1,0 +1,45 @@
+name: fish-speech
+
+on:
+  push:
+    branches:
+      - fish-speech
+
+# Fish Speech S2 - SOTA Open Source TTS
+# Docker image: fishaudio/fish-speech:server-cuda
+# - CUDA 12.6 (cu126)
+# - Python 3.12
+# - Dual-AR architecture (Qwen3 backbone, 4B slow + 400M fast)
+# - ModifiedDAC audio codec, 44.1kHz output
+
+jobs:
+  pull-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull official image
+        run: docker pull fishaudio/fish-speech:server-cuda
+
+      - name: Tag and push to Aliyun
+        run: |
+          docker tag fishaudio/fish-speech:server-cuda registry.cn-qingdao.aliyuncs.com/wod/fish-speech:latest
+          docker push registry.cn-qingdao.aliyuncs.com/wod/fish-speech:latest
+
+      - name: Image sync success
+        run: echo "fish-speech:latest synced successfully!"
