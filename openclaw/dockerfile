@@ -1,13 +1,27 @@
-ARG BASE
-
+ARG BASE=justlikemaki/openclaw-docker-cn-im:latest
 FROM ${BASE}
 
-ARG AUTHOR
-ARG VERSION
+ARG AUTHOR="mengkzhaoyun@gmail.com"
+ARG VERSION="latest"
 
-LABEL maintainer=${AUTHOR} version=${VERSION}
+LABEL maintainer=${AUTHOR}
+LABEL version=${VERSION}
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libreoffice && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+USER root
+
+# 设置为中国时区（Asia/Shanghai）
+ENV TZ=Asia/Shanghai
+
+# 更新时区文件，这能兼容大多数基于 Debian/Ubuntu 和 Alpine 的镜像
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 安装 LibreOffice 以及中文字体，确保转换包含中文的文档时不会出现乱码
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libreoffice \
+    fonts-wqy-microhei \
+    fonts-wqy-zenhei \
+    fonts-arphic-ukai \
+    fonts-arphic-uming \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+

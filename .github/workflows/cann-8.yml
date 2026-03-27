@@ -1,0 +1,37 @@
+name: CANN-8
+
+on:
+  push:
+    branches:
+      - cann-8
+  workflow_dispatch:
+
+jobs:
+  pull-and-push-arm64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Pull, Tag and Push CANN-8 Image
+        run: |
+          docker pull --platform=linux/arm64 ascendai/cann:8.5.1-910b-ubuntu22.04-py3.12
+          docker tag ascendai/cann:8.5.1-910b-ubuntu22.04-py3.12 registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-910b-ubuntu22.04-py3.12
+          docker push registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-910b-ubuntu22.04-py3.12
+
+      - name: Build complete
+        run: echo "CANN 8 (arm64) pushed successfully!"

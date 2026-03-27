@@ -1,0 +1,37 @@
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel
+
+LABEL maintainer="beagle-news-flow"
+LABEL description="Modern ComfyUI Image explicitly built for production"
+
+# 设置非交互环境变量和时区
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# 安装系统依赖 (ffmpeg, 图像库等)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    wget \
+    curl \
+    ffmpeg \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/ComfyUI
+
+# 拉取最新版 ComfyUI 源码
+RUN git clone --depth=1 https://github.com/comfyanonymous/ComfyUI.git .
+
+# 安装核心依赖
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# [可选] 安装默认好用的 ComfyUI-Manager 插件
+RUN cd custom_nodes && \
+    git clone --depth=1 https://github.com/ltdrdata/ComfyUI-Manager.git
+
+EXPOSE 8188
+
+# 挂载了 /data 后，模型和输出可使用软链接或启动参数指定的目录
+# 注意：可以在启动脚本中通过 --output-directory 和 --input-directory 等参数映射
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--output-directory", "/comfyui/output", "--input-directory", "/comfyui/input"]

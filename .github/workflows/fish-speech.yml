@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - fish-speech
+  workflow_dispatch:
+
+env:
+  UPSTREAM_IMAGE: "fishaudio/fish-speech:server-cuda"
+  BUILD_VERSION: "1.4.0"
 
 # Fish Speech S2 - SOTA Open Source TTS
 # Docker image: fishaudio/fish-speech:server-cuda
@@ -34,12 +39,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull official image
-        run: docker pull fishaudio/fish-speech:server-cuda
+        run: docker pull ${{ env.UPSTREAM_IMAGE }}
 
       - name: Tag and push to Aliyun
         run: |
-          docker tag fishaudio/fish-speech:server-cuda registry.cn-qingdao.aliyuncs.com/wod/fish-speech:latest
-          docker push registry.cn-qingdao.aliyuncs.com/wod/fish-speech:latest
+          docker tag ${{ env.UPSTREAM_IMAGE }} registry.cn-qingdao.aliyuncs.com/wod/fish-speech:${{ env.BUILD_VERSION }}
+          docker push registry.cn-qingdao.aliyuncs.com/wod/fish-speech:${{ env.BUILD_VERSION }}
 
       - name: Image sync success
-        run: echo "fish-speech:latest synced successfully!"
+        run: echo "fish-speech:${{ env.BUILD_VERSION }} synced successfully!"
