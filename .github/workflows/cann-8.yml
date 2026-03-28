@@ -9,6 +9,9 @@ on:
 jobs:
   pull-and-push-arm64:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [910b, 310p]
 
     steps:
       - name: Checkout code
@@ -29,9 +32,9 @@ jobs:
 
       - name: Pull, Tag and Push CANN-8 Image
         run: |
-          docker pull --platform=linux/arm64 ascendai/cann:8.5.1-910b-ubuntu22.04-py3.12
-          docker tag ascendai/cann:8.5.1-910b-ubuntu22.04-py3.12 registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-910b-ubuntu22.04-py3.12
-          docker push registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-910b-ubuntu22.04-py3.12
+          docker pull --platform=linux/arm64 ascendai/cann:8.5.1-${{ matrix.device }}-ubuntu22.04-py3.12
+          docker tag ascendai/cann:8.5.1-${{ matrix.device }}-ubuntu22.04-py3.12 registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-${{ matrix.device }}-ubuntu22.04-py3.12
+          docker push registry.cn-qingdao.aliyuncs.com/wod/cann:8.5.1-${{ matrix.device }}-ubuntu22.04-py3.12
 
       - name: Build complete
-        run: echo "CANN 8 (arm64) pushed successfully!"
+        run: echo "CANN 8 (arm64) ${{ matrix.device }} pushed successfully!"
