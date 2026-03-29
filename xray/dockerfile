@@ -1,0 +1,9 @@
+ARG BASE
+
+FROM ${BASE}
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION
+LABEL maintainer=${AUTHOR} version=${VERSION}
+
+ENV TZ=Asia/Shanghai
