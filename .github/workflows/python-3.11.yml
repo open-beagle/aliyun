@@ -1,13 +1,13 @@
-name: python-3.12
+name: python-3.11
 
 on:
   push:
     branches:
-      - python-3.12
+      - python-3.11
 
 env:
-  BUILD_VERSION: "3.12.13"
-  RELEASE_VERSION: "3.12"
+  BUILD_VERSION: "3.11.15"
+  RELEASE_VERSION: "3.11"
 
 jobs:
   python-alpine:
