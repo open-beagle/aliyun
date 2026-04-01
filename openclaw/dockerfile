@@ -47,5 +47,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 为 node 用户配置免密 sudo
 RUN echo "node ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/node && \
     chmod 0440 /etc/sudoers.d/node
-
-USER node
