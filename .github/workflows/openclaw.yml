@@ -6,7 +6,7 @@ on:
       - openclaw
 
 env:
-  VERSION: 2026.3.24-f3
+  VERSION: 2026.3.13
 
 jobs:
   build-and-push:
