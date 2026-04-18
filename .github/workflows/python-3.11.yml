@@ -75,6 +75,7 @@ jobs:
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-alpine-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ steps.version.outputs.release }}-alpine-amd64
           platforms: linux/amd64
           build-args: |
             BASE=python:${{ env.BUILD_VERSION }}-alpine
@@ -93,6 +94,7 @@ jobs:
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-alpine-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ steps.version.outputs.release }}-alpine-arm64
           platforms: linux/arm64
           build-args: |
             BASE=python:${{ env.BUILD_VERSION }}-alpine
@@ -164,6 +166,7 @@ jobs:
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ steps.version.outputs.release }}-amd64
           platforms: linux/amd64
           build-args: |
             BASE=python:${{ env.BUILD_VERSION }}
@@ -179,6 +182,7 @@ jobs:
           push: true
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ steps.version.outputs.release }}-arm64
           platforms: linux/arm64
           build-args: |
             BASE=python:${{ env.BUILD_VERSION }}

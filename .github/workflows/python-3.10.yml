@@ -6,7 +6,7 @@ on:
       - python-3.10
 
 env:
-  BUILD_VERSION: "3.10.19"
+  BUILD_VERSION: "3.10.20"
   RELEASE_VERSION: "3.10"
 
 jobs:
