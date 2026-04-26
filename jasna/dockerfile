@@ -1,0 +1,37 @@
+ARG BASE
+FROM ${BASE}
+
+ARG AUTHOR
+ARG VERSION
+LABEL maintainer=${AUTHOR} version=${VERSION}
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    mkvtoolnix \
+    libgl1 \
+    libglib2.0-0 \
+    libdrm2 \
+    libx11-6 \
+    libva2 \
+    libva-drm2 \
+    libva-x11-2 \
+    libvpx-dev \
+    libdav1d-dev \
+    libaom-dev \
+    libx264-dev \
+    libx265-dev \
+    libopenh264-dev \
+    libmp3lame-dev \
+    libopus-dev \
+    libvorbis-dev \
+    libwebp-dev \
+    libsvtav1enc-dev \
+    libxml2 \
+    librsvg2-2 \
+    libcairo2 \
+    libjxl-dev \
+    libshaderc-dev \
+    && rm -rf /var/lib/apt/lists/*
