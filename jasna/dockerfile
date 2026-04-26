@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl wget git \
     software-properties-common \
     cmake ninja-build \
+    libavformat-dev libavcodec-dev libavutil-dev \
+    libswscale-dev libswresample-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
