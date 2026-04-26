@@ -53,12 +53,14 @@ RUN pip install --no-cache-dir --no-build-isolation \
 
 # mmengine (含 torch 2.6+ 兼容补丁)
 RUN pip install --no-cache-dir mmengine==0.10.7 && \
-    MMENGINE_DIR=$(python -c "import mmengine, os; print(os.path.dirname(mmengine.__file__))") && \
-    patch -p0 -d "$MMENGINE_DIR" \
+    MMENGINE_BASE=$(python3.13 -c "import mmengine, os; print(os.path.dirname(os.path.dirname(mmengine.__file__)))") && \
+    patch -p1 -d "$MMENGINE_BASE" \
     < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff || true
 
 # 安装 Jasna
-RUN pip install --no-cache-dir --no-build-isolation .
+RUN pip install --no-cache-dir --no-build-isolation \
+    --extra-index-url https://download.pytorch.org/whl/cu130 \
+    .
 
 # 清理构建缓存
 RUN find /usr/local/lib/python3.13 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
