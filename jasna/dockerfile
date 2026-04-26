@@ -24,7 +24,8 @@ RUN add-apt-repository -y ppa:deadsnakes/ppa && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
 
 # pip
-RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13
+RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
+    python3.13 -m pip install --no-cache-dir setuptools wheel
 
 # 克隆 Jasna 源码
 ARG JASNA_VERSION=v0.6.0-alpha5
