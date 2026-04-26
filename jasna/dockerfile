@@ -45,7 +45,7 @@ RUN pip install --no-cache-dir \
     torch-tensorrt==2.10.0
 
 # 自定义依赖: vali (GPU 视频解码) + PyNvVideoCodec
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir --no-build-isolation \
     git+https://codeberg.org/Kruk2/vali.git \
     git+https://codeberg.org/Kruk2/PyNvVideoCodec.git
 
