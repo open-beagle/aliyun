@@ -8,11 +8,13 @@ on:
 
 env:
   BUILD_VERSION: "12.8.1"
+  JASNA_VERSION: "v0.6.0-alpha5"
   IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/cuda
 
 jobs:
   jasna:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
 
     steps:
       - name: Free Disk Space
@@ -42,11 +44,13 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-jasna
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }}
           build-args: |
-            BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
+            BUILDER_BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
+            BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-runtime-ubuntu24.04
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            JASNA_VERSION=${{ env.JASNA_VERSION }}
 
       - name: Build complete
-        run: echo "CUDA ${{ env.BUILD_VERSION }}-jasna pushed successfully!"
+        run: echo "CUDA ${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }} pushed successfully!"

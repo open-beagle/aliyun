@@ -1,4 +1,70 @@
-ARG BASE
+# ============================================================
+# Stage 1: Builder — 编译环境
+# ============================================================
+ARG BUILDER_BASE=nvidia/cuda:12.8.1-devel-ubuntu24.04
+FROM ${BUILDER_BASE} AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# 构建工具 + 开发库
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl wget git \
+    software-properties-common \
+    cmake ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3.13 python3.13-venv python3.13-dev \
+    && rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+
+# pip
+RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13
+
+# 克隆 Jasna 源码
+ARG JASNA_VERSION=v0.6.0-alpha5
+RUN git clone --depth=1 --branch ${JASNA_VERSION} \
+    https://github.com/Kruk2/jasna.git /app/jasna
+
+WORKDIR /app/jasna
+
+# PyTorch + TorchVision (cu130)
+RUN pip install --no-cache-dir \
+    torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
+    --index-url https://download.pytorch.org/whl/cu130
+
+# TensorRT
+RUN pip install --no-cache-dir \
+    tensorrt==10.14.1.48.post1 \
+    torch-tensorrt==2.10.0
+
+# 自定义依赖: vali (GPU 视频解码) + PyNvVideoCodec
+RUN pip install --no-cache-dir \
+    git+https://codeberg.org/Kruk2/vali.git \
+    git+https://codeberg.org/Kruk2/PyNvVideoCodec.git
+
+# mmengine (含 torch 2.6+ 兼容补丁)
+RUN pip install --no-cache-dir mmengine==0.10.7 && \
+    MMENGINE_DIR=$(python -c "import mmengine, os; print(os.path.dirname(mmengine.__file__))") && \
+    patch -p0 -d "$MMENGINE_DIR" \
+    < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff || true
+
+# 安装 Jasna
+RUN pip install --no-cache-dir --no-build-isolation .
+
+# 清理构建缓存
+RUN find /usr/local/lib/python3.13 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.13 -name "*.pyc" -delete 2>/dev/null || true && \
+    rm -rf /root/.cache /tmp/*
+
+# ============================================================
+# Stage 2: Runtime — 精简运行环境
+# ============================================================
+ARG BASE=nvidia/cuda:12.8.1-runtime-ubuntu24.04
 FROM ${BASE}
 
 ARG AUTHOR
@@ -7,31 +73,53 @@ LABEL maintainer=${AUTHOR} version=${VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
+ENV PYTHONUNBUFFERED=1
 
+# 仅安装运行时依赖 (无 -dev 包, 无构建工具)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    mkvtoolnix \
-    libgl1 \
-    libglib2.0-0 \
-    libdrm2 \
-    libx11-6 \
-    libva2 \
-    libva-drm2 \
-    libva-x11-2 \
-    libvpx-dev \
-    libdav1d-dev \
-    libaom-dev \
-    libx264-dev \
-    libx265-dev \
-    libopenh264-dev \
-    libmp3lame-dev \
-    libopus-dev \
-    libvorbis-dev \
-    libwebp-dev \
-    libsvtav1enc-dev \
-    libxml2 \
-    librsvg2-2 \
-    libcairo2 \
-    libjxl-dev \
-    libshaderc-dev \
+    ca-certificates software-properties-common \
+    # 多媒体
+    ffmpeg mkvtoolnix \
+    # 显示 / 渲染
+    libgl1 libglib2.0-0 libdrm2 libx11-6 \
+    # VA-API
+    libva2 libva-drm2 libva-x11-2 \
+    # 图像 / 图形 / XML
+    libxml2 librsvg2-2 libcairo2 \
     && rm -rf /var/lib/apt/lists/*
+
+# Python 3.13 运行时 (不含 -dev)
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3.13 python3.13-venv \
+    && rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+
+# 从 builder 复制 Python 包和可执行文件
+COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# 从 builder 复制 CUDA 运行时库 (vali/PyNvVideoCodec 需要)
+COPY --from=builder /usr/local/cuda/lib64/libnvrtc* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libcublas* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libcublasLt* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libcusparse* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libcusolver* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libcufft* /usr/local/cuda/lib64/
+COPY --from=builder /usr/local/cuda/lib64/libnvJitLink* /usr/local/cuda/lib64/
+
+# 复制 Jasna 源码 (含 model_weights 目录结构)
+COPY --from=builder /app/jasna /app/jasna
+
+WORKDIR /app/jasna
+
+# 模型权重目录
+RUN mkdir -p /app/jasna/model_weights
+
+# 入口脚本
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["--help"]
