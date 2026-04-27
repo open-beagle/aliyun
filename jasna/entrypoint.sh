@@ -32,21 +32,22 @@ if [ "$1" = "warmup" ]; then
     echo "引擎会缓存到 model_weights/ 目录, 后续启动无需重新编译。"
     echo ""
 
-    python -m jasna.engine_compiler "$(python -c "
-import json
-print(json.dumps({
-    'device': 'cuda:0',
-    'fp16': True,
-    'basicvsrpp': True,
-    'basicvsrpp_model_path': '${RESTORATION_MODEL}',
-    'basicvsrpp_max_clip_size': ${CLIP_SIZE},
-    'detection': True,
-    'detection_model_name': '${DETECTION_MODEL}',
-    'detection_model_path': '${DETECTION_MODEL_PATH}',
-    'detection_batch_size': ${BATCH_SIZE},
-    'unet4x': False,
-}))
-")"
+    JSON_DATA=$(cat <<EOF
+{
+    "device": "cuda:0",
+    "fp16": true,
+    "basicvsrpp": true,
+    "basicvsrpp_model_path": "${RESTORATION_MODEL}",
+    "basicvsrpp_max_clip_size": ${CLIP_SIZE},
+    "detection": true,
+    "detection_model_name": "${DETECTION_MODEL}",
+    "detection_model_path": "${DETECTION_MODEL_PATH}",
+    "detection_batch_size": ${BATCH_SIZE},
+    "unet4x": false
+}
+EOF
+)
+    /app/jasna/jasna --compile-engines "$JSON_DATA"
 
     echo ""
     echo "============================================"
@@ -55,4 +56,4 @@ print(json.dumps({
     exit 0
 fi
 
-exec jasna "$@"
+exec /app/jasna/jasna "$@"

@@ -35,7 +35,26 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      - name: Build and push jasna image
+      - name: Build Jasna standalone binary via Builder Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./jasna
+          file: ./jasna/dockerfile.build
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: jasna-builder:latest
+          build-args: |
+            BUILDER_BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
+            JASNA_VERSION=${{ env.JASNA_VERSION }}
+
+      - name: Extract compiled Jasna binary
+        run: |
+          docker create --name extract_jasna jasna-builder:latest
+          docker cp extract_jasna:/app/jasna/dist_linux/jasna ./jasna/dist_jasna
+          docker rm extract_jasna
+
+      - name: Build and push jasna runtime image
         uses: docker/build-push-action@v5
         with:
           context: ./jasna
@@ -46,11 +65,9 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }}
           build-args: |
-            BUILDER_BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
             BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-runtime-ubuntu24.04
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            JASNA_VERSION=${{ env.JASNA_VERSION }}
 
       - name: Build complete
         run: echo "CUDA ${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }} pushed successfully!"

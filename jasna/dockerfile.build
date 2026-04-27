@@ -1,0 +1,70 @@
+# ============================================================
+# Builder — 生成独立的二进制版本
+# ============================================================
+ARG BUILDER_BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04
+FROM ${BUILDER_BASE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# 构建工具 + 开发库
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl wget git \
+    software-properties-common \
+    cmake ninja-build upx-ucl \
+    libavformat-dev libavcodec-dev libavutil-dev \
+    libswscale-dev libswresample-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3.13 python3.13-venv python3.13-dev \
+    && rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+
+# pip
+RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
+    python3.13 -m pip install --no-cache-dir setuptools wheel scikit-build wheel-stub
+
+# 克隆 Jasna 源码
+ARG JASNA_VERSION=v0.6.0-alpha5
+RUN git clone --depth=1 --branch ${JASNA_VERSION} \
+    https://github.com/Kruk2/jasna.git /app/jasna
+
+WORKDIR /app/jasna
+
+# PyTorch + TorchVision (cu130)
+RUN pip install --no-cache-dir \
+    torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
+    --index-url https://download.pytorch.org/whl/cu130
+
+# TensorRT
+RUN pip install --no-cache-dir \
+    tensorrt==10.14.1.48.post1 \
+    torch-tensorrt==2.10.0
+
+# 自定义依赖: vali (GPU 视频解码) + PyNvVideoCodec
+RUN pip install --no-cache-dir --no-build-isolation \
+    git+https://codeberg.org/Kruk2/vali.git \
+    git+https://codeberg.org/Kruk2/PyNvVideoCodec.git
+
+# mmengine (含 torch 2.6+ 兼容补丁)
+RUN pip install --no-cache-dir mmengine==0.10.7 && \
+    MMENGINE_BASE=$(python3.13 -c "import mmengine, os; print(os.path.dirname(os.path.dirname(mmengine.__file__)))") && \
+    patch -p1 -d "$MMENGINE_BASE" \
+    < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff || true
+
+# 安装 Jasna
+RUN pip install --no-cache-dir --no-build-isolation \
+    --extra-index-url https://download.pytorch.org/whl/cu130 \
+    .
+
+# 生成二进制
+RUN pip install --no-cache-dir pyinstaller psutil && \
+    BUILD_CLI=1 python3.13 build_exe.py && \
+    mv dist_linux/jasna/jasna-cli dist_linux/jasna/jasna || true
+
+# 清理构建缓存
+RUN rm -rf /root/.cache /tmp/* 

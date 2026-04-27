@@ -16,17 +16,18 @@ Jasna 是一个 GPU 加速的视频马赛克检测与修复工具，基于 Basic
 | **TensorRT**   | `10.14.1`                                                |
 | **架构**       | `linux/amd64`                                            |
 
-## Dockerfile 构建流程 (Multi-stage)
+## Dockerfile 构建流程 (拆分构建)
 
-镜像采用了多阶段构建以大幅降低最终体积：
+镜像采用了拆分构建的方式以大幅降低最终体积（将原本高达 9.4GB+ 的镜像层优化缩减至 2GB 左右）：
 
-1. **Stage 1 (Builder)**: 基于 `cuda:13.0.3-devel-ubuntu24.04` (由 `BUILDER_BASE` 指定)
-   - 安装构建依赖 (cmake, ninja-build)
+1. **生成二进制 (dockerfile.build)**: 基于 `cuda:13.0.3-devel-ubuntu24.04`
+   - 安装构建依赖 (cmake, ninja-build, upx-ucl 等打包工具)
    - 编译和安装 TensorRT, PyTorch, vali, PyNvVideoCodec 等所有组件
-2. **Stage 2 (Runtime)**: 基于 `cuda:13.0.3-runtime-ubuntu24.04` (由 `BASE` 指定)
+   - 运行 PyInstaller 以及 UPX 压缩进程，打成完全独立的二进制文件夹并在流水线中被提炼出容器。
+2. **打包镜像 (dockerfile)**: 基于 `cuda:13.0.3-runtime-ubuntu24.04`
    - 仅安装运行时必要的系统库 (ffmpeg, 渲染库)
-   - 将 Builder 阶段产出的 Python 运行时、库和 Jasna 源码复制过来
-   - 添加自定义 `entrypoint.sh` 支持模型预热 compiled
+   - 彻底移除了庞大臃肿的 Python 以及 Site-packages
+   - 直接打包宿主机提炼好的单体二进制 `dist_jasna` 以启动应用
 
 ## 预装系统库 (Runtime 最终镜像)
 
@@ -51,13 +52,26 @@ git push origin jasna
 
 ### 本地构建
 
+为了在本地进行与 CI 一致的构建，请依次执行以下两条构建分离逻辑：
+
 ```bash
+# 1. 编译并提取独立二进制
 docker build \
   --build-arg BUILDER_BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04 \
+  --build-arg JASNA_VERSION=v0.6.0-alpha5 \
+  -t jasna-builder \
+  -f jasna/dockerfile.build \
+  jasna/
+
+docker create --name extract_jasna jasna-builder
+docker cp extract_jasna:/app/jasna/dist_linux/jasna jasna/dist_jasna
+docker rm extract_jasna
+
+# 2. 打包最终发布镜像
+docker build \
   --build-arg BASE=nvidia/cuda:13.0.3-runtime-ubuntu24.04 \
   --build-arg AUTHOR=open-beagle \
   --build-arg VERSION=13.0.3 \
-  --build-arg JASNA_VERSION=v0.6.0-alpha5 \
   -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
   -f jasna/dockerfile \
   jasna/
