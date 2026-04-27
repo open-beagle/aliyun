@@ -1,7 +1,7 @@
 # ============================================================
 # Builder — 生成独立的二进制版本
 # ============================================================
-ARG BUILDER_BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04
+ARG BUILDER_BASE=docker.io/nvidia/cuda:13.0.3-devel-ubuntu24.04
 FROM ${BUILDER_BASE}
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake ninja-build upx-ucl \
     libavformat-dev libavcodec-dev libavutil-dev \
     libswscale-dev libswresample-dev \
-    libnccl2 libnccl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
