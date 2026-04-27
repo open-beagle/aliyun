@@ -35,6 +35,11 @@ RUN git clone --depth=1 --branch ${JASNA_VERSION} \
 
 WORKDIR /app/jasna
 
+# 修复 PyInstaller 在无 GPU 环境下打包奔溃的致命问题 (cuInit unavailable)
+# 将硬件强相关的包从 collect_all() 剔除，而是通过 hiddenimports 强制添加
+RUN sed -i 's/"PyNvVideoCodec", "python_vali", //g' jasna.spec && \
+    sed -i '/hiddenimports += h/a\    hiddenimports += ["python_vali", "PyNvVideoCodec"]' jasna.spec
+
 # PyTorch + TorchVision (cu130)
 RUN pip install --no-cache-dir \
     torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
