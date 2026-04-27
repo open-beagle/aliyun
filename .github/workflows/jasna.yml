@@ -45,7 +45,7 @@ jobs:
           push: false
           tags: jasna-builder:latest
           build-args: |
-            BUILDER_BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
+            BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-devel-ubuntu24.04
             JASNA_VERSION=${{ env.JASNA_VERSION }}
 
       - name: Extract compiled Jasna binary
@@ -67,7 +67,7 @@ jobs:
           build-args: |
             BASE=nvidia/cuda:${{ env.BUILD_VERSION }}-runtime-ubuntu24.04
             AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
+            VERSION=${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }}
 
       - name: Build complete
         run: echo "CUDA ${{ env.BUILD_VERSION }}-jasna-${{ env.JASNA_VERSION }} pushed successfully!"

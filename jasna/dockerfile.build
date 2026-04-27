@@ -1,8 +1,8 @@
 # ============================================================
 # Builder — 生成独立的二进制版本
 # ============================================================
-ARG BUILDER_BASE=docker.io/nvidia/cuda:13.0.3-devel-ubuntu24.04
-FROM ${BUILDER_BASE}
+ARG BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04
+FROM ${BASE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
@@ -45,7 +45,7 @@ RUN sed -i 's/"PyNvVideoCodec", "python_vali", //g' jasna.spec && \
 # PyTorch + TorchVision (cu130)
 RUN pip install --no-cache-dir \
     torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
-    --index-url https://download.pytorch.org/whl/cu130
+    --extra-index-url https://download.pytorch.org/whl/cu130
 
 # TensorRT
 RUN pip install --no-cache-dir \

@@ -57,7 +57,7 @@ git push origin jasna
 ```bash
 # 1. 编译并提取独立二进制
 docker build \
-  --build-arg BUILDER_BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04 \
+  --build-arg BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04 \
   --build-arg JASNA_VERSION=v0.6.0-alpha5 \
   -t jasna-builder \
   -f jasna/dockerfile.build \
