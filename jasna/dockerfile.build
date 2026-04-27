@@ -9,12 +9,13 @@ ENV TZ=Asia/Shanghai
 ENV LD_LIBRARY_PATH=/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
 # 构建工具 + 开发库
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --allow-change-held-packages --no-install-recommends \
     ca-certificates curl wget git \
     software-properties-common \
     cmake ninja-build upx-ucl \
     libavformat-dev libavcodec-dev libavutil-dev \
     libswscale-dev libswresample-dev \
+    libnccl2 libnccl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
