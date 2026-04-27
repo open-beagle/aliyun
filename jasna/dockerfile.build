@@ -59,9 +59,9 @@ RUN pip install --no-cache-dir \
     torch-tensorrt==2.10.0
 
 # 自定义依赖: vali (GPU 视频解码) + PyNvVideoCodec
-RUN pip install --no-cache-dir --no-build-isolation \
-    git+https://codeberg.org/Kruk2/vali.git \
-    git+https://codeberg.org/Kruk2/PyNvVideoCodec.git
+RUN cd /tmp && git clone https://codeberg.org/Kruk2/vali.git && \
+    git clone https://codeberg.org/Kruk2/PyNvVideoCodec.git && \
+    pip install --no-cache-dir --no-build-isolation ./vali ./PyNvVideoCodec
 
 # mmengine (含 torch 2.6+ 兼容补丁)
 RUN pip install --no-cache-dir mmengine==0.10.7 && \
