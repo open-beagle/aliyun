@@ -42,23 +42,10 @@ WORKDIR /app/jasna
 # 同时给 find_spec("torch_tensorrt._C") 加 try/except 防护，避免 torch import 失败时整个 spec 崩溃
 RUN sed -i 's/"PyNvVideoCodec", "python_vali", //g' jasna.spec && \
     sed -i '/hiddenimports += h/a\    hiddenimports += ["python_vali", "PyNvVideoCodec"]' jasna.spec && \
-    python3.13 -c "
-import re, pathlib
-p = pathlib.Path('jasna.spec')
-src = p.read_text()
-old = '''trt_ext = find_spec(\"torch_tensorrt._C\")
-if trt_ext is not None and trt_ext.origin:
-    binaries += [(trt_ext.origin, \"torch_tensorrt\")]
-    hiddenimports += [\"torch_tensorrt._C\"]'''
-new = '''try:
-    trt_ext = find_spec(\"torch_tensorrt._C\")
-    if trt_ext is not None and trt_ext.origin:
-        binaries += [(trt_ext.origin, \"torch_tensorrt\")]
-        hiddenimports += [\"torch_tensorrt._C\"]
-except (ImportError, Exception):
-    pass'''
-p.write_text(src.replace(old, new))
-"
+    python3.13 -c "import pathlib; p=pathlib.Path('jasna.spec'); txt=p.read_text(); \
+old='trt_ext = find_spec(\"torch_tensorrt._C\")\nif trt_ext is not None and trt_ext.origin:\n    binaries += [(trt_ext.origin, \"torch_tensorrt\")]\n    hiddenimports += [\"torch_tensorrt._C\"]'; \
+new='try:\n    trt_ext = find_spec(\"torch_tensorrt._C\")\n    if trt_ext is not None and trt_ext.origin:\n        binaries += [(trt_ext.origin, \"torch_tensorrt\")]\n        hiddenimports += [\"torch_tensorrt._C\"]\nexcept (ImportError, Exception):\n    pass'; \
+p.write_text(txt.replace(old, new))"
 
 # PyTorch + TorchVision (cu130) + 显式安装 nvidia-nccl (PyTorch index 专有包)
 RUN pip install --no-cache-dir \
