@@ -60,11 +60,11 @@ except (ImportError, Exception):
 p.write_text(src.replace(old, new))
 "
 
-# PyTorch + TorchVision (cu130)
+# PyTorch + TorchVision (cu130) + 显式安装 nvidia-nccl (PyTorch index 专有包)
 RUN pip install --no-cache-dir \
     torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
-    --extra-index-url https://download.pytorch.org/whl/cu130 && \
-    pip install --no-cache-dir nvidia-nccl-cu13==2.28.9
+    nvidia-nccl-cu13==2.28.9 \
+    --extra-index-url https://download.pytorch.org/whl/cu130
 
 # TensorRT
 RUN pip install --no-cache-dir \

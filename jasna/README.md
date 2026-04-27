@@ -46,8 +46,10 @@ Jasna 是一个 GPU 加速的视频马赛克检测与修复工具，基于 Basic
 推送到 `jasna` 分支即触发 GitHub Actions 自动构建：
 
 ```bash
-git checkout jasna
-git push origin jasna
+git checkout jasna && \
+  git merge main --ff-only && \
+  git push origin jasna && \
+  git checkout main
 ```
 
 ### 本地构建
