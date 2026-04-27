@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages --no-insta
     cmake ninja-build upx-ucl \
     libavformat-dev libavcodec-dev libavutil-dev \
     libswscale-dev libswresample-dev \
-    libnccl2 libnccl-dev \
+    libnccl2=2.28.9-1+cuda13.0 libnccl-dev=2.28.9-1+cuda13.0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
@@ -39,13 +39,32 @@ WORKDIR /app/jasna
 
 # 修复 PyInstaller 在无 GPU 环境下打包奔溃的致命问题 (cuInit unavailable)
 # 将硬件强相关的包从 collect_all() 剔除，而是通过 hiddenimports 强制添加
+# 同时给 find_spec("torch_tensorrt._C") 加 try/except 防护，避免 torch import 失败时整个 spec 崩溃
 RUN sed -i 's/"PyNvVideoCodec", "python_vali", //g' jasna.spec && \
-    sed -i '/hiddenimports += h/a\    hiddenimports += ["python_vali", "PyNvVideoCodec"]' jasna.spec
+    sed -i '/hiddenimports += h/a\    hiddenimports += ["python_vali", "PyNvVideoCodec"]' jasna.spec && \
+    python3.13 -c "
+import re, pathlib
+p = pathlib.Path('jasna.spec')
+src = p.read_text()
+old = '''trt_ext = find_spec(\"torch_tensorrt._C\")
+if trt_ext is not None and trt_ext.origin:
+    binaries += [(trt_ext.origin, \"torch_tensorrt\")]
+    hiddenimports += [\"torch_tensorrt._C\"]'''
+new = '''try:
+    trt_ext = find_spec(\"torch_tensorrt._C\")
+    if trt_ext is not None and trt_ext.origin:
+        binaries += [(trt_ext.origin, \"torch_tensorrt\")]
+        hiddenimports += [\"torch_tensorrt._C\"]
+except (ImportError, Exception):
+    pass'''
+p.write_text(src.replace(old, new))
+"
 
 # PyTorch + TorchVision (cu130)
 RUN pip install --no-cache-dir \
     torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
-    --extra-index-url https://download.pytorch.org/whl/cu130
+    --extra-index-url https://download.pytorch.org/whl/cu130 && \
+    pip install --no-cache-dir nvidia-nccl-cu13==2.28.9
 
 # TensorRT
 RUN pip install --no-cache-dir \
