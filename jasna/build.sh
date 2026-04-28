@@ -124,14 +124,15 @@ fi
 export CUDA_VISIBLE_DEVICES=""
 export LD_LIBRARY_PATH=/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}
 
-# 创建空的模型权重目录，防止 build_exe.py 因找不到模型文件而崩溃
-mkdir -p model_weights
-# 创建模型文件占位符（build_exe.py 会尝试复制它们）
+# 创建模型文件和资源占位符（build_exe.py 会尝试复制它们）
+mkdir -p model_weights assets
 touch model_weights/lada_mosaic_restoration_model_generic_v1.2.pth 2>/dev/null || true
 touch model_weights/rfdetr-v5.onnx 2>/dev/null || true
+touch model_weights/lada_mosaic_detection_model_v4_fast.pt 2>/dev/null || true
+touch assets/test_clip1_1080p.mp4 2>/dev/null || true
+touch assets/test_clip1_2160p.mp4 2>/dev/null || true
 
-BUILD_CLI=1 python3.13 build_exe.py || true
-mv dist_linux/jasna/jasna-cli dist_linux/jasna/jasna 2>/dev/null || true
+python3.13 build_exe.py
 
 # 将生成的二进制复制回挂载的主机目录
 HOST_DIR="/app/jasna"

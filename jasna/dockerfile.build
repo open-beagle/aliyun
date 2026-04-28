@@ -81,15 +81,17 @@ RUN pip install --no-cache-dir pyinstaller psutil cffi cryptography && \
     echo "/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf && \
     echo "/usr/local/lib/python3.13/dist-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf && \
     ldconfig && \
-    mkdir -p model_weights && \
+    mkdir -p model_weights assets && \
     touch model_weights/lada_mosaic_restoration_model_generic_v1.2.pth && \
     touch model_weights/rfdetr-v5.onnx && \
+    touch model_weights/lada_mosaic_detection_model_v4_fast.pt && \
+    touch assets/test_clip1_1080p.mp4 && \
+    touch assets/test_clip1_2160p.mp4 && \
     NCCL_LIB=$(find /usr/lib -name "libnccl.so.2" 2>/dev/null | head -1) && \
     CUDA_VISIBLE_DEVICES="" \
     LD_PRELOAD="${NCCL_LIB}" \
     LD_LIBRARY_PATH="/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}" \
-    BUILD_CLI=1 python3.13 build_exe.py || true && \
-    mv dist_linux/jasna/jasna-cli dist_linux/jasna/jasna 2>/dev/null || true && \
+    python3.13 build_exe.py && \
     mkdir -p dist_linux/jasna/model_weights
 
 # 清理构建缓存
