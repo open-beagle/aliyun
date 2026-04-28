@@ -57,17 +57,22 @@ git checkout jasna && \
 为了在本地进行与 CI 一致的构建，请依次执行以下两条构建分离逻辑：
 
 ```bash
-# 1. 编译并提取独立二进制
-docker build \
-  --build-arg BASE=nvidia/cuda:13.0.3-devel-ubuntu24.04 \
-  --build-arg JASNA_VERSION=v0.6.0-alpha5 \
-  -t jasna-builder \
-  -f jasna/dockerfile.build \
-  jasna/
+# 1. 本地交互式调试 (手动逐行排查 build 阶段错误)
+docker run -it --rm \
+  --name jasna-builder-debug \
+  --gpus all \
+  -v "$(pwd)/jasna:/app/jasna" -w /app \
+  registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-devel-ubuntu24.04 \
+  /bin/bash jasna/build.sh
 
-docker create --name extract_jasna jasna-builder
-docker cp extract_jasna:/app/jasna/dist_linux/jasna jasna/dist_jasna
-docker rm extract_jasna
+# 进入容器后，你可以手动执行 dockerfile.build 中的每一行 RUN 命令，排查具体的报错位置：
+# 例如: apt-get update && apt-get install ...
+# 例如: cd /tmp && git clone https://codeberg.org/Kruk2/vali.git ...
+
+# ----------------------------------------
+# 如果你排查完毕确认无误，再使用正常方式提取由于（以下为提取步骤，需在此前完成 build/手动操作并提交为新镜像或在此前将生成物导出）：
+# docker cp jasna-builder-debug:/app/jasna/dist_linux/jasna jasna/dist_jasna
+```
 
 # 2. 打包最终发布镜像
 docker build \
