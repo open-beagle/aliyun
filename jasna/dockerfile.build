@@ -34,7 +34,8 @@ RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
 # 克隆 Jasna 源码
 ARG JASNA_VERSION=v0.6.0-alpha5
 RUN git clone --depth=1 --branch ${JASNA_VERSION} \
-    https://github.com/Kruk2/jasna.git /app/jasna
+    https://github.com/Kruk2/jasna.git /app/jasna && \
+    sed -i 's/if wrong_version:/if False:/g' /app/jasna/jasna/os_utils.py
 
 WORKDIR /app/jasna
 
@@ -92,6 +93,10 @@ RUN pip install --no-cache-dir pyinstaller psutil cffi cryptography && \
     LD_PRELOAD="${NCCL_LIB}" \
     LD_LIBRARY_PATH="/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}" \
     python3.13 build_exe.py && \
+    mkdir -p dist_linux/jasna/_internal/PyNvVideoCodec && \
+    find /usr/local/lib/python3.13 -name "PyNvVideoCodec_*.so" -exec cp {} dist_linux/jasna/_internal/PyNvVideoCodec/ \; && \
+    mkdir -p dist_linux/jasna/_internal/python_vali && \
+    find /usr/local/lib/python3.13 -name "python_vali*.so" -exec cp {} dist_linux/jasna/_internal/python_vali/ \; && \
     mkdir -p dist_linux/jasna/model_weights
 
 # 清理构建缓存

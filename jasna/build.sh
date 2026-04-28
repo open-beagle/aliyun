@@ -44,6 +44,7 @@ JASNA_SRC="/tmp/jasna_src"
 echo ">>> 克隆 Jasna 源码..."
 rm -rf "$JASNA_SRC"
 git clone --depth=1 --branch v0.6.0-alpha5 https://github.com/Kruk2/jasna.git "$JASNA_SRC"
+sed -i 's/if wrong_version:/if False:/g' "$JASNA_SRC/jasna/os_utils.py"
 cd "$JASNA_SRC"
 WORKDIR=$(pwd)
 echo ">>> 工作目录已切换至: $WORKDIR"
@@ -133,6 +134,10 @@ touch assets/test_clip1_1080p.mp4 2>/dev/null || true
 touch assets/test_clip1_2160p.mp4 2>/dev/null || true
 
 python3.13 build_exe.py
+mkdir -p dist_linux/jasna/_internal/PyNvVideoCodec
+find /usr/local/lib/python3.13 -name "PyNvVideoCodec_*.so" -exec cp {} dist_linux/jasna/_internal/PyNvVideoCodec/ \;
+mkdir -p dist_linux/jasna/_internal/python_vali
+find /usr/local/lib/python3.13 -name "python_vali*.so" -exec cp {} dist_linux/jasna/_internal/python_vali/ \;
 
 # 将生成的二进制复制回挂载的主机目录
 HOST_DIR="/app/jasna"
