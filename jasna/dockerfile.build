@@ -15,11 +15,12 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages --no-insta
     cmake ninja-build upx-ucl \
     libavformat-dev libavcodec-dev libavutil-dev \
     libswscale-dev libswresample-dev \
+    libgl1 libglib2.0-0 \
     libnccl2=2.28.9-1+cuda13.0 libnccl-dev=2.28.9-1+cuda13.0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
-RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+RUN add-apt-repository -y ppa:deadsnakes/ppa || true && \
     apt-get update && apt-get install -y --no-install-recommends \
     python3.13 python3.13-venv python3.13-dev \
     && rm -rf /var/lib/apt/lists/* && \
@@ -38,8 +39,6 @@ RUN git clone --depth=1 --branch ${JASNA_VERSION} \
 WORKDIR /app/jasna
 
 # 修复 PyInstaller 在无 GPU 环境下打包奔溃的致命问题 (cuInit unavailable)
-# 将硬件强相关的包从 collect_all() 剔除，而是通过 hiddenimports 强制添加
-# 同时给 find_spec("torch_tensorrt._C") 加 try/except 防护，避免 torch import 失败时整个 spec 崩溃
 RUN sed -i 's/"PyNvVideoCodec", "python_vali", //g' jasna.spec && \
     sed -i '/hiddenimports += h/a\    hiddenimports += ["python_vali", "PyNvVideoCodec"]' jasna.spec && \
     python3.13 -c "import pathlib; p=pathlib.Path('jasna.spec'); txt=p.read_text(); \
@@ -53,13 +52,15 @@ RUN pip install --no-cache-dir \
     nvidia-nccl-cu13==2.28.9 \
     --extra-index-url https://download.pytorch.org/whl/cu130
 
-# TensorRT
+# TensorRT (显式锁定 torch cu130 版本，防止 pip 从公网覆盖)
 RUN pip install --no-cache-dir \
     tensorrt==10.14.1.48.post1 \
-    torch-tensorrt==2.10.0
+    torch-tensorrt==2.10.0 \
+    torch==2.10.0+cu130 \
+    --extra-index-url https://download.pytorch.org/whl/cu130
 
 # 自定义依赖: vali (GPU 视频解码) + PyNvVideoCodec
-RUN cd /tmp && git clone https://codeberg.org/Kruk2/vali.git && \
+RUN cd /tmp && git clone --recursive https://codeberg.org/Kruk2/vali.git && \
     git clone https://codeberg.org/Kruk2/PyNvVideoCodec.git && \
     pip install --no-cache-dir --no-build-isolation ./vali ./PyNvVideoCodec
 
@@ -72,12 +73,25 @@ RUN pip install --no-cache-dir mmengine==0.10.7 && \
 # 安装 Jasna
 RUN pip install --no-cache-dir --no-build-isolation \
     --extra-index-url https://download.pytorch.org/whl/cu130 \
+    --extra-index-url https://pypi.nvidia.com \
     .
 
-# 生成二进制
-RUN pip install --no-cache-dir pyinstaller psutil && \
-    BUILD_CLI=1 python3.13 build_exe.py && \
-    mv dist_linux/jasna/jasna-cli dist_linux/jasna/jasna || true
+# 生成二进制 (无 GPU 环境下需要 ldconfig + LD_PRELOAD 修复 NCCL 符号解析)
+RUN pip install --no-cache-dir pyinstaller psutil cffi cryptography && \
+    echo "/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf && \
+    echo "/usr/local/lib/python3.13/dist-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf && \
+    ldconfig && \
+    mkdir -p model_weights && \
+    touch model_weights/lada_mosaic_restoration_model_generic_v1.2.pth && \
+    touch model_weights/rfdetr-v5.onnx && \
+    NCCL_LIB=$(find /usr/lib -name "libnccl.so.2" 2>/dev/null | head -1) && \
+    CUDA_VISIBLE_DEVICES="" \
+    LD_PRELOAD="${NCCL_LIB}" \
+    LD_LIBRARY_PATH="/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}" \
+    BUILD_CLI=1 python3.13 build_exe.py || true && \
+    mv dist_linux/jasna/jasna-cli dist_linux/jasna/jasna 2>/dev/null || true && \
+    mkdir -p dist_linux/jasna/model_weights
 
 # 清理构建缓存
-RUN rm -rf /root/.cache /tmp/* 
+RUN rm -rf /root/.cache /tmp/*
+

@@ -24,6 +24,7 @@ Jasna 是一个 GPU 加速的视频马赛克检测与修复工具，基于 Basic
    - 安装构建依赖 (cmake, ninja-build, upx-ucl 等打包工具)
    - 编译和安装 TensorRT, PyTorch, vali, PyNvVideoCodec 等所有组件
    - 运行 PyInstaller 以及 UPX 压缩进程，打成完全独立的二进制文件夹并在流水线中被提炼出容器。
+
 2. **打包镜像 (dockerfile)**: 基于 `cuda:13.0.3-runtime-ubuntu24.04`
    - 仅安装运行时必要的系统库 (ffmpeg, 渲染库)
    - 彻底移除了庞大臃肿的 Python 以及 Site-packages
@@ -59,8 +60,7 @@ git checkout jasna && \
 ```bash
 # 1. 本地交互式调试 (手动逐行排查 build 阶段错误)
 docker run -it --rm \
-  --name jasna-builder-debug \
-  --gpus all \
+  --name jasna-builder \
   -v "$(pwd)/jasna:/app/jasna" -w /app \
   registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-devel-ubuntu24.04 \
   /bin/bash jasna/build.sh
@@ -75,14 +75,16 @@ docker run -it --rm \
 ```
 
 # 2. 打包最终发布镜像
+
 docker build \
-  --build-arg BASE=nvidia/cuda:13.0.3-runtime-ubuntu24.04 \
-  --build-arg AUTHOR=open-beagle \
-  --build-arg VERSION=13.0.3 \
-  -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
-  -f jasna/dockerfile \
-  jasna/
-```
+ --build-arg BASE=nvidia/cuda:13.0.3-runtime-ubuntu24.04 \
+ --build-arg AUTHOR=open-beagle \
+ --build-arg VERSION=13.0.3 \
+ -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
+ -f jasna/dockerfile \
+ jasna/
+
+````
 
 ## 使用方法
 
@@ -108,7 +110,7 @@ docker run -it --gpus all \
   -v /path/to/model_weights:/app/jasna/model_weights \
   registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
   warmup
-```
+````
 
 _环境变量配置 (可选)_:
 
