@@ -68,7 +68,7 @@ fi
 
 # ---- 带参数时直接透传给 jasna ----
 if [ $# -gt 0 ]; then
-    exec /app/jasna/jasna "$@"
+    exec /app/jasna/jasna --disable-ffmpeg-check "$@"
 fi
 
 # ---- 无参数: 批量扫描模式 ----
