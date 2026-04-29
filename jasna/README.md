@@ -61,7 +61,8 @@ git checkout jasna && \
 # 1. 本地交互式调试 (手动逐行排查 build 阶段错误)
 docker run -it --rm \
   --name jasna-builder \
-  -v "$(pwd)/jasna:/app/jasna" -w /app \
+  -v "$(pwd)/jasna:/app/jasna" \
+  -w /app \
   registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-devel-ubuntu24.04 \
   /bin/bash jasna/build.sh
 
@@ -76,14 +77,14 @@ docker run -it --rm \
 
 # 2. 打包最终发布镜像
 
+```bash
 docker build \
- --build-arg BASE=nvidia/cuda:13.0.3-runtime-ubuntu24.04 \
- --build-arg AUTHOR=open-beagle \
- --build-arg VERSION=13.0.3 \
- -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
- -f jasna/dockerfile \
- jasna/
-
+  --build-arg BASE=nvidia/cuda:13.0.3-runtime-ubuntu24.04 \
+  --build-arg AUTHOR=open-beagle \
+  --build-arg VERSION=13.0.3 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
+  -f jasna/dockerfile \
+  jasna/
 ````
 
 ## 使用方法

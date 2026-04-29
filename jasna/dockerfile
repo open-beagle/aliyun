@@ -12,6 +12,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 ENV PYTHONUNBUFFERED=1
 ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV SCAN_DIR=/data
+ENV CODEC=hevc
+ENV EXTRA_ARGS=
 
 # 仅安装运行时依赖 (无 Python 与构建工具)
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true && \
