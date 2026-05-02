@@ -171,12 +171,12 @@ docker run --gpus all \
 之前在构建阶段加入的 `sed` 补丁（修改 `BORDER_RATIO`, `MIN_BORDER`, `iou_threshold`）经查明在部分场景下正是导致追踪框冲突和闪烁的元凶，现已从源码构建脚本中移除。
 
 现在，为了在 CLI 环境下获得与官方 GUI 完全一致的“零闪烁”如丝般顺滑体验，请务必直接使用官方 GUI 预设的这套默认参数。
-同时，如果您拥有 24GB 大显存设备（如 RTX 3090/4090），强烈建议将 `--max-clip-size` 从默认的 90 提升至 180，以大幅提升连续片段处理能力，进一步减少边界拼接感。
+请注意：**不要盲目增加 `--max-clip-size`**。如果您将其设置为 180，会导致在长片段中由于马赛克大小变化过大，触发过度的边缘反射填充，从而在修复后留下明显的“正方形”边界色差块（空间伪影）。
 
-_CLI 后台启动示例（适用于 4090 等大显存设备）：_
+_CLI 后台启动示例（使用 GUI 官方默认最佳参数）：_
 
 ```bash
--e EXTRA_ARGS="--max-clip-size 180 --temporal-overlap 8 --enable-crossfade --detection-score-threshold 0.25 --fp16 --compile-basicvsrpp"
+-e EXTRA_ARGS="--max-clip-size 90 --temporal-overlap 8 --enable-crossfade --detection-score-threshold 0.25 --denoise low --denoise-step after_primary --fp16 --compile-basicvsrpp"
 ```
 
 ## 参考

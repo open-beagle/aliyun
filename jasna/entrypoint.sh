@@ -81,6 +81,9 @@ echo " Jasna 批量处理模式"
 echo "============================================"
 echo " 扫描目录: ${SCAN_DIR}"
 echo " 编码器:   ${CODEC}"
+if [ -n "$EXTRA_ARGS" ]; then
+    echo " 额外参数: ${EXTRA_ARGS}"
+fi
 echo "============================================"
 echo ""
 
@@ -152,6 +155,9 @@ for i in "${!TASKS[@]}"; do
     echo " 输入: ${input}"
     echo " 输出: ${output}"
     echo " 编码: ${CODEC}"
+    if [ -n "$EXTRA_ARGS" ]; then
+        echo " 额外参数: ${EXTRA_ARGS}"
+    fi
     echo "============================================"
 
     if /app/jasna/jasna \
