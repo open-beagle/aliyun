@@ -9,7 +9,7 @@ set -ex
 # 模拟 Dockerfile 环境变量
 export DEBIAN_FRONTEND=noninteractive
 export TZ=Asia/Shanghai
-export LD_LIBRARY_PATH=/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
 echo ">>> 1. 安装构建工具 + 开发库..."
 sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true
@@ -26,15 +26,12 @@ apt-get update && apt-get install -y --allow-change-held-packages --no-install-r
     libnccl2=2.28.9-1+cuda13.0 libnccl-dev=2.28.9-1+cuda13.0
 rm -rf /var/lib/apt/lists/*
 
-echo ">>> 2. 安装 Python 3.13..."
-mkdir -p /etc/apt/keyrings
-curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776" > /etc/apt/keyrings/deadsnakes.asc || true
-echo "deb [signed-by=/etc/apt/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" > /etc/apt/sources.list.d/deadsnakes.list
-apt-get update && apt-get install -y --no-install-recommends \
-    python3.13 python3.13-venv python3.13-dev
+echo ">>> 2. 安装 Python 3.13 (使用官方预编译版本)..."
+apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+curl -fsSL https://github.com/actions/python-versions/releases/download/3.13.2-13708744326/python-3.13.2-linux-24.04-x64.tar.gz | tar -xz -C /usr/local
 rm -rf /var/lib/apt/lists/*
-update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 || true
-update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1 || true
+update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.13 1 || true
+update-alternatives --install /usr/bin/python python /usr/local/bin/python3.13 1 || true
 
 echo ">>> 3. 安装 pip..."
 curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13
@@ -69,7 +66,7 @@ except Exception:
 
 echo ">>> 5. 清理残留 + 安装 PyTorch + TorchVision + nccl..."
 # 清理可能被 Ctrl+C 中断导致损坏的 torch 安装残留
-rm -rf /usr/local/lib/python3.13/dist-packages/~orch* 2>/dev/null || true
+rm -rf /usr/local/lib/python3.13/site-packages/~orch* 2>/dev/null || true
 pip install --no-cache-dir \
     torch==2.10.0+cu130 torchvision==0.25.0+cu130 \
     nvidia-nccl-cu13==2.28.9 \
@@ -110,14 +107,14 @@ pip install --no-cache-dir pyinstaller psutil cffi cryptography
 #        系统 apt 安装的 libnccl2 包含该符号，但动态链接器缓存可能未更新。
 #
 # 修复1: 将 pip 安装的 NCCL 库路径写入 ldconfig 缓存，使所有子进程都能找到
-echo "/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf
-echo "/usr/local/lib/python3.13/dist-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf
+echo "/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf
+echo "/usr/local/lib/python3.13/site-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf
 ldconfig
 
 # 修复2: 使用 LD_PRELOAD 强制预加载系统 NCCL 库（双保险）
 NCCL_LIB=$(find /usr/lib -name "libnccl.so.2" 2>/dev/null | head -1)
 if [ -z "$NCCL_LIB" ]; then
-    NCCL_LIB=$(find /usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib -name "libnccl.so.2" 2>/dev/null | head -1)
+    NCCL_LIB=$(find /usr/local/lib/python3.13/site-packages/nvidia/nccl/lib -name "libnccl.so.2" 2>/dev/null | head -1)
 fi
 if [ -n "$NCCL_LIB" ]; then
     echo ">>> 使用 NCCL 库: $NCCL_LIB"
@@ -125,7 +122,7 @@ if [ -n "$NCCL_LIB" ]; then
 fi
 
 export CUDA_VISIBLE_DEVICES=""
-export LD_LIBRARY_PATH=/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}
 
 # 创建模型文件和资源占位符（build_exe.py 会尝试复制它们）
 mkdir -p model_weights assets

@@ -7,7 +7,7 @@ FROM ${BASE}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 ENV NVIDIA_DRIVER_CAPABILITIES=all
-ENV LD_LIBRARY_PATH=/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
 # 构建工具 + 开发库
 RUN apt-get update && apt-get install -y --allow-change-held-packages --no-install-recommends \
@@ -20,15 +20,12 @@ RUN apt-get update && apt-get install -y --allow-change-held-packages --no-insta
     libnccl2=2.28.9-1+cuda13.0 libnccl-dev=2.28.9-1+cuda13.0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Python 3.13 (deadsnakes PPA, Ubuntu 24.04 默认 3.12)
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776" > /etc/apt/keyrings/deadsnakes.asc && \
-    echo "deb [signed-by=/etc/apt/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" > /etc/apt/sources.list.d/deadsnakes.list && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    python3.13 python3.13-venv python3.13-dev \
-    && rm -rf /var/lib/apt/lists/* && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+# 安装预编译的 Python 3.13 (极速且绕过 PPA 避免网络问题)
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && \
+    curl -fsSL https://github.com/actions/python-versions/releases/download/3.13.2-13708744326/python-3.13.2-linux-24.04-x64.tar.gz | tar -xz -C /usr/local && \
+    rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.13 1 && \
+    update-alternatives --install /usr/bin/python python /usr/local/bin/python3.13 1
 
 # pip
 RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
@@ -82,8 +79,8 @@ RUN pip install --no-cache-dir --no-build-isolation \
 
 # 生成二进制 (无 GPU 环境下需要 ldconfig + LD_PRELOAD 修复 NCCL 符号解析)
 RUN pip install --no-cache-dir pyinstaller psutil cffi cryptography && \
-    echo "/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf && \
-    echo "/usr/local/lib/python3.13/dist-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf && \
+    echo "/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib" > /etc/ld.so.conf.d/nccl-pip.conf && \
+    echo "/usr/local/lib/python3.13/site-packages/torch/lib" > /etc/ld.so.conf.d/torch.conf && \
     ldconfig && \
     mkdir -p model_weights assets && \
     touch model_weights/lada_mosaic_restoration_model_generic_v1.2.pth && \
@@ -94,7 +91,7 @@ RUN pip install --no-cache-dir pyinstaller psutil cffi cryptography && \
     NCCL_LIB=$(find /usr/lib -name "libnccl.so.2" 2>/dev/null | head -1) && \
     CUDA_VISIBLE_DEVICES="" \
     LD_PRELOAD="${NCCL_LIB}" \
-    LD_LIBRARY_PATH="/usr/local/lib/python3.13/dist-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/dist-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}" \
+    LD_LIBRARY_PATH="/usr/local/lib/python3.13/site-packages/nvidia/nccl/lib:/usr/local/lib/python3.13/site-packages/torch/lib:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}" \
     python3.13 build_exe.py && \
     mkdir -p dist_linux/jasna/_internal/PyNvVideoCodec && \
     find /usr/local/lib/python3.13 -name "PyNvVideoCodec_*.so" -exec cp {} dist_linux/jasna/_internal/PyNvVideoCodec/ \; && \
