@@ -27,7 +27,9 @@ apt-get update && apt-get install -y --allow-change-held-packages --no-install-r
 rm -rf /var/lib/apt/lists/*
 
 echo ">>> 2. 安装 Python 3.13..."
-add-apt-repository -y ppa:deadsnakes/ppa || true
+mkdir -p /etc/apt/keyrings
+curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776" > /etc/apt/keyrings/deadsnakes.asc || true
+echo "deb [signed-by=/etc/apt/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" > /etc/apt/sources.list.d/deadsnakes.list
 apt-get update && apt-get install -y --no-install-recommends \
     python3.13 python3.13-venv python3.13-dev
 rm -rf /var/lib/apt/lists/*
