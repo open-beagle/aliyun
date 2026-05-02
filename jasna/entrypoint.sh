@@ -68,7 +68,7 @@ fi
 
 # ---- 带参数时直接透传给 jasna ----
 if [ $# -gt 0 ]; then
-    exec /app/jasna/jasna --disable-ffmpeg-check "$@"
+    exec /app/jasna/jasna --disable-ffmpeg-check --encoder-settings "cq=${ENCODER_CQ:-22}" "$@"
 fi
 
 # ---- 无参数: 批量扫描模式 ----
@@ -157,6 +157,7 @@ for i in "${!TASKS[@]}"; do
     if /app/jasna/jasna \
         --disable-ffmpeg-check \
         --codec "$CODEC" \
+        --encoder-settings "cq=${ENCODER_CQ:-20}" \
         --input "$input" \
         --output "$output" \
         $EXTRA_ARGS; then
