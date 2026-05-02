@@ -160,23 +160,22 @@ docker run --gpus all \
 
 ## 常见问题与优化 (Troubleshooting & Optimization)
 
-### 1. 高速运动场景下的闪烁与马赛克边缘漏边 (Fast Motion Flickering & Edge Rings)
+### 1. 修复区域出现正方形边界色差 (Square Artifact at Restore Boundary)
 
-在处理高速运动的视频，或马赛克边缘有大范围光晕的场景时，您可能会遇到：
+**症状**: 修复后的画面中，目标区域周围出现一个清晰的矩形色差边界（正方形“盒子”）。
 
-1. **边缘光晕漏边**：马赛克边缘未被处理，形成一圈环状马赛克。
-2. **高速追踪断层**：因为目标移动太快，系统丢失追踪目标，画面出现间歇性突兀闪白。
+**根本原因**: Jasna 上游代码中 `blend_buffer.py` 的混合蒙版（blend mask）在裁剪框（enlarged_bbox）边界处被硬截断。具体来说，`create_blend_mask()` 对检测 mask 做了约 60px（1080p）的膨胀+渐变，但 `expand_bbox()` 给 crop 留的边界只有约 20px。当渐变区超出 crop 边界时，blend 权重从非零直接跳变为 0，形成一条可见的直线色差。
 
-**运行时 CLI 参数配置建议（彻底解决闪烁与突兀过渡）：**
-之前在构建阶段加入的 `sed` 补丁（修改 `BORDER_RATIO`, `MIN_BORDER`, `iou_threshold`）经查明在部分场景下正是导致追踪框冲突和闪烁的元凶，现已从源码构建脚本中移除。
+**修复**: 构建时自动应用 `patches/fix_blend_edge_feather.py` 补丁，在 blend_mask 的四条边缘添加线性衰减（edge feathering），确保 crop 边界处的混合权重平滑过渡到 0。
 
-现在，为了在 CLI 环境下获得与官方 GUI 完全一致的“零闪烁”如丝般顺滑体验，请务必直接使用官方 GUI 预设的这套默认参数。
-请注意：**不要盲目增加 `--max-clip-size`**。如果您将其设置为 180，会导致在长片段中由于马赛克大小变化过大，触发过度的边缘反射填充，从而在修复后留下明显的“正方形”边界色差块（空间伪影）。
+### 2. 高速运动场景下的闪烁 (Fast Motion Flickering)
 
-_CLI 后台启动示例（使用 GUI 官方默认最佳参数）：_
+在处理高速运动的视频时，您可能会遇到因目标移动太快导致的追踪断层闪烁。
+
+_CLI 后台启动示例（完全等同于 GUI 官方默认参数）：_
 
 ```bash
--e EXTRA_ARGS="--max-clip-size 90 --temporal-overlap 8 --enable-crossfade --detection-score-threshold 0.25 --denoise low --denoise-step after_primary --fp16 --compile-basicvsrpp"
+-e EXTRA_ARGS="--max-clip-size 90 --temporal-overlap 8 --enable-crossfade --detection-score-threshold 0.25 --fp16 --compile-basicvsrpp"
 ```
 
 ## 参考

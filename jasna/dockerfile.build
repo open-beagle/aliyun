@@ -37,6 +37,10 @@ RUN git clone --depth=1 --branch ${JASNA_VERSION} \
     https://github.com/Kruk2/jasna.git /app/jasna && \
     sed -i 's/if wrong_version:/if False:/g' /app/jasna/jasna/os_utils.py
 
+# 复制补丁文件并应用 blend edge feather 修复 (消除正方形伪影)
+COPY patches/ /app/jasna/patches/
+RUN python3.13 /app/jasna/patches/fix_blend_edge_feather.py /app/jasna/jasna
+
 WORKDIR /app/jasna
 
 # 修复 PyInstaller 在无 GPU 环境下打包奔溃的致命问题 (cuInit unavailable)

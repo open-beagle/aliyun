@@ -44,6 +44,11 @@ echo ">>> 克隆 Jasna 源码..."
 rm -rf "$JASNA_SRC"
 git clone --depth=1 --branch v0.6.0-alpha5 https://github.com/Kruk2/jasna.git "$JASNA_SRC"
 sed -i 's/if wrong_version:/if False:/g' "$JASNA_SRC/jasna/os_utils.py"
+
+# 修复 blend_mask 在 crop 边界硬截断导致的正方形伪影
+echo ">>> 应用 blend edge feather 补丁..."
+python3.13 /app/jasna/patches/fix_blend_edge_feather.py "$JASNA_SRC/jasna"
+
 cd "$JASNA_SRC"
 WORKDIR=$(pwd)
 echo ">>> 工作目录已切换至: $WORKDIR"
