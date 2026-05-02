@@ -135,6 +135,7 @@ _环境变量配置 (可选)_:
 docker run --gpus all \
   -v /path/to/model_weights:/app/jasna/model_weights \
   -v /data:/data \
+  -e EXTRA_ARGS="--max-clip-size 180 --temporal-overlap 30 --detection-score-threshold 0.05" \
   registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
   --input /data/input.mp4 --output /data/output.mp4
 ```
@@ -159,25 +160,34 @@ docker run --gpus all \
 
 ## 常见问题与优化 (Troubleshooting & Optimization)
 
-### 1. 马赛克边缘“漏边/闪烁”圈 (Mosaic Edge Ring Flickering)
+### 1. 高速运动场景下的闪烁与马赛克边缘漏边 (Fast Motion Flickering & Edge Rings)
 
-在处理部分视频（特别是边缘存在大范围模糊光晕的马赛克）时，您可能会观察到**马赛克边缘有一圈明显的马赛克间歇性闪烁**。这通常是因为检测模型框选得过于紧凑（Mask Margin 不足），导致部分边缘的马赛克像素未能送入 BasicVSR++ 进行处理。
+在处理高速运动的视频，或马赛克边缘有大范围光晕的场景时，您可能会遇到：
 
-**底层的硬编码优化：**
-为了彻底解决此问题，我们在 `dockerfile.build` 与 `build.sh` 的编译阶段打入了热修复补丁，动态修改了 `jasna/crop_buffer.py` 中的边界扩展量：
+1. **边缘光晕漏边**：马赛克边缘未被处理，形成一圈环状马赛克。
+2. **高速追踪断层**：因为目标移动太快，系统丢失追踪目标，画面出现间歇性突兀闪白。
 
-- `BORDER_RATIO`: 从默认的 `0.06` 放大至 `0.15` (15%)
-- `MIN_BORDER`: 从默认的 `20` 放大至 `40` (像素)
-  这使得模型在裁切时会更加“贪婪”地向四周多抓取 40 像素或 15% 面积的内容，确保彻底包住光晕边缘。
+**底层硬编码补丁 (必须重新构建镜像/拉取最新镜像才能生效)：**
+由于这些逻辑写死在源码中，我们在 `dockerfile.build` 与 `build.sh` 的编译阶段打入了热修复补丁 (使用 `sed`)：
 
-**运行时的配合优化（推荐）：**
-除了底层边界放大，建议在启动时通过 `EXTRA_ARGS` 配合降低检测阈值与增加时间重叠，以增强画面稳定性：
+- `BORDER_RATIO`: 从默认 `0.06` 放大至 `0.15` (强制向外多抓取 15% 面积，消灭光晕死角)。
+- `MIN_BORDER`: 从默认 `20` 放大至 `40` 像素。
+- `iou_threshold`: 从默认 `0.3` 降低至 `0.01` (允许只要有一丝重叠就保持高速追踪连贯，不重置 AI 记忆)。
+  > [!IMPORTANT]
+  > **您必须重新构建镜像（或等待 CI 构建完毕后执行 `docker pull` 更新）**，因为 Jasna 是以 PyInstaller 打包好的二进制文件运行的。源码的修改需要经过重新编译才能被打包进新的二进制执行文件中。
+
+**运行时配合优化组合拳（推荐，特别是拥有 RTX 4090 等大显存设备）：**
+新镜像生效后，建议您在启动时（通过 GUI 拖动滑块，或通过 CLI 传参）配合以下参数：
+
+- **最大片段大小 (`--max-clip-size`)**: 开到 `180` (极大地增加连续处理时长，但需要 12GB+ 显存)。
+- **时间重叠 (`--temporal-overlap`)**: 拉高到 `20` 或 `30` (平滑 180 帧片段之间的过渡)。
+- **检测阈值 (`--detection-score-threshold`)**: 降低至 `0.05` (防止高速运动时的动态模糊导致检测框丢失)。
+
+_CLI 后台启动示例：_
 
 ```bash
--e EXTRA_ARGS="--detection-score-threshold 0.15 --temporal-overlap 15"
+-e EXTRA_ARGS="--max-clip-size 180 --temporal-overlap 30 --detection-score-threshold 0.05"
 ```
-
-降低阈值能防止检测框在困难帧中丢失或收缩，增加时间重叠（推荐 15）能有效解决大范围动态场景下的时间边界断层。
 
 ## 参考
 
