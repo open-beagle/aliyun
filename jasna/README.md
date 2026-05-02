@@ -92,7 +92,7 @@ docker build \
   -t registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
   -f jasna/dockerfile \
   jasna/
-````
+```
 
 ## 使用方法
 
@@ -119,7 +119,7 @@ docker run -it \
   -v /path/to/model_weights:/app/jasna/model_weights \
   registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0.3-jasna-v0.6.0-alpha5 \
   warmup
-````
+```
 
 _环境变量配置 (可选)_:
 
@@ -156,6 +156,28 @@ docker run --gpus all \
 - NVIDIA 驱动 ≥ 590
 - 建议 VRAM ≥ 8GB（4K 视频建议 12GB+）
 - 首次运行时 TensorRT 引擎编译需要 15-60 分钟
+
+## 常见问题与优化 (Troubleshooting & Optimization)
+
+### 1. 马赛克边缘“漏边/闪烁”圈 (Mosaic Edge Ring Flickering)
+
+在处理部分视频（特别是边缘存在大范围模糊光晕的马赛克）时，您可能会观察到**马赛克边缘有一圈明显的马赛克间歇性闪烁**。这通常是因为检测模型框选得过于紧凑（Mask Margin 不足），导致部分边缘的马赛克像素未能送入 BasicVSR++ 进行处理。
+
+**底层的硬编码优化：**
+为了彻底解决此问题，我们在 `dockerfile.build` 与 `build.sh` 的编译阶段打入了热修复补丁，动态修改了 `jasna/crop_buffer.py` 中的边界扩展量：
+
+- `BORDER_RATIO`: 从默认的 `0.06` 放大至 `0.15` (15%)
+- `MIN_BORDER`: 从默认的 `20` 放大至 `40` (像素)
+  这使得模型在裁切时会更加“贪婪”地向四周多抓取 40 像素或 15% 面积的内容，确保彻底包住光晕边缘。
+
+**运行时的配合优化（推荐）：**
+除了底层边界放大，建议在启动时通过 `EXTRA_ARGS` 配合降低检测阈值与增加时间重叠，以增强画面稳定性：
+
+```bash
+-e EXTRA_ARGS="--detection-score-threshold 0.15 --temporal-overlap 15"
+```
+
+降低阈值能防止检测框在困难帧中丢失或收缩，增加时间重叠（推荐 15）能有效解决大范围动态场景下的时间边界断层。
 
 ## 参考
 
