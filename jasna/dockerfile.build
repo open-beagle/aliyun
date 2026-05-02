@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 
 # pip
 RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
-    python3.13 -m pip install --no-cache-dir "setuptools<82" wheel scikit-build wheel-stub
+    python3.13 -m pip install --no-cache-dir "setuptools<70" wheel scikit-build wheel-stub
 
 # 克隆 Jasna 源码
 ARG JASNA_VERSION=v0.6.0-alpha5
