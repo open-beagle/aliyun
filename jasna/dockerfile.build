@@ -35,10 +35,7 @@ RUN curl -fsSL https://bootstrap.pypa.io/get-pip.py | python3.13 && \
 ARG JASNA_VERSION=v0.6.0-alpha5
 RUN git clone --depth=1 --branch ${JASNA_VERSION} \
     https://github.com/Kruk2/jasna.git /app/jasna && \
-    sed -i 's/if wrong_version:/if False:/g' /app/jasna/jasna/os_utils.py && \
-    sed -i 's/BORDER_RATIO = 0.06/BORDER_RATIO = 0.15/g' /app/jasna/jasna/crop_buffer.py && \
-    sed -i 's/MIN_BORDER = 20/MIN_BORDER = 40/g' /app/jasna/jasna/crop_buffer.py && \
-    sed -i 's/iou_threshold: float = 0.3/iou_threshold: float = 0.01/g' /app/jasna/jasna/tracking/clip_tracker.py
+    sed -i 's/if wrong_version:/if False:/g' /app/jasna/jasna/os_utils.py
 
 WORKDIR /app/jasna
 
