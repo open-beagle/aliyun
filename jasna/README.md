@@ -166,7 +166,9 @@ docker run --gpus all \
 
 **根本原因**: Jasna 上游代码中 `blend_buffer.py` 的混合蒙版（blend mask）在裁剪框（enlarged_bbox）边界处被硬截断。具体来说，`create_blend_mask()` 对检测 mask 做了约 60px（1080p）的膨胀+渐变，但 `expand_bbox()` 给 crop 留的边界只有约 20px。当渐变区超出 crop 边界时，blend 权重从非零直接跳变为 0，形成一条可见的直线色差。
 
-**修复**: 构建时自动应用 `patches/fix_blend_edge_feather.py` 补丁，在 blend_mask 的四条边缘添加线性衰减（edge feathering），确保 crop 边界处的混合权重平滑过渡到 0。
+**修复**: 构建时自动应用两个补丁：
+1. `patches/fix_blend_edge_feather.py` — 在 blend_mask 的四条边缘添加线性衰减（edge feathering，比例 0.06），确保 crop 边界处的混合权重平滑过渡到 0。
+2. `patches/fix_crop_border_expand.py` — 增大 `expand_bbox` 的边界参数（`BORDER_RATIO` 0.06→0.10，`MIN_BORDER` 20→40），使 crop 区域能完整容纳 blend_mask 的 dilation+falloff 渐变区域。
 
 ### 2. 高速运动场景下的闪烁 (Fast Motion Flickering)
 

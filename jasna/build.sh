@@ -49,6 +49,10 @@ sed -i 's/if wrong_version:/if False:/g' "$JASNA_SRC/jasna/os_utils.py"
 echo ">>> 应用 blend edge feather 补丁..."
 python3.13 /app/jasna/patches/fix_blend_edge_feather.py "$JASNA_SRC/jasna"
 
+# 增大 crop 边界使 blend_mask 渐变区完全包含在 crop 内
+echo ">>> 应用 crop border expand 补丁..."
+python3.13 /app/jasna/patches/fix_crop_border_expand.py "$JASNA_SRC/jasna"
+
 cd "$JASNA_SRC"
 WORKDIR=$(pwd)
 echo ">>> 工作目录已切换至: $WORKDIR"
