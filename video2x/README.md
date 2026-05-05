@@ -36,5 +36,6 @@ docker run --gpus all --privileged -it --rm \
 ## Github Actions 工作流
 
 本目录中的 `dockerfile` 用于包装基础镜像。实际同步流程在 `.github/workflows/video2x.yml` 中定义：
+
 - **触发条件**：向 `video2x` 分支提交代码，或手动在 Actions 页面点击触发 (Workflow Dispatch)。
 - **目标镜像**：`registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1`
