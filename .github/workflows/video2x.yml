@@ -1,0 +1,45 @@
+name: video2x
+
+on:
+  push:
+    branches:
+      - video2x
+  workflow_dispatch:
+
+env:
+  BUILD_VERSION: 6.1.1
+  TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/video2x
+
+jobs:
+  sync-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Build and push video2x
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./video2x/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}
+          build-args: |
+            BASE=ghcr.io/k4yt3x/video2x:${{ env.BUILD_VERSION }}
+
+      - name: Image sync success
+        run: echo "video2x image synced successfully!"
