@@ -42,5 +42,33 @@ jobs:
             BASE=squat/generic-device-plugin:${{ env.BUILD_VERSION }}
             VERSION=${{ env.BUILD_VERSION }}
 
+      - name: Build and push AMD64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./generic-device-plugin/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-amd64
+          build-args: |
+            BASE=squat/generic-device-plugin:${{ env.BUILD_VERSION }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./generic-device-plugin/dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-arm64
+          build-args: |
+            BASE=squat/generic-device-plugin:${{ env.BUILD_VERSION }}
+            VERSION=${{ env.BUILD_VERSION }}
+
       - name: Image sync success
         run: echo "generic-device-plugin image synced successfully!"
