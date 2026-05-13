@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: 0.1.125
-  SOURCE_IMAGE: weishaw/sub2api:0.1.125
+  BUILD_VERSION: 0.1.126
+  SOURCE_IMAGE: weishaw/sub2api
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 
 jobs:
@@ -31,14 +31,14 @@ jobs:
 
       - name: Pull, tag and push AMD64 image
         run: |
-          docker pull --platform=linux/amd64 ${{ env.SOURCE_IMAGE }}
-          docker tag ${{ env.SOURCE_IMAGE }} ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-amd64
+          docker pull --platform=linux/amd64 ${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }}
+          docker tag ${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }} ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-amd64
           docker push ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-amd64
 
       - name: Pull, tag and push ARM64 image
         run: |
-          docker pull --platform=linux/arm64 ${{ env.SOURCE_IMAGE }}
-          docker tag ${{ env.SOURCE_IMAGE }} ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-arm64
+          docker pull --platform=linux/arm64 ${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }}
+          docker tag ${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }} ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-arm64
           docker push ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-arm64
 
       - name: Create and push multi-platform manifest
