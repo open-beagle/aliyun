@@ -65,3 +65,23 @@ docker run --gpus all --privileged -it --rm \
 
 - **触发条件**：向 `video2x` 分支提交代码，或手动在 Actions 页面点击触发 (Workflow Dispatch)。
 - **目标镜像**：`registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1`
+
+## 构建
+
+### CI 自动构建
+
+推送到 `video2x` 分支即触发 GitHub Actions 自动构建：
+
+```bash
+git switch video2x && \
+  git merge main --ff-only && \
+  git push origin video2x && \
+  git switch main
+```
+
+```powershell
+git switch video2x ;`
+  git merge main --ff-only ;`
+  git push origin video2x ;`
+  git switch main
+```
