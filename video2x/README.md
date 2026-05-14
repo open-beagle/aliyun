@@ -27,6 +27,32 @@ docker run --gpus all --privileged -it --rm \
   --realesrgan-model realesrgan-x4plus
 ```
 
+### 批量转换 data 目录
+
+镜像入口会扫描容器内 `/data` 目录下的 `*.mp4` 文件，找出高度低于 `1080p` 的视频，先列出任务清单，再逐个转换为同目录下的 `*_1080p.mp4`。
+
+```bash
+docker run --gpus all --privileged -it --rm \
+  -v "$PWD/data":/data \
+  -v /path/to/your/local/video2x_models:/root/.local/share/video2x \
+  -v /path/to/your/local/video2x_models_cache:/root/.cache/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1
+```
+
+可通过环境变量调整默认参数：
+
+```bash
+docker run --gpus all --privileged -it --rm \
+  -e DATA_DIR=/data \
+  -e TARGET_HEIGHT=1080 \
+  -e PROCESSOR=realesrgan \
+  -e REALESRGAN_MODEL=realesrgan-x4plus \
+  -v "$PWD/data":/data \
+  -v /path/to/your/local/video2x_models:/root/.local/share/video2x \
+  -v /path/to/your/local/video2x_models_cache:/root/.cache/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1
+```
+
 ### 模型下载说明
 
 1. **自动下载**：Video2X 具有自动下载机制。在您首次运行某个特定的处理流（如 `realesrgan`）时，如果在容器内的缓存目录中找不到对应的模型文件，程序会自动从 GitHub 发布页下载所需的模型。
