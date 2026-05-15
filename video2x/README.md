@@ -4,27 +4,25 @@
 
 ## 如何运行
 
-您可以通过以下命令使用阿里云镜像运行 Video2X。为了避免每次运行容器时都重新下载模型，建议您在宿主机上挂载一个模型缓存目录。
-
-Video2X 默认会将下载的模型保存在 `/root/.local/share/video2x` 或 `/root/.cache/video2x` 下（由于基于 Linux 环境）。我们建议通过 `-v` 将本地目录挂载进去。
+您可以通过以下命令使用阿里云镜像运行 Video2X。Video2X 6.4.0 的 GitHub Release 页面不单独提供模型下载，模型文件在源码仓库的 `models/` 目录里。建议先把需要的模型下载到宿主机目录，再挂载到容器内的 `/usr/share/video2x`。
 
 ### 运行示例
 
 ```bash
 # 创建一个本地目录用于存放模型
-mkdir -p /path/to/your/local/video2x_models
+MODEL_DIR=/path/to/your/local/video2x_models
+mkdir -p "$MODEL_DIR/models/realesrgan"
 
 # 运行 Video2X 并挂载模型目录和工作目录
 docker run --gpus all --privileged -it --rm \
   -v "$PWD":/host \
-  -v /path/to/your/local/video2x_models:/root/.local/share/video2x \
-  -v /path/to/your/local/video2x_models_cache:/root/.cache/video2x \
-  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1 \
+  -v "$MODEL_DIR":/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0 \
   -i /host/input.mp4 \
   -o /host/output_1080p.mp4 \
   -p realesrgan \
-  -h 1080 \
-  --realesrgan-model realesrgan-x4plus
+  -s 4 \
+  --realesrgan-model realesrgan-plus
 ```
 
 ### 批量转换 data 目录
@@ -34,9 +32,8 @@ docker run --gpus all --privileged -it --rm \
 ```bash
 docker run --gpus all --privileged -it --rm \
   -v "$PWD/data":/data \
-  -v /path/to/your/local/video2x_models:/root/.local/share/video2x \
-  -v /path/to/your/local/video2x_models_cache:/root/.cache/video2x \
-  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1
+  -v /path/to/your/local/video2x_models:/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0
 ```
 
 可通过环境变量调整默认参数：
@@ -46,25 +43,77 @@ docker run --gpus all --privileged -it --rm \
   -e DATA_DIR=/data \
   -e TARGET_HEIGHT=1080 \
   -e PROCESSOR=realesrgan \
-  -e REALESRGAN_MODEL=realesrgan-x4plus \
+  -e REALESRGAN_MODEL=realesrgan-plus \
+  -e SCALING_FACTOR=4 \
   -v "$PWD/data":/data \
-  -v /path/to/your/local/video2x_models:/root/.local/share/video2x \
-  -v /path/to/your/local/video2x_models_cache:/root/.cache/video2x \
-  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1
+  -v /path/to/your/local/video2x_models:/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0
 ```
+
+不设置 `SCALING_FACTOR` 时，批量入口会根据输入视频高度自动选择 `2`、`3` 或 `4` 倍，使输出高度不低于 `TARGET_HEIGHT`；由于 Real-ESRGAN 只能整数倍放大，输出高度可能高于 1080p。
 
 ### 模型下载说明
 
-1. **自动下载**：Video2X 具有自动下载机制。在您首次运行某个特定的处理流（如 `realesrgan`）时，如果在容器内的缓存目录中找不到对应的模型文件，程序会自动从 GitHub 发布页下载所需的模型。
-2. **持久化存储**：通过如上所示的挂载 `-v /path/to/your/local/video2x_models:/root/.local/share/video2x` 和 `-v /path/to/your/local/video2x_models_cache:/root/.cache/video2x`，容器自动下载的模型会保留在宿主机上。后续再次运行或重建容器时，只要继续挂载该目录，就无需重新下载模型。
-3. **手动下载**：如果您所在的网络环境无法直连 GitHub，您可以前往相应模型的仓库（例如 [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)）下载模型权重文件，并手动放置到您挂载的本地目录的对应路径中。具体路径会在首次运行报错时在日志中提示，通常位于 `realesrgan/weights/` 等相对位置。
+Video2X 6.4.0 使用的是源码仓库里自带的 ncnn/Vulkan 模型文件，即一组 `.param` + `.bin`，不是 Python 版 Real-ESRGAN 的 `.pth` 权重。Release 页面没有单独的模型压缩包；模型文件在源码路径 `models/realesrgan/` 下，运行时应放在容器内的 `/usr/share/video2x/models/realesrgan/`，或者当前工作目录下的 `models/realesrgan/`。
+
+推荐优先下载 `realesrgan-plus-x4`：
+
+- 普通实拍、电影、电视剧、通用视频：用 `realesrgan-plus`，也就是下载 `realesrgan-plus-x4.param` 和 `realesrgan-plus-x4.bin`。
+- 动画/番剧视频：优先用 `realesr-animevideov3`，按放大倍率下载 `x2`、`x3` 或 `x4`。如果不确定倍率，就先下载 `x4`。
+- 动漫图片或偏插画的视频：可以试 `realesrgan-plus-anime-x4`，但视频场景通常先试 `realesr-animevideov3`。
+
+手动下载通用模型：
+
+```bash
+MODEL_DIR=/path/to/your/local/video2x_models/models/realesrgan
+BASE_URL=https://raw.githubusercontent.com/k4yt3x/video2x/6.4.0/models/realesrgan
+
+mkdir -p "$MODEL_DIR"
+curl -L -o "$MODEL_DIR/realesrgan-plus-x4.param" "$BASE_URL/realesrgan-plus-x4.param"
+curl -L -o "$MODEL_DIR/realesrgan-plus-x4.bin" "$BASE_URL/realesrgan-plus-x4.bin"
+```
+
+如果处理动画视频，改下模型名即可：
+
+```bash
+MODEL_DIR=/path/to/your/local/video2x_models/models/realesrgan
+BASE_URL=https://raw.githubusercontent.com/k4yt3x/video2x/6.4.0/models/realesrgan
+
+mkdir -p "$MODEL_DIR"
+curl -L -o "$MODEL_DIR/realesr-animevideov3-x4.param" "$BASE_URL/realesr-animevideov3-x4.param"
+curl -L -o "$MODEL_DIR/realesr-animevideov3-x4.bin" "$BASE_URL/realesr-animevideov3-x4.bin"
+```
+
+运行容器时，把本地模型目录挂载到 `/usr/share/video2x`：
+
+```bash
+docker run --gpus all --privileged -it --rm \
+  -v "$PWD":/host \
+  -v /path/to/your/local/video2x_models:/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0 \
+  -i /host/input.mp4 \
+  -o /host/output_1080p.mp4 \
+  -p realesrgan \
+  -s 4 \
+  --realesrgan-model realesrgan-plus
+```
+
+可用模型文件列表来自 Video2X 6.4.0 源码的 `models/realesrgan/` 目录：
+
+- `realesrgan-plus-x4.param` / `realesrgan-plus-x4.bin`
+- `realesrgan-plus-anime-x4.param` / `realesrgan-plus-anime-x4.bin`
+- `realesr-animevideov3-x2.param` / `realesr-animevideov3-x2.bin`
+- `realesr-animevideov3-x3.param` / `realesr-animevideov3-x3.bin`
+- `realesr-animevideov3-x4.param` / `realesr-animevideov3-x4.bin`
+
+Real-ESRGAN 官方 ncnn 说明可参考 [Real-ESRGAN-ncnn-vulkan](https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan)，Python 版 `.pth` 权重说明可参考 [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)。
 
 ## Github Actions 工作流
 
 本目录中的 `dockerfile` 用于包装基础镜像。实际同步流程在 `.github/workflows/video2x.yml` 中定义：
 
 - **触发条件**：向 `video2x` 分支提交代码，或手动在 Actions 页面点击触发 (Workflow Dispatch)。
-- **目标镜像**：`registry.cn-qingdao.aliyuncs.com/wod/video2x:6.1.1`
+- **目标镜像**：`registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0`
 
 ## 构建
 

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: 6.1.1
+  BUILD_VERSION: 6.4.0
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/video2x
 
 jobs:

@@ -4,7 +4,8 @@ set -euo pipefail
 DATA_DIR="${DATA_DIR:-/data}"
 TARGET_HEIGHT="${TARGET_HEIGHT:-1080}"
 PROCESSOR="${PROCESSOR:-realesrgan}"
-REALESRGAN_MODEL="${REALESRGAN_MODEL:-realesrgan-x4plus}"
+REALESRGAN_MODEL="${REALESRGAN_MODEL:-realesrgan-plus}"
+SCALING_FACTOR="${SCALING_FACTOR:-}"
 
 if [ "$#" -gt 0 ]; then
   exec video2x "$@"
@@ -90,11 +91,19 @@ for index in "${!INPUTS[@]}"; do
     "${#INPUTS[@]}" \
     "${INPUTS[$index]}"
 
+  input_height="${DIMENSIONS[$index]#*x}"
+  scale="${SCALING_FACTOR:-$(((TARGET_HEIGHT + input_height - 1) / input_height))}"
+  if [ "$scale" -lt 2 ]; then
+    scale=2
+  elif [ "$scale" -gt 4 ]; then
+    scale=4
+  fi
+
   video2x \
     -i "${INPUTS[$index]}" \
     -o "${OUTPUTS[$index]}" \
     -p "$PROCESSOR" \
-    -h "$TARGET_HEIGHT" \
+    -s "$scale" \
     --realesrgan-model "$REALESRGAN_MODEL"
 done
 
