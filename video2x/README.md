@@ -14,7 +14,8 @@ MODEL_DIR=/path/to/your/local/video2x_models
 mkdir -p "$MODEL_DIR/models/realesrgan"
 
 # 运行 Video2X 并挂载模型目录和工作目录
-docker run --gpus all --privileged -it --rm \
+docker run --device nvidia.com/gpu=0 -it --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
   -v "$PWD":/host \
   -v "$MODEL_DIR":/usr/share/video2x \
   registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0 \
@@ -30,7 +31,8 @@ docker run --gpus all --privileged -it --rm \
 镜像入口会扫描容器内 `/data` 目录下的 `*.mp4` 文件，找出高度低于 `1080p` 的视频，先列出任务清单，再逐个转换为同目录下的 `*_1080p.mp4`。
 
 ```bash
-docker run --gpus all --privileged -it --rm \
+docker run --device nvidia.com/gpu=0 -it --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
   -v "$PWD/data":/data \
   -v /path/to/your/local/video2x_models:/usr/share/video2x \
   registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0
@@ -39,7 +41,10 @@ docker run --gpus all --privileged -it --rm \
 可通过环境变量调整默认参数：
 
 ```bash
-docker run --gpus all --privileged -it --rm \
+docker run --name video2x-gpu3 \
+  --device nvidia.com/gpu=3 \
+  -it --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
   -e DATA_DIR=/data \
   -e TARGET_HEIGHT=1080 \
   -e PROCESSOR=realesrgan \
@@ -51,6 +56,47 @@ docker run --gpus all --privileged -it --rm \
 ```
 
 不设置 `SCALING_FACTOR` 时，批量入口会根据输入视频高度自动选择 `2`、`3` 或 `4` 倍，使输出高度不低于 `TARGET_HEIGHT`；由于 Real-ESRGAN 只能整数倍放大，输出高度可能高于 1080p。
+
+### 多 GPU 机器运行方式
+
+本镜像不需要特权模式。按运维要求使用 NVIDIA CDI 设备写法：`--device nvidia.com/gpu=N`。多 GPU 机器上建议只把需要的 GPU 暴露给容器，而不是把全部 GPU 暴露给容器后再用环境变量屏蔽。
+
+单卡示例，绑定 GPU 3：
+
+```bash
+docker run --name video2x-gpu3 \
+  --device nvidia.com/gpu=3 \
+  -d --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
+  -e DATA_DIR=/data \
+  -e TARGET_HEIGHT=1080 \
+  -e PROCESSOR=realesrgan \
+  -e REALESRGAN_MODEL=realesrgan-plus \
+  -e SCALING_FACTOR=4 \
+  -v "$PWD/data":/data \
+  -v /path/to/your/local/video2x_models:/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0
+```
+
+如果确实要在一个容器内暴露多张卡，可重复声明 CDI 设备：
+
+```bash
+docker run --name video2x-gpu2-3 \
+  --device nvidia.com/gpu=2 \
+  --device nvidia.com/gpu=3 \
+  -d --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
+  -e DATA_DIR=/data \
+  -e TARGET_HEIGHT=1080 \
+  -e PROCESSOR=realesrgan \
+  -e REALESRGAN_MODEL=realesrgan-plus \
+  -e SCALING_FACTOR=4 \
+  -v "$PWD/data":/data \
+  -v /path/to/your/local/video2x_models:/usr/share/video2x \
+  registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0
+```
+
+如果要多张卡并行跑不同任务，推荐启动多个容器，每个容器绑定一张 GPU，并挂载不同的数据目录，例如 `video2x-gpu0` 处理 `/data/jasna/ai0`，`video2x-gpu1` 处理 `/data/jasna/ai1`。
 
 ### 模型下载说明
 
@@ -87,7 +133,8 @@ curl -L -o "$MODEL_DIR/realesr-animevideov3-x4.bin" "$BASE_URL/realesr-animevide
 运行容器时，把本地模型目录挂载到 `/usr/share/video2x`：
 
 ```bash
-docker run --gpus all --privileged -it --rm \
+docker run --device nvidia.com/gpu=0 -it --rm \
+  -e NVIDIA_DRIVER_CAPABILITIES=all \
   -v "$PWD":/host \
   -v /path/to/your/local/video2x_models:/usr/share/video2x \
   registry.cn-qingdao.aliyuncs.com/wod/video2x:6.4.0 \

@@ -6,7 +6,7 @@ LABEL maintainer=${AUTHOR}
 
 ENV TZ=Asia/Shanghai
 
-COPY entrypoint.sh /entrypoint.sh
+COPY video2x/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
