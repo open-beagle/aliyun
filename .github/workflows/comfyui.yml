@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: "1.1.0"
+  BUILD_VERSION: "v0.21.1"
   CUDA_VERSION: "13.2.0"
 
 jobs:
@@ -47,6 +47,7 @@ jobs:
           provenance: false
           build-args: |
             CUDA_VERSION=${{ env.CUDA_VERSION }}
+            COMFYUI_VERSION=${{ env.BUILD_VERSION }}
           tags: registry.cn-qingdao.aliyuncs.com/wod/comfyui:${{ env.BUILD_VERSION }}-cu${{ env.CUDA_VERSION }}
 
       - name: Image build success
