@@ -20,8 +20,8 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
     rm -rf /var/lib/apt/lists/*
 
-# 核心巅峰对决：拉取基于 cu132 的最新 PyTorch Nightly 版本
-RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu132
+# 安装 PyTorch 稳定版
+RUN pip install --no-cache-dir torch torchvision torchaudio
 
 # 安装 xformers 和 triton（在 CUDA 13 环境下极大可能需要现场编译拉满性能）
 RUN pip install --no-cache-dir xformers triton
