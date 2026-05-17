@@ -9,7 +9,8 @@ LABEL description="机皇满血版 ComfyUI Image - CUDA 13.2"
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTHONUTF8=1 \
-    HF_ENDPOINT="https://hf-mirror.com"
+    HF_ENDPOINT="https://hf-mirror.com" \
+    PIP_BREAK_SYSTEM_PACKAGES=1
 
 # 在 Ubuntu 24.04 上安装高版本 Python 和最新工具链，以及必须的图像库依赖
 RUN apt-get update && \
