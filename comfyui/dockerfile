@@ -1,37 +1,41 @@
-FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel
+# 直接登顶：采用最新的 CUDA 13.2 + cuDNN + Ubuntu 24.04 编译环境
+FROM nvidia/cuda:13.2.0-cudnn-devel-ubuntu24.04
 
 LABEL maintainer="beagle-news-flow"
-LABEL description="Modern ComfyUI Image explicitly built for production"
+LABEL description="机皇满血版 ComfyUI Image - CUDA 13.2"
 
-# 设置非交互环境变量和时区
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Shanghai
+# 环保和网络加速配置 (移除了占位符代理，因为 GitHub Actions 本身在海外，网络通畅。如需本地构建可自行加上)
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONUTF8=1 \
+    HF_ENDPOINT="https://hf-mirror.com"
 
-# 安装系统依赖 (ffmpeg, 图像库等)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    wget \
-    curl \
-    ffmpeg \
-    libgl1 \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+# 在 Ubuntu 24.04 上安装高版本 Python 和最新工具链，以及必须的图像库依赖
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git wget curl build-essential ffmpeg libgl1 libglib2.0-0 \
+    python3.12 python3.12-venv python3.12-dev && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/ComfyUI
+# 核心巅峰对决：拉取基于 cu132 的最新 PyTorch Nightly 版本
+RUN pip install --no-cache-dir --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu132
 
-# 拉取最新版 ComfyUI 源码
-RUN git clone --depth=1 https://github.com/comfyanonymous/ComfyUI.git .
+# 安装 xformers 和 triton（在 CUDA 13 环境下极大可能需要现场编译拉满性能）
+RUN pip install --no-cache-dir xformers triton
 
-# 安装核心依赖
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# 部署 ComfyUI 本体
+WORKDIR /app
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# [可选] 安装默认好用的 ComfyUI-Manager 插件
-RUN cd custom_nodes && \
-    git clone --depth=1 https://github.com/ltdrdata/ComfyUI-Manager.git
+# 挂载 Manager
+WORKDIR /app/custom_nodes
+RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
 
+WORKDIR /app
 EXPOSE 8188
 
-# 挂载了 /data 后，模型和输出可使用软链接或启动参数指定的目录
-# 注意：可以在启动脚本中通过 --output-directory 和 --input-directory 等参数映射
-CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--output-directory", "/comfyui/output", "--input-directory", "/comfyui/input"]
+# 启动命令
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]
