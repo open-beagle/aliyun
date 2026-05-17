@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: "1.1.0-cu132"
+  BUILD_VERSION: "1.1.0"
+  CUDA_VERSION: "13.2.0"
 
 jobs:
   build-and-push:
@@ -44,7 +45,9 @@ jobs:
           platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/comfyui:${{ env.BUILD_VERSION }}
+          build-args: |
+            CUDA_VERSION=${{ env.CUDA_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/comfyui:${{ env.BUILD_VERSION }}-cu${{ env.CUDA_VERSION }}
 
       - name: Image build success
         run: echo "comfyui:${{ env.BUILD_VERSION }} built and pushed successfully!"

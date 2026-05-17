@@ -1,5 +1,6 @@
 # 直接登顶：采用最新的 CUDA 13.2 + cuDNN + Ubuntu 24.04 编译环境
-FROM nvidia/cuda:13.2.0-cudnn-devel-ubuntu24.04
+ARG CUDA_VERSION="13.2.0"
+FROM nvidia/cuda:${CUDA_VERSION}-cudnn-devel-ubuntu24.04
 
 LABEL maintainer="beagle-news-flow"
 LABEL description="机皇满血版 ComfyUI Image - CUDA 13.2"
