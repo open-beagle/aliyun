@@ -57,8 +57,9 @@ EOF
         --output-directory /data/output \
         --input-directory /data/input \
         --user-directory /data/user \
-        "\$@"
+        --extra-model-paths-config /app/extra_model_paths.yaml \
+        "$@"
 else
     echo "未检测到 /data 挂载点，使用标准模式启动..."
-    exec python main.py --listen 0.0.0.0 --port 8188 "\$@"
+    exec python main.py --listen 0.0.0.0 --port 8188 "$@"
 fi
