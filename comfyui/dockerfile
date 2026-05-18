@@ -1,9 +1,9 @@
-# 直接登顶：采用最新的 CUDA 13.2 + cuDNN + Ubuntu 24.04 编译环境
-ARG CUDA_VERSION="13.2.1"
+# 采用 CUDA 13.0：PyTorch cu130 源同时提供 torch、torchvision、torchaudio。
+ARG CUDA_VERSION="13.0.2"
 FROM nvidia/cuda:${CUDA_VERSION}-cudnn-devel-ubuntu24.04
 
 LABEL maintainer="beagle-news-flow"
-LABEL description="机皇满血版 ComfyUI Image - CUDA 13.2"
+LABEL description="ComfyUI Image - CUDA 13.0"
 
 # 环保和网络加速配置 (移除了占位符代理，因为 GitHub Actions 本身在海外，网络通畅。如需本地构建可自行加上)
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -21,8 +21,12 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
     rm -rf /var/lib/apt/lists/*
 
-# 安装 PyTorch 稳定版 (指定 CUDA 13.2 专属构建，若无对应组件则回退默认源)
-RUN pip install --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu132
+# 安装 PyTorch 稳定版。不要使用 --extra-index-url，避免 torchaudio 从 PyPI 混入非 cu130 wheel。
+RUN pip install --no-cache-dir \
+    torch==2.12.0+cu130 \
+    torchvision==0.27.0+cu130 \
+    torchaudio==2.11.0+cu130 \
+    --index-url https://download.pytorch.org/whl/cu130
 
 # 安装 xformers 和 triton（在 CUDA 13 环境下极大可能需要现场编译拉满性能）
 RUN pip install --no-cache-dir xformers triton
