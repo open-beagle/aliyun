@@ -1,6 +1,55 @@
 #!/bin/bash
 set -e
 
+COMFYUI_PORT="${COMFYUI_PORT:-8188}"
+COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/tmp/comfyui.log}"
+COMFYUI_PID=""
+
+configure_manager_logging() {
+    local user_dir="$1"
+    local config_file
+
+    for config_file in \
+        "$user_dir/__manager/config.ini" \
+        "$user_dir/default/ComfyUI-Manager/config.ini"; do
+        mkdir -p "$(dirname "$config_file")"
+
+        if [ ! -f "$config_file" ]; then
+            cat <<EOF > "$config_file"
+[default]
+file_logging = True
+EOF
+        elif grep -q '^file_logging[[:space:]]*=' "$config_file"; then
+            sed -i 's/^file_logging[[:space:]]*=.*/file_logging = True/' "$config_file"
+        else
+            printf '\nfile_logging = True\n' >> "$config_file"
+        fi
+    done
+}
+
+stop_comfyui() {
+    echo "收到停止信号，正在停止 ComfyUI..."
+
+    if [ -n "$COMFYUI_PID" ] && kill -0 "$COMFYUI_PID" 2>/dev/null; then
+        kill "$COMFYUI_PID" 2>/dev/null || true
+        wait "$COMFYUI_PID" 2>/dev/null || true
+    fi
+
+    exit 0
+}
+
+show_comfyui_log() {
+    mkdir -p "$(dirname "$COMFYUI_LOG_FILE")"
+    touch "$COMFYUI_LOG_FILE"
+
+    echo "ComfyUI 日志文件: $COMFYUI_LOG_FILE"
+    echo "开始监控 ComfyUI 日志..."
+
+    tail -n 0 -F "$COMFYUI_LOG_FILE"
+}
+
+trap stop_comfyui TERM INT
+
 # 为 K8s 部署优化：如果存在 /data 挂载点，自动初始化目录结构
 if [ -d "/data" ]; then
     echo "=========================================="
@@ -87,14 +136,25 @@ EOF
     echo "输入目录: /data/input"
     echo "用户配置与工作流: /data/user"
     
+    configure_manager_logging /data/user
+    export COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/data/user/comfyui_${COMFYUI_PORT}.log}"
+
     # 替换运行参数中的目录挂载
-    exec /data/venv/bin/python main.py --listen 0.0.0.0 --port 8188 \
+    echo "后台启动 ComfyUI..."
+    /data/venv/bin/python main.py --listen 0.0.0.0 --port "$COMFYUI_PORT" \
         --output-directory /data/output \
         --input-directory /data/input \
         --user-directory /data/user \
         --extra-model-paths-config /app/extra_model_paths.yaml \
-        "$@"
+        "$@" >/tmp/comfyui-stdio.log 2>&1 &
+    COMFYUI_PID="$!"
+    show_comfyui_log
 else
     echo "未检测到 /data 挂载点，使用标准模式启动..."
-    exec python main.py --listen 0.0.0.0 --port 8188 "$@"
+    configure_manager_logging /app/user
+    export COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/app/user/comfyui_${COMFYUI_PORT}.log}"
+    echo "后台启动 ComfyUI..."
+    python main.py --listen 0.0.0.0 --port "$COMFYUI_PORT" "$@" >/tmp/comfyui-stdio.log 2>&1 &
+    COMFYUI_PID="$!"
+    show_comfyui_log
 fi
