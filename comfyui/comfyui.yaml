@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comfyui
+  namespace: default
+  labels:
+    app: comfyui
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8188
+      targetPort: 8188
+      protocol: TCP
+      name: http
+  selector:
+    app: comfyui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui
+  namespace: default
+  labels:
+    app: comfyui
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: comfyui
+  template:
+    metadata:
+      labels:
+        app: comfyui
+    spec:
+      containers:
+        - name: comfyui
+          image: registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.21.1-cu13.2.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8188
+              name: http
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+            requests:
+              memory: "16Gi"
+          volumeMounts:
+            - name: comfyui
+              mountPath: /data
+      volumes:
+        - name: comfyui
+          persistentVolumeClaim:
+            claimName: comfyui
