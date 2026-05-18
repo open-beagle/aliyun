@@ -13,12 +13,39 @@ if [ -d "/data" ]; then
     mkdir -p /data/user/default/comfyui
     mkdir -p /data/user/default/ComfyUI-Manager
     mkdir -p /data/models
+    mkdir -p /data/custom_nodes
 
     if ! touch /data/user/.write-test 2>/dev/null; then
         echo "错误: /data/user 不可写，ComfyUI 无法创建配置和数据库文件。请检查 PVC 权限。"
         exit 1
     fi
     rm -f /data/user/.write-test
+
+    # 将自定义节点目录放到持久化卷中。ComfyUI 仍然读取 /app/custom_nodes，
+    # 但实际内容通过软链接保存到 /data/custom_nodes，避免 Pod 重建后丢失。
+    if [ -d "/app/custom_nodes" ] && [ ! -L "/app/custom_nodes" ]; then
+        if [ -z "$(ls -A /data/custom_nodes)" ]; then
+            echo "初始化自定义节点目录到 /data/custom_nodes..."
+            cp -a /app/custom_nodes/. /data/custom_nodes/
+        elif [ -d "/app/custom_nodes/ComfyUI-Manager" ] && [ ! -d "/data/custom_nodes/ComfyUI-Manager" ]; then
+            echo "补充 ComfyUI-Manager 到持久化自定义节点目录..."
+            cp -a /app/custom_nodes/ComfyUI-Manager /data/custom_nodes/
+        fi
+
+        rm -rf /app/custom_nodes
+        ln -s /data/custom_nodes /app/custom_nodes
+    fi
+
+    # 将后续通过 ComfyUI-Manager 安装的 Python 依赖放到持久化 venv 中。
+    # 使用 --system-site-packages 复用镜像内置的 CUDA PyTorch 和 ComfyUI 基础依赖。
+    if [ ! -x "/data/venv/bin/python" ]; then
+        echo "创建持久化 Python venv: /data/venv"
+        python -m venv --system-site-packages /data/venv
+        /data/venv/bin/python -m pip install --no-cache-dir --upgrade pip uv
+    fi
+
+    export VIRTUAL_ENV=/data/venv
+    export PATH="/data/venv/bin:$PATH"
     
     # 配置额外模型路径
     if [ ! -f "/app/extra_model_paths.yaml" ]; then
@@ -61,7 +88,7 @@ EOF
     echo "用户配置与工作流: /data/user"
     
     # 替换运行参数中的目录挂载
-    exec python main.py --listen 0.0.0.0 --port 8188 \
+    exec /data/venv/bin/python main.py --listen 0.0.0.0 --port 8188 \
         --output-directory /data/output \
         --input-directory /data/input \
         --user-directory /data/user \
