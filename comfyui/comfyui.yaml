@@ -45,7 +45,9 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "1"
+              memory: "16Gi"
             requests:
+              nvidia.com/gpu: "1"
               memory: "16Gi"
           volumeMounts:
             - name: comfyui
