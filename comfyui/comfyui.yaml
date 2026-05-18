@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: comfyui
-          image: registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.21.1-cu13.2.1
+          image: registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.21.1-cu13.0.3
           imagePullPolicy: Always
           ports:
             - containerPort: 8188

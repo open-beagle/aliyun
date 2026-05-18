@@ -19,27 +19,31 @@ RUN apt-get update && \
     python3.12 python3.12-venv python3.12-dev && \
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.12 1 && \
+    python -m pip --version && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 PyTorch 稳定版。不要使用 --extra-index-url，避免 torchaudio 从 PyPI 混入非 cu130 wheel。
-RUN pip install --no-cache-dir \
+RUN python -m pip install --no-cache-dir \
     torch==2.12.0+cu130 \
     torchvision==0.27.0+cu130 \
     torchaudio==2.11.0+cu130 \
     --index-url https://download.pytorch.org/whl/cu130
 
 # 安装 xformers 和 triton（在 CUDA 13 环境下极大可能需要现场编译拉满性能）
-RUN pip install --no-cache-dir xformers triton
+RUN python -m pip install --no-cache-dir xformers triton
 
 # 部署 ComfyUI 本体
 WORKDIR /app
 ARG COMFYUI_VERSION="v0.21.1"
 RUN git clone --branch ${COMFYUI_VERSION} --depth 1 https://github.com/comfyanonymous/ComfyUI.git .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # 挂载 Manager
 WORKDIR /app/custom_nodes
-RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
+RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
+    python -m pip install --no-cache-dir -r /app/custom_nodes/ComfyUI-Manager/requirements.txt && \
+    python -c "import git, uv; print('ComfyUI-Manager package checks passed')"
 
 WORKDIR /app
 # 准备 K8s 启动脚本

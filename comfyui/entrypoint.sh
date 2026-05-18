@@ -10,7 +10,15 @@ if [ -d "/data" ]; then
     mkdir -p /data/output
     mkdir -p /data/input
     mkdir -p /data/user/default/workflows
+    mkdir -p /data/user/default/comfyui
+    mkdir -p /data/user/default/ComfyUI-Manager
     mkdir -p /data/models
+
+    if ! touch /data/user/.write-test 2>/dev/null; then
+        echo "错误: /data/user 不可写，ComfyUI 无法创建配置和数据库文件。请检查 PVC 权限。"
+        exit 1
+    fi
+    rm -f /data/user/.write-test
     
     # 配置额外模型路径
     if [ ! -f "/app/extra_model_paths.yaml" ]; then
