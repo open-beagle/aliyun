@@ -30,8 +30,9 @@ RUN python -m pip install --no-cache-dir \
     torchaudio==2.11.0+cu130 \
     --index-url https://download.pytorch.org/whl/cu130
 
-# 安装 xformers 和 triton（在 CUDA 13 环境下极大可能需要现场编译拉满性能）
-RUN python -m pip install --no-cache-dir xformers triton
+# xformers 当前没有匹配 PyTorch cu130/Python 3.12 的稳定 wheel，错误 wheel 会导致自定义节点导入失败。
+# 先只安装 triton，让 ComfyUI 回退到 PyTorch attention；后续有匹配 wheel 再开启 xformers。
+RUN python -m pip install --no-cache-dir triton
 
 # 部署 ComfyUI 本体
 WORKDIR /app
