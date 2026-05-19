@@ -38,9 +38,35 @@ RUN python -m pip install --no-cache-dir triton
 WORKDIR /app
 ARG COMFYUI_VERSION="v0.21.1"
 RUN git clone --branch ${COMFYUI_VERSION} --depth 1 https://github.com/comfyanonymous/ComfyUI.git .
-RUN sed -i 's/default="127.0.0.1"/default="0.0.0.0"/' comfy/cli_args.py && \
-    sed -i 's/base_path = os.path.dirname(os.path.realpath(__file__))/base_path = "\\/data"/' folder_paths.py && \
-    sed -i '/database_default_path = os.path.abspath(/,+2c\database_default_path = "/data/user/comfyui.db"' comfy/cli_args.py
+RUN python - <<'PY'
+from pathlib import Path
+
+def replace_once(path: str, old: str, new: str) -> None:
+    file_path = Path(path)
+    text = file_path.read_text()
+    if old not in text:
+        raise RuntimeError(f"Expected text not found in {path}: {old!r}")
+    file_path.write_text(text.replace(old, new, 1))
+
+cli_args = Path("comfy/cli_args.py")
+replace_once("comfy/cli_args.py", 'default="127.0.0.1"', 'default="0.0.0.0"')
+replace_once(
+    "folder_paths.py",
+    "base_path = os.path.dirname(os.path.realpath(__file__))",
+    'base_path = "/data"',
+)
+
+text = cli_args.read_text()
+start = text.find("database_default_path = os.path.abspath(\n")
+if start == -1:
+    raise RuntimeError("Expected database_default_path block not found in comfy/cli_args.py")
+end = text.find("\n)", start)
+if end == -1:
+    raise RuntimeError("Expected database_default_path block terminator not found in comfy/cli_args.py")
+end += len("\n)")
+text = text[:start] + 'database_default_path = "/data/user/comfyui.db"' + text[end:]
+cli_args.write_text(text)
+PY
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # 挂载 Manager
