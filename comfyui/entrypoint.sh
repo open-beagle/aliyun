@@ -2,8 +2,9 @@
 set -e
 
 COMFYUI_PORT="${COMFYUI_PORT:-8188}"
-COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/tmp/comfyui.log}"
+COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-}"
 COMFYUI_PID=""
+COMFYUI_STDIO_LOG_FILE="${COMFYUI_STDIO_LOG_FILE:-/tmp/comfyui-stdio.log}"
 
 configure_manager_logging() {
     local user_dir="$1"
@@ -48,6 +49,39 @@ show_comfyui_log() {
     tail -n 0 -F "$COMFYUI_LOG_FILE"
 }
 
+set_comfyui_log_file() {
+    local user_dir="$1"
+    local manager_log_file="$user_dir/comfyui_${COMFYUI_PORT}.log"
+
+    if [ -n "$COMFYUI_LOG_FILE" ] && [ "$COMFYUI_LOG_FILE" != "$manager_log_file" ]; then
+        echo "警告: ComfyUI-Manager file_logging 不支持自定义日志文件路径，忽略 COMFYUI_LOG_FILE=$COMFYUI_LOG_FILE"
+        echo "将使用 ComfyUI-Manager 实际日志文件: $manager_log_file"
+    fi
+
+    COMFYUI_LOG_FILE="$manager_log_file"
+    export COMFYUI_LOG_FILE
+}
+
+image_env_id() {
+    python - <<'PY'
+import hashlib
+import pathlib
+import platform
+import sys
+
+parts = [
+    f"python={platform.python_version()}",
+    f"executable={sys.executable}",
+]
+for file_name in ("requirements.txt", "comfy_execution/graph_utils.py"):
+    path = pathlib.Path("/app") / file_name
+    if path.exists():
+        parts.append(f"{file_name}={hashlib.sha256(path.read_bytes()).hexdigest()}")
+
+print("|".join(parts))
+PY
+}
+
 trap stop_comfyui TERM INT
 
 # 为 K8s 部署优化：如果存在 /data 挂载点，自动初始化目录结构
@@ -87,10 +121,17 @@ if [ -d "/data" ]; then
 
     # 将后续通过 ComfyUI-Manager 安装的 Python 依赖放到持久化 venv 中。
     # 使用 --system-site-packages 复用镜像内置的 CUDA PyTorch 和 ComfyUI 基础依赖。
+    IMAGE_ENV_ID="$(image_env_id)"
+    if [ -x "/data/venv/bin/python" ] && { [ ! -f "/data/venv/.image-env-id" ] || [ "$(cat /data/venv/.image-env-id)" != "$IMAGE_ENV_ID" ]; }; then
+        echo "检测到持久化 Python venv 与当前镜像环境不一致，重建: /data/venv"
+        rm -rf /data/venv
+    fi
+
     if [ ! -x "/data/venv/bin/python" ]; then
         echo "创建持久化 Python venv: /data/venv"
         python -m venv --system-site-packages /data/venv
         /data/venv/bin/python -m pip install --no-cache-dir --upgrade pip uv
+        printf '%s\n' "$IMAGE_ENV_ID" > /data/venv/.image-env-id
     fi
 
     export VIRTUAL_ENV=/data/venv
@@ -137,24 +178,26 @@ EOF
     echo "用户配置与工作流: /data/user"
     
     configure_manager_logging /data/user
-    export COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/data/user/comfyui_${COMFYUI_PORT}.log}"
+    set_comfyui_log_file /data/user
 
     # 替换运行参数中的目录挂载
     echo "后台启动 ComfyUI..."
+    echo "ComfyUI 标准输出日志: $COMFYUI_STDIO_LOG_FILE"
     /data/venv/bin/python main.py --listen 0.0.0.0 --port "$COMFYUI_PORT" \
         --output-directory /data/output \
         --input-directory /data/input \
         --user-directory /data/user \
         --extra-model-paths-config /app/extra_model_paths.yaml \
-        "$@" >/tmp/comfyui-stdio.log 2>&1 &
+        "$@" >"$COMFYUI_STDIO_LOG_FILE" 2>&1 &
     COMFYUI_PID="$!"
     show_comfyui_log
 else
     echo "未检测到 /data 挂载点，使用标准模式启动..."
     configure_manager_logging /app/user
-    export COMFYUI_LOG_FILE="${COMFYUI_LOG_FILE:-/app/user/comfyui_${COMFYUI_PORT}.log}"
+    set_comfyui_log_file /app/user
     echo "后台启动 ComfyUI..."
-    python main.py --listen 0.0.0.0 --port "$COMFYUI_PORT" "$@" >/tmp/comfyui-stdio.log 2>&1 &
+    echo "ComfyUI 标准输出日志: $COMFYUI_STDIO_LOG_FILE"
+    python main.py --listen 0.0.0.0 --port "$COMFYUI_PORT" "$@" >"$COMFYUI_STDIO_LOG_FILE" 2>&1 &
     COMFYUI_PID="$!"
     show_comfyui_log
 fi
