@@ -17,6 +17,8 @@ git switch comfyui ;`
 ## ComfyUI 启动探活
 
 - 容器启动后由 `/app/entrypoint.sh` 初始化 ComfyUI-Manager `file_logging = True`，让 ComfyUI/Manager 自己把日志写到用户目录下的固定文件。
+- 镜像构建时把 ComfyUI 默认监听地址改为 `0.0.0.0`，默认运行目录改为 `/data`，因此 Manager 触发 Restart 时仍会使用 `/data/models`、`/data/output`、`/data/input` 和 `/data/user`。
+- `/app/models` 整体软链接到 `/data/models`，模型数据只保存在持久化卷中。
 - 脚本后台启动 ComfyUI，不把 `python main.py` 的输出重定向到目标日志文件；前台只 `tail -F` ComfyUI-Manager 实际写入的日志文件，同步输出到容器日志。
 - ComfyUI Manager 自身的重启指令由 ComfyUI 进程处理，容器层不重复接管；如果重启失败，多半是业务问题，由 Kubernetes 探活判定并重启。
 - Kubernetes `startupProbe` 每 10 秒访问一次 `http://:8188/`，最多失败 30 次；启动超过 5 分钟仍不可访问时，判定启动失败。
@@ -25,6 +27,5 @@ git switch comfyui ;`
 
 可调环境变量：
 
-- `COMFYUI_PORT`：ComfyUI 监听端口，默认 `8188`。
-- `COMFYUI_LOG_FILE`：兼容旧环境变量。ComfyUI-Manager file logging 不支持自定义文件路径，脚本会始终使用它实际写入的路径；K8s `/data` 模式为 `/data/user/comfyui_8188.log`，普通模式为 `/app/user/comfyui_8188.log`。
+- `COMFYUI_LOG_FILE`：兼容旧环境变量。ComfyUI-Manager file logging 不支持自定义文件路径，脚本会始终使用它实际写入的路径：`/data/user/comfyui_8188.log`。
 - `COMFYUI_STDIO_LOG_FILE`：后台 `python main.py` 的 stdout/stderr 临时日志，默认 `/tmp/comfyui-stdio.log`。
