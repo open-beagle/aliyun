@@ -1,5 +1,12 @@
 # ComfyUI
 
+## Github 地址
+
+- 上游项目：https://github.com/comfyanonymous/ComfyUI
+- ComfyUI-Manager：https://github.com/ltdrdata/ComfyUI-Manager
+
+## 迭代命令
+
 ```bash
 git switch comfyui && \
   git merge main --ff-only && \
@@ -14,7 +21,15 @@ git switch comfyui ;`
   git switch main
 ```
 
-## ComfyUI 启动探活
+## 概述
+
+本目录用于构建 ComfyUI 镜像，基于 `nvidia/cuda` 镜像安装 Python、PyTorch cu130、ComfyUI 和 ComfyUI-Manager，并将默认监听地址调整为 `0.0.0.0`，默认运行目录调整为 `/data`。
+
+GitHub Actions 工作流位于 `.github/workflows/comfyui.yml`，推送 `comfyui` 分支或手动触发时构建。当前构建版本为 `v0.21.1`，CUDA 版本为 `13.0.3`，构建 `linux/amd64` 镜像并推送到：
+
+- `registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.21.1-cu13.0.3`
+
+### 启动探活
 
 - 容器启动后由 `/app/entrypoint.sh` 初始化 ComfyUI-Manager `file_logging = True`，让 ComfyUI/Manager 自己把日志写到用户目录下的固定文件。
 - 镜像构建时把 ComfyUI 默认监听地址改为 `0.0.0.0`，默认运行目录改为 `/data`，因此 Manager 触发 Restart 时仍会使用 `/data/models`、`/data/output`、`/data/input` 和 `/data/user`。
