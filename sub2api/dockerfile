@@ -1,0 +1,13 @@
+ARG BASE=weishaw/sub2api:0.1.129
+
+FROM ${BASE}
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION=0.1.129
+LABEL maintainer=${AUTHOR} version=${VERSION}
+
+ENV TZ=Asia/Shanghai \
+    TIMEZONE=Asia/Shanghai
+
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo ${TZ} > /etc/timezone
