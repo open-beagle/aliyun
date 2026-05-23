@@ -2,6 +2,50 @@
 
 基于 NVIDIA CUDA runtime Ubuntu 24.04 镜像构建 JupyterLab 镜像，默认安装 Python venv、JupyterLab 和中文语言包。
 
+## 迭代命令
+
+```bash
+git switch jupyter-12.6 && \
+  git merge main --ff-only && \
+  git push origin jupyter-12.6 && \
+  git switch main
+```
+
+```bash
+git switch jupyter-12.8 && \
+  git merge main --ff-only && \
+  git push origin jupyter-12.8 && \
+  git switch main
+```
+
+```bash
+git switch jupyter-13.0 && \
+  git merge main --ff-only && \
+  git push origin jupyter-13.0 && \
+  git switch main
+```
+
+```powershell
+git switch jupyter-12.6 ;`
+  git merge main --ff-only ;`
+  git push origin jupyter-12.6 ;`
+  git switch main
+```
+
+```powershell
+git switch jupyter-12.8 ;`
+  git merge main --ff-only ;`
+  git push origin jupyter-12.8 ;`
+  git switch main
+```
+
+```powershell
+git switch jupyter-13.0 ;`
+  git merge main --ff-only ;`
+  git push origin jupyter-13.0 ;`
+  git switch main
+```
+
 ## 镜像
 
 - `registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.6.3-runtime-ubuntu24.04`

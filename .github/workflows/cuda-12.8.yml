@@ -6,7 +6,7 @@ on:
       - cuda-12.8
 
 env:
-  BUILD_VERSION: "12.8.1"
+  BUILD_VERSION: "12.8.2"
   IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/cuda
 
 jobs:
