@@ -49,8 +49,11 @@ git switch jupyter-13.0 ;`
 ## 镜像
 
 - `registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.6.3-runtime-ubuntu24.04`
+- `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.6-py312`
 - `registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.8.2-runtime-ubuntu24.04`
+- `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.8-py312`
 - `registry.cn-qingdao.aliyuncs.com/wod/jupyter:13.0.3-runtime-ubuntu24.04`
+- `registry.cn-qingdao.aliyuncs.com/wod/cuda:13.0-py312`
 
 ## 构建
 
@@ -60,6 +63,7 @@ docker build \
   --build-arg AUTHOR=open-beagle \
   --build-arg VERSION=12.6.3-runtime-ubuntu24.04 \
   -t registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.6.3-runtime-ubuntu24.04 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/cuda:12.6-py312 \
   -f jupyter/dockerfile .
 ```
 
@@ -69,6 +73,7 @@ docker build \
 
 ```bash
 docker push registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.6.3-runtime-ubuntu24.04
+docker push registry.cn-qingdao.aliyuncs.com/wod/cuda:12.6-py312
 ```
 
 ## 运行
