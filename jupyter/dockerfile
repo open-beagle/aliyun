@@ -1,0 +1,64 @@
+ARG BASE=nvidia/cuda:12.6.3-runtime-ubuntu24.04
+
+FROM $BASE
+
+ARG AUTHOR
+ARG VERSION=12.6.3-runtime-ubuntu24.04
+
+LABEL maintainer=$AUTHOR version=$VERSION
+
+ENV BEAGLE_ROOT=/beagle
+ENV TZ=Asia/Shanghai
+ENV VIRTUAL_ENV=/opt/jupyter
+ENV PATH=/opt/jupyter/bin:$PATH
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV JUPYTER_SETTINGS_SOURCE=/usr/local/share/jupyterlab-settings/plugin.jupyterlab-settings
+
+COPY ./jupyter/nvidia_entrypoint.sh /usr/local/bin/jupyter-entrypoint.sh
+COPY ./jupyter/settings/plugin.jupyterlab-settings /usr/local/share/jupyterlab-settings/plugin.jupyterlab-settings
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+  echo $TZ > /etc/timezone && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    openssh-server \
+    python3 \
+    python3-venv && \
+  rm -rf /var/lib/apt/lists/* && \
+  if [ -f /etc/apt/sources.list ]; then \
+    sed -i \
+      -e 's@http://archive.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@http://security.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@https://archive.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@https://security.ubuntu.com@https://mirrors.aliyun.com@g' \
+      /etc/apt/sources.list; \
+  fi && \
+  if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+    sed -i \
+      -e 's@http://archive.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@http://security.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@https://archive.ubuntu.com@https://mirrors.aliyun.com@g' \
+      -e 's@https://security.ubuntu.com@https://mirrors.aliyun.com@g' \
+      /etc/apt/sources.list.d/ubuntu.sources; \
+  fi && \
+  apt-get update && \
+  rm -rf /var/lib/apt/lists/* && \
+  python3 -m venv "$VIRTUAL_ENV" && \
+  "$VIRTUAL_ENV/bin/python" -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && \
+  "$VIRTUAL_ENV/bin/python" -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
+  "$VIRTUAL_ENV/bin/python" -m pip install --no-cache-dir \
+    jupyter \
+    jupyterlab-language-pack-zh-CN && \
+  curl -fsSL https://cache.wodcloud.com/kubernetes/bgctl/amd64/bgctl -o /usr/local/bin/bgctl && \
+  chmod +x /usr/local/bin/bgctl /usr/local/bin/jupyter-entrypoint.sh && \
+  mkdir -p "$BEAGLE_ROOT" /run/sshd
+
+WORKDIR /beagle
+
+EXPOSE 22 8888
+
+ENTRYPOINT ["/usr/local/bin/jupyter-entrypoint.sh"]
+CMD ["jupyter", "lab"]

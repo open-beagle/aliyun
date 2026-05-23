@@ -34,6 +34,16 @@ docker tag golang:1.24.6-alpine registry.cn-qingdao.aliyuncs.com/wod/golang:1.24
 docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.24.6-alpine
 ```
 
+## jupyter
+
+基于 NVIDIA CUDA runtime Ubuntu 24.04 镜像构建 JupyterLab 镜像。
+
+- `registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.6.3-runtime-ubuntu24.04`
+- `registry.cn-qingdao.aliyuncs.com/wod/jupyter:12.8.2-runtime-ubuntu24.04`
+- `registry.cn-qingdao.aliyuncs.com/wod/jupyter:13.0.3-runtime-ubuntu24.04`
+
+更多说明见 [jupyter/README.md](jupyter/README.md)。
+
 ## ubuntu
 
 <https://hub.docker.com/_/ubuntu>
