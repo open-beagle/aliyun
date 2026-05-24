@@ -75,3 +75,64 @@ docker pull debian:bookworm && \
 docker tag debian:bookworm registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm && \
 docker push registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm
 ```
+
+## victoriametrics
+
+<https://hub.docker.com/r/victoriametrics/vmagent>
+
+### vmagent-1.101.0
+
+```bash
+# amd64
+docker pull --platform linux/amd64 victoriametrics/vmagent:v1.101.0 && \
+docker tag victoriametrics/vmagent:v1.101.0 registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-1.101.0-amd64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-1.101.0-amd64
+
+# arm64
+docker pull --platform linux/arm64 victoriametrics/vmagent:v1.101.0 && \
+docker tag victoriametrics/vmagent:v1.101.0 registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-1.101.0-arm64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-1.101.0-arm64
+```
+
+### vminsert-1.101.0-cluster
+
+```bash
+# amd64
+docker pull --platform linux/amd64 victoriametrics/vminsert:v1.101.0-cluster && \
+docker tag victoriametrics/vminsert:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-1.101.0-amd64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-1.101.0-amd64
+
+# arm64
+docker pull --platform linux/arm64 victoriametrics/vminsert:v1.101.0-cluster && \
+docker tag victoriametrics/vminsert:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-1.101.0-arm64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-1.101.0-arm64
+```
+
+### vmselect-1.101.0-cluster
+
+```bash
+# amd64
+docker pull --platform linux/amd64 victoriametrics/vmselect:v1.101.0-cluster && \
+docker tag victoriametrics/vmselect:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-1.101.0-amd64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-1.101.0-amd64
+
+# arm64
+docker pull --platform linux/arm64 victoriametrics/vmselect:v1.101.0-cluster && \
+docker tag victoriametrics/vmselect:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-1.101.0-arm64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-1.101.0-arm64
+```
+
+### vmstorage-1.101.0-cluster
+
+```bash
+# amd64
+docker pull --platform linux/amd64 victoriametrics/vmstorage:v1.101.0-cluster && \
+docker tag victoriametrics/vmstorage:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-amd64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-amd64
+
+# arm64
+docker pull --platform linux/arm64 victoriametrics/vmstorage:v1.101.0-cluster && \
+docker tag victoriametrics/vmstorage:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-arm64 && \
+docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-arm64
+```
+
