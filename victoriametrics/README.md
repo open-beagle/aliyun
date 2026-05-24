@@ -12,10 +12,14 @@
 > 1. **上游命名原因**：VictoriaMetrics 官方对单机版（Standalone）和集群版（Cluster）进行了镜像分割。集群版的官方 Docker 镜像标签中强制带有 `-cluster` 后缀（例如 `victoriametrics/vminsert:v1.142.0-cluster`），用以区别于单机版。
 > 2. **私有云精简设计**：在我们的私有云镜像仓库中，由于组件名称已按微服务独立拆分（`vmagent`, `vminsert`, `vmselect`, `vmstorage`），带有 `-cluster` 后缀会显得非常臃肿冗余，且增加了 Helm `values.yaml` 配置的复杂度。
 > 3. **处理策略**：因此，我们在 GitHub Actions 流水线中**直接将 `-cluster` 后缀彻底干掉**！
->    - 上游拉取源：`victoriametrics/vminsert:v1.142.0-cluster`
+>    - 上游拉取源：`victoriametrics/vminsert:v1.142.0-cluster`、`quay.io/victoriametrics/operator:v0.70.1` 等
 >    - 私有库推送 Tag：
->      - **架构特定 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0-amd64` 和 `-arm64`
->      - **聚合多架构 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0` (由流水线自动使用 `docker buildx imagetools create` 进行聚合)
+>      - **架构特定 Tag**：
+>        - 核心组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0-amd64` 和 `-arm64`
+>        - Operator组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-v0.70.1-amd64` 和 `-arm64`
+>      - **聚合多架构 Tag**：
+>        - 核心组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0` (由流水线自动使用 `docker buildx imagetools create` 进行聚合)
+>        - Operator组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-v0.70.1`
 
 ---
 
@@ -23,12 +27,15 @@
 
 为了方便跟踪和验证上游的最新发布以及 Docker 镜像 Tags，可以访问以下官方地址：
 
-- **GitHub 官方 Releases**（获取最新版本及发布日志）：[VictoriaMetrics/VictoriaMetrics Releases](https://github.com/VictoriaMetrics/VictoriaMetrics/releases)
-- **Docker Hub 官方镜像**（获取上游多架构基础镜像）：
+- **GitHub 官方 Releases**（获取最新版本及发布日志）：
+  - VictoriaMetrics Core: [VictoriaMetrics/VictoriaMetrics Releases](https://github.com/VictoriaMetrics/VictoriaMetrics/releases)
+  - VictoriaMetrics Operator: [VictoriaMetrics/operator Releases](https://github.com/VictoriaMetrics/operator/releases)
+- **Docker Hub / Quay.io 官方镜像**（获取上游多架构基础镜像）：
   - `vmagent`: [victoriametrics/vmagent Docker Hub](https://hub.docker.com/r/victoriametrics/vmagent/tags)
   - `vminsert`: [victoriametrics/vminsert Docker Hub](https://hub.docker.com/r/victoriametrics/vminsert/tags)
-  - [victoriametrics/vmselect Docker Hub](https://hub.docker.com/r/victoriametrics/vmselect/tags)
-  - [victoriametrics/vmstorage Docker Hub](https://hub.docker.com/r/victoriametrics/vmstorage/tags)
+  - `vmselect`: [victoriametrics/vmselect Docker Hub](https://hub.docker.com/r/victoriametrics/vmselect/tags)
+  - `vmstorage`: [victoriametrics/vmstorage Docker Hub](https://hub.docker.com/r/victoriametrics/vmstorage/tags)
+  - `operator`: [quay.io/victoriametrics/operator Quay](https://quay.io/repository/victoriametrics/operator?tab=tags)
 
 ---
 
@@ -37,6 +44,7 @@
 ```text
 victoriametrics/
 ├── README.md               # 本文档（组件与编译说明及上游验证）
+├── operator.dockerfile     # operator (Kubernetes 运维算子) 编译代理定义
 ├── vmagent.dockerfile      # vmagent (采集端) 编译代理定义
 ├── vminsert.dockerfile     # vminsert (写入端) 编译代理定义
 ├── vmselect.dockerfile     # vmselect (查询端) 编译代理定义
@@ -60,7 +68,7 @@ victoriametrics/
 - **基础时区配置**：各组件 Dockerfile 均已显式配置中国时区：`ENV TZ=Asia/Shanghai`。
 - **AMD64 (x86_64) 构建**：`platforms: linux/amd64` -> 生成 `-amd64` 后缀镜像。
 - **ARM64 (鲲鹏/信创) 构建**：`platforms: linux/arm64` -> 生成 `-arm64` 后缀镜像。
-- **多架构 Manifest 聚合**：使用 `docker buildx imagetools create` 将以上两个单架构镜像聚合成一个不带架构后缀的多架构 Manifest Tag（例如 `vmagent-v1.142.0`）。
+- **多架构 Manifest 聚合**：使用 `docker buildx imagetools create` 将以上两个单架构镜像聚合成一个不带架构后缀的多架构 Manifest Tag（例如 `vmagent-v1.142.0`、`operator-v0.70.1`）。
 
 ---
 

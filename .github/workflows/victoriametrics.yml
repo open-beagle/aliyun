@@ -7,6 +7,7 @@ on:
 
 env:
   BUILD_VERSION: v1.142.0
+  OPERATOR_VERSION: v0.70.1
 
 jobs:
   build-and-push:
@@ -163,6 +164,40 @@ jobs:
             --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }} \
             registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }}-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }}-arm64
+
+      # ==================== 5. operator ====================
+      - name: Build and push operator AMD64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./victoriametrics/operator.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-amd64
+          build-args: BASE=quay.io/victoriametrics/operator:${{ env.OPERATOR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push operator ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./victoriametrics/operator.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-arm64
+          build-args: BASE=quay.io/victoriametrics/operator:${{ env.OPERATOR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push operator manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "VictoriaMetrics multi-arch images successfully built and pushed to Aliyun Registry!"
