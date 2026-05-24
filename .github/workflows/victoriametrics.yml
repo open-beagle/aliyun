@@ -6,7 +6,7 @@ on:
       - victoriametrics
 
 env:
-  BUILD_VERSION: v1.101.0
+  BUILD_VERSION: v1.142.0
 
 jobs:
   build-and-push:

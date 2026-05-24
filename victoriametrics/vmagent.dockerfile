@@ -1,4 +1,4 @@
-ARG BASE=victoriametrics/vmagent:v1.101.0
+ARG BASE=victoriametrics/vmagent:v1.142.0
 FROM $BASE
 
 ARG AUTHOR=mengkzhaoyun@gmail.com

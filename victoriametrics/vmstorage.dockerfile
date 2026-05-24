@@ -1,4 +1,4 @@
-ARG BASE=victoriametrics/vmstorage:v1.101.0-cluster
+ARG BASE=victoriametrics/vmstorage:v1.142.0-cluster
 FROM $BASE
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
