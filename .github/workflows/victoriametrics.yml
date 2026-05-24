@@ -55,6 +55,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Create and push vmagent manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-${{ env.BUILD_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmagent-${{ env.BUILD_VERSION }}-arm64
+
       # ==================== 2. vminsert ====================
       - name: Build and push vminsert AMD64
         uses: docker/build-push-action@v5
@@ -81,6 +88,13 @@ jobs:
           build-args: BASE=victoriametrics/vminsert:${{ env.BUILD_VERSION }}-cluster
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create and push vminsert manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-${{ env.BUILD_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-${{ env.BUILD_VERSION }}-arm64
 
       # ==================== 3. vmselect ====================
       - name: Build and push vmselect AMD64
@@ -109,6 +123,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Create and push vmselect manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-${{ env.BUILD_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmselect-${{ env.BUILD_VERSION }}-arm64
+
       # ==================== 4. vmstorage ====================
       - name: Build and push vmstorage AMD64
         uses: docker/build-push-action@v5
@@ -135,6 +156,13 @@ jobs:
           build-args: BASE=victoriametrics/vmstorage:${{ env.BUILD_VERSION }}-cluster
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create and push vmstorage manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-${{ env.BUILD_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "VictoriaMetrics multi-arch images successfully built and pushed to Aliyun Registry!"
