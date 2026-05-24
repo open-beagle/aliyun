@@ -1,0 +1,79 @@
+name: prometheus
+
+on:
+  push:
+    branches:
+      - prometheus
+
+env:
+  ALERTMANAGER_VERSION: v0.32.1
+  NODE_EXPORTER_VERSION: v1.8.1
+  KUBE_STATE_METRICS_VERSION: v2.14.0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      # ==================== 1. Alertmanager ====================
+      - name: Build and push Alertmanager
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/alertmanager.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}
+          build-args: BASE=quay.io/prometheus/alertmanager:${{ env.ALERTMANAGER_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ==================== 2. Node Exporter ====================
+      - name: Build and push Node Exporter
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/node-exporter.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}
+          build-args: BASE=quay.io/prometheus/node-exporter:${{ env.NODE_EXPORTER_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ==================== 3. Kube State Metrics ====================
+      - name: Build and push Kube State Metrics
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/kube-state-metrics.dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}
+          build-args: BASE=registry.k8s.io/kube-state-metrics/kube-state-metrics:${{ env.KUBE_STATE_METRICS_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Pipeline Completed
+        run: echo "All Prometheus suite multi-arch images successfully built and pushed!"
