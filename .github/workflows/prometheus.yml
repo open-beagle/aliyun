@@ -34,46 +34,106 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
       # ==================== 1. Alertmanager ====================
-      - name: Build and push Alertmanager
+      - name: Build and push Alertmanager AMD64
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./prometheus/alertmanager.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}-amd64
           build-args: BASE=quay.io/prometheus/alertmanager:${{ env.ALERTMANAGER_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push Alertmanager ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/alertmanager.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}-arm64
+          build-args: BASE=quay.io/prometheus/alertmanager:${{ env.ALERTMANAGER_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push Alertmanager manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-${{ env.ALERTMANAGER_VERSION }}-arm64
+
       # ==================== 2. Node Exporter ====================
-      - name: Build and push Node Exporter
+      - name: Build and push Node Exporter AMD64
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./prometheus/node-exporter.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}-amd64
           build-args: BASE=quay.io/prometheus/node-exporter:${{ env.NODE_EXPORTER_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push Node Exporter ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/node-exporter.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}-arm64
+          build-args: BASE=quay.io/prometheus/node-exporter:${{ env.NODE_EXPORTER_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push Node Exporter manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-${{ env.NODE_EXPORTER_VERSION }}-arm64
+
       # ==================== 3. Kube State Metrics ====================
-      - name: Build and push Kube State Metrics
+      - name: Build and push Kube State Metrics AMD64
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./prometheus/kube-state-metrics.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-amd64
           build-args: BASE=registry.k8s.io/kube-state-metrics/kube-state-metrics:${{ env.KUBE_STATE_METRICS_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push Kube State Metrics ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/kube-state-metrics.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-arm64
+          build-args: BASE=registry.k8s.io/kube-state-metrics/kube-state-metrics:${{ env.KUBE_STATE_METRICS_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push Kube State Metrics manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "All Prometheus suite multi-arch images successfully built and pushed!"

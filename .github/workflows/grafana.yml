@@ -31,18 +31,38 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      - name: Build and push Grafana
+      - name: Build and push Grafana AMD64
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./grafana/grafana.dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }}-amd64
           build-args: BASE=grafana/grafana:${{ env.GRAFANA_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push Grafana ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./grafana/grafana.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }}-arm64
+          build-args: BASE=grafana/grafana:${{ env.GRAFANA_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push Grafana manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/grafana:${{ env.GRAFANA_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "Grafana multi-arch image successfully built and pushed!"
