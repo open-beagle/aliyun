@@ -6,7 +6,7 @@ on:
       - golang-1.24
 
 env:
-  BUILD_VERSION: 1.24.10
+  BUILD_VERSION: 1.24.13
   OS_VERSION: bookworm
   XX_VERSION: 1.6.1
 
