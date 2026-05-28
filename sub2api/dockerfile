@@ -1,9 +1,9 @@
-ARG BASE=weishaw/sub2api:0.1.130
+ARG BASE=weishaw/sub2api:0.1.132
 
 FROM ${BASE}
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
-ARG VERSION=0.1.130
+ARG VERSION=0.1.132
 LABEL maintainer=${AUTHOR} version=${VERSION}
 
 ENV TZ=Asia/Shanghai \
