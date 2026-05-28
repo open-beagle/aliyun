@@ -6,7 +6,7 @@ on:
       - redis-7
 
 env:
-  BUILD_VERSION: 7.4.2
+  BUILD_VERSION: 7.4.9
 
 jobs:
   redis-alpine:
