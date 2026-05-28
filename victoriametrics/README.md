@@ -17,9 +17,11 @@
 >      - **架构特定 Tag**：
 >        - 核心组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0-amd64` 和 `-arm64`
 >        - Operator组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-v0.70.1-amd64` 和 `-arm64`
+>        - vmalert组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmalert-v1.143.0-amd64` 和 `-arm64`
 >      - **聚合多架构 Tag**：
 >        - 核心组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vminsert-v1.142.0` (由流水线自动使用 `docker buildx imagetools create` 进行聚合)
 >        - Operator组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-v0.70.1`
+>        - vmalert组件：`registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmalert-v1.143.0`
 
 ---
 
@@ -36,6 +38,7 @@
   - `vmselect`: [victoriametrics/vmselect Docker Hub](https://hub.docker.com/r/victoriametrics/vmselect/tags)
   - `vmstorage`: [victoriametrics/vmstorage Docker Hub](https://hub.docker.com/r/victoriametrics/vmstorage/tags)
   - `operator`: [quay.io/victoriametrics/operator Quay](https://quay.io/repository/victoriametrics/operator?tab=tags)
+  - `vmalert`: [victoriametrics/vmalert Docker Hub](https://hub.docker.com/r/victoriametrics/vmalert/tags)
 
 ---
 
@@ -48,7 +51,8 @@ victoriametrics/
 ├── vmagent.dockerfile      # vmagent (采集端) 编译代理定义
 ├── vminsert.dockerfile     # vminsert (写入端) 编译代理定义
 ├── vmselect.dockerfile     # vmselect (查询端) 编译代理定义
-└── vmstorage.dockerfile    # vmstorage (存储集群) 编译代理定义
+├── vmstorage.dockerfile    # vmstorage (存储集群) 编译代理定义
+└── vmalert.dockerfile      # vmalert (告警引擎) 编译代理定义
 ```
 
 ---

@@ -12,16 +12,19 @@
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-v0.32.1-amd64` 和 `-arm64`
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-v1.8.1-amd64` 和 `-arm64`
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-v2.14.0-amd64` 和 `-arm64`
+  - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-v2.7.3-amd64` 和 `-arm64`
 - **聚合多架构 Tag**：
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-v0.32.1`
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-v1.8.1`
   - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-v2.14.0`
+  - `registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-v2.7.3`
 
 | 组件名称 | 上游基础拉取源 | 聚合多架构 Tag | 兼容说明 |
 | :--- | :--- | :--- | :--- |
 | **Alertmanager** | `quay.io/prometheus/alertmanager:v0.32.1` | `registry.cn-qingdao.aliyuncs.com/wod/prometheus:alertmanager-v0.32.1` | 中心端与边缘端的高级告警收拢 |
 | **Node Exporter** | `quay.io/prometheus/node-exporter:v1.8.1` | `registry.cn-qingdao.aliyuncs.com/wod/prometheus:node-exporter-v1.8.1` | 宿主机底层硬件、CPU/内存/磁盘物理指标暴露 |
 | **Kube State Metrics** | `registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0` | `registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-v2.14.0` | **深度适配 K8s v1.32.x API 组**，防范旧版（v2.12及以下）在 1.32 API 废弃阶段的解析故障 |
+| **k8s-sidecar** | `quay.io/kiwigrid/k8s-sidecar:2.7.3` | `registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-v2.7.3` | 自动配置加载 sidecar (Grafana 资源加载等) |
 
 ---
 
@@ -37,6 +40,7 @@
   - `alertmanager`: [quay.io/prometheus/alertmanager Tags](https://quay.io/repository/prometheus/alertmanager?tab=tags)
   - `node-exporter`: [quay.io/prometheus/node-exporter Tags](https://quay.io/repository/prometheus/node-exporter?tab=tags)
   - `kube-state-metrics`: [registry.k8s.io kube-state-metrics](https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/kube-state-metrics/kube-state-metrics)
+  - `k8s-sidecar`: [quay.io/kiwigrid/k8s-sidecar Tags](https://quay.io/repository/kiwigrid/k8s-sidecar?tab=tags)
 
 ---
 
@@ -47,7 +51,8 @@ prometheus/
 ├── README.md                          # 本文档（组件与编译说明及上游验证）
 ├── alertmanager.dockerfile            # alertmanager 编译代理定义
 ├── kube-state-metrics.dockerfile     # kube-state-metrics 编译代理定义
-└── node-exporter.dockerfile           # node-exporter 编译代理定义
+├── node-exporter.dockerfile           # node-exporter 编译代理定义
+└── k8s-sidecar.dockerfile             # k8s-sidecar 编译代理定义
 ```
 
 ---

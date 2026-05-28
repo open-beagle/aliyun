@@ -9,6 +9,7 @@ env:
   ALERTMANAGER_VERSION: v0.32.1
   NODE_EXPORTER_VERSION: v1.8.1
   KUBE_STATE_METRICS_VERSION: v2.14.0
+  K8S_SIDECAR_VERSION: v2.7.3
 
 jobs:
   build-and-push:
@@ -134,6 +135,40 @@ jobs:
             --tag registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }} \
             registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/prometheus:kube-state-metrics-${{ env.KUBE_STATE_METRICS_VERSION }}-arm64
+
+      # ==================== 4. k8s-sidecar ====================
+      - name: Build and push k8s-sidecar AMD64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/k8s-sidecar.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-amd64
+          build-args: BASE=quay.io/kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push k8s-sidecar ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./prometheus/k8s-sidecar.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-arm64
+          build-args: BASE=quay.io/kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push k8s-sidecar manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "All Prometheus suite multi-arch images successfully built and pushed!"
