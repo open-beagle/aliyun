@@ -146,7 +146,7 @@ jobs:
           push: true
           provenance: false
           tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-amd64
-          build-args: BASE=quay.io/kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
+          build-args: BASE=kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -159,7 +159,7 @@ jobs:
           push: true
           provenance: false
           tags: registry.cn-qingdao.aliyuncs.com/wod/prometheus:k8s-sidecar-${{ env.K8S_SIDECAR_VERSION }}-arm64
-          build-args: BASE=quay.io/kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
+          build-args: BASE=kiwigrid/k8s-sidecar:${{ env.K8S_SIDECAR_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
