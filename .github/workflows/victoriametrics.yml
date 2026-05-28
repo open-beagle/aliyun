@@ -200,6 +200,40 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-amd64 \
             registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:operator-${{ env.OPERATOR_VERSION }}-arm64
 
+      # ==================== 5.5 config-reloader ====================
+      - name: Build and push config-reloader AMD64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./victoriametrics/config-reloader.dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:config-reloader-${{ env.OPERATOR_VERSION }}-amd64
+          build-args: BASE=victoriametrics/operator:config-reloader-${{ env.OPERATOR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push config-reloader ARM64
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./victoriametrics/config-reloader.dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:config-reloader-${{ env.OPERATOR_VERSION }}-arm64
+          build-args: BASE=victoriametrics/operator:config-reloader-${{ env.OPERATOR_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create and push config-reloader manifest
+        run: |
+          docker buildx imagetools create \
+            --tag registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:config-reloader-${{ env.OPERATOR_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:config-reloader-${{ env.OPERATOR_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:config-reloader-${{ env.OPERATOR_VERSION }}-arm64
+
       # ==================== 6. vmalert ====================
       - name: Build and push vmalert AMD64
         uses: docker/build-push-action@v5
