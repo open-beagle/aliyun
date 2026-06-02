@@ -3,7 +3,7 @@ name: OpenWRT
 on:
   push:
     branches:
-      - openwrt-v24.10
+      - openwrt-v25
 
 jobs:
   build-and-push:
@@ -34,12 +34,12 @@ jobs:
           file: ./openwrt/dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:x86-64-v24.10.7
+            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:x86-64-v25.12.4
           platforms: linux/amd64
           build-args: |
-            BASE=openwrt/imagebuilder:x86-64-v24.10.7
+            BASE=openwrt/imagebuilder:x86-64-v25.12.4
             AUTHOR=${{ github.repository_owner }}
-            VERSION=v24.10.7
+            VERSION=v25.12.4
 
       - name: Build and push rockchip-armv8 Docker images
         uses: docker/build-push-action@v5
@@ -48,9 +48,9 @@ jobs:
           file: ./openwrt/dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:rockchip-armv8-v24.10.7
+            registry.cn-qingdao.aliyuncs.com/wod/openwrt-imagebuilder:rockchip-armv8-v25.12.4
           platforms: linux/amd64
           build-args: |
-            BASE=openwrt/imagebuilder:rockchip-armv8-v24.10.7
+            BASE=openwrt/imagebuilder:rockchip-armv8-v25.12.4
             AUTHOR=${{ github.repository_owner }}
-            VERSION=v24.10.7
+            VERSION=v25.12.4
