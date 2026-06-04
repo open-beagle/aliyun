@@ -1,12 +1,12 @@
-name: MySQL
+name: MySQL-8
 
 on:
   push:
     branches:
-      - mysql
+      - mysql-8
 
 env:
-  BUILD_VERSION: 8.0.44
+  BUILD_VERSION: 8.4.9
 
 jobs:
   mysql-oraclelinux:

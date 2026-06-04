@@ -1,8 +1,8 @@
-ARG BASE=mysql:8.0.44
+ARG BASE=mysql:8.4.9
 FROM $BASE
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
-ARG VERSION=8.0.44
+ARG VERSION=8.4.9
 LABEL maintainer=$AUTHOR version=$VERSION
 
 ENV TZ=Asia/Shanghai

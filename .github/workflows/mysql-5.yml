@@ -6,7 +6,7 @@ on:
       - mysql-5
 
 env:
-  BUILD_VERSION: 5.7.42
+  BUILD_VERSION: 5.7.44
 
 jobs:
   mysql-oraclelinux:
