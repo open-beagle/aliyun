@@ -1,12 +1,12 @@
-name: golang-1.25
+name: golang-1.26
 
 on:
   push:
     branches:
-      - golang-1.25
+      - golang-1.26
 
 env:
-  BUILD_VERSION: 1.25.11
+  BUILD_VERSION: 1.26.4
   XX_VERSION: 1.9.0
 
 jobs:

@@ -33,6 +33,12 @@ git switch golang-1.25 && \
   git merge main --ff-only && \
   git push origin golang-1.25 && \
   git switch main
+
+# golang-1.26 迭代
+git switch golang-1.26 && \
+  git merge main --ff-only && \
+  git push origin golang-1.26 && \
+  git switch main
 ```
 
 ### PowerShell
@@ -61,6 +67,12 @@ git switch golang-1.25 ;`
   git merge main --ff-only ;`
   git push origin golang-1.25 ;`
   git switch main
+
+# golang-1.26 迭代
+git switch golang-1.26 ;`
+  git merge main --ff-only ;`
+  git push origin golang-1.26 ;`
+  git switch main
 ```
 
 ## 概述
@@ -75,13 +87,23 @@ GitHub Actions 工作流文件位于 `.github/workflows/golang-*.yml`，分别�
 
 ## 镜像
 
+### Golang 1.26
+
+- **Alpine (v1.26.4)**
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-alpine`
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.26-alpine`
+- **Bookworm (v1.26.4)**
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-bookworm`
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.26-bookworm`
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.26`
+
 ### Golang 1.25
 
-- **Alpine (v1.25.10)**
-  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-alpine`
+- **Alpine (v1.25.11)**
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.11-alpine`
   - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25-alpine`
-- **Bookworm (v1.25.10)**
-  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm`
+- **Bookworm (v1.25.11)**
+  - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.11-bookworm`
   - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25-bookworm`
   - `registry.cn-qingdao.aliyuncs.com/wod/golang:1.25`
 
@@ -121,10 +143,10 @@ GitHub Actions 工作流文件位于 `.github/workflows/golang-*.yml`，分别�
 
 ```bash
 docker build \
-  --build-arg BASE=golang:1.25.10-alpine \
+  --build-arg BASE=golang:1.26.4-alpine \
   --build-arg AUTHOR=open-beagle \
-  --build-arg VERSION=1.25.10 \
-  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-alpine \
+  --build-arg VERSION=1.26.4 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-alpine \
   -f golang/alpine.dockerfile .
 ```
 
@@ -132,10 +154,10 @@ docker build \
 
 ```bash
 docker build \
-  --build-arg BASE=golang:1.25.10-bookworm \
+  --build-arg BASE=golang:1.26.4-bookworm \
   --build-arg AUTHOR=open-beagle \
-  --build-arg VERSION=1.25.10 \
-  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm-amd64 \
+  --build-arg VERSION=1.26.4 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-bookworm-amd64 \
   -f golang/bookworm.dockerfile .
 ```
 
@@ -143,19 +165,19 @@ docker build \
 
 ```bash
 docker build \
-  --build-arg BASE=golang:1.25.10-bookworm \
+  --build-arg BASE=golang:1.26.4-bookworm \
   --build-arg AUTHOR=open-beagle \
-  --build-arg VERSION=1.25.10 \
-  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm-arm64 \
+  --build-arg VERSION=1.26.4 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-bookworm-arm64 \
   -f golang/bookworm-arch.dockerfile .
 ```
 
 ## 推送
 
 ```bash
-docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-alpine
-docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm-amd64
-docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm-arm64
+docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-alpine
+docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-bookworm-amd64
+docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-bookworm-arm64
 ```
 
 ## 运行
@@ -163,6 +185,6 @@ docker push registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-bookworm-arm64
 ```bash
 docker run --rm -it \
   -v $(pwd):/workspace \
-  registry.cn-qingdao.aliyuncs.com/wod/golang:1.25.10-alpine \
+  registry.cn-qingdao.aliyuncs.com/wod/golang:1.26.4-alpine \
   bash
 ```
