@@ -32,8 +32,6 @@ GitHub Actions 工作流位于 `.github/workflows/mysql-8.yml`，推送 `mysql-8
 - `registry.cn-qingdao.aliyuncs.com/wod/mysql:8.4`
 - `registry.cn-qingdao.aliyuncs.com/wod/mysql:8.4.9-amd64`
 - `registry.cn-qingdao.aliyuncs.com/wod/mysql:8.4.9-arm64`
-- `registry.cn-qingdao.aliyuncs.com/wod/mysql:8.4.9-bookworm`
-- `registry.cn-qingdao.aliyuncs.com/wod/mysql:8.4-bookworm`
 
 ## MySQL 5.7
 
@@ -61,5 +59,3 @@ GitHub Actions 工作流位于 `.github/workflows/mysql-5.yml`，推送 `mysql-5
 
 - `registry.cn-qingdao.aliyuncs.com/wod/mysql:5.7.44`
 - `registry.cn-qingdao.aliyuncs.com/wod/mysql:5.7`
-- `registry.cn-qingdao.aliyuncs.com/wod/mysql:5.7.44-debian`
-- `registry.cn-qingdao.aliyuncs.com/wod/mysql:5.7-debian`
