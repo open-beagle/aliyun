@@ -6,7 +6,7 @@ on:
       - node-20
 
 env:
-  BUILD_VERSION: 20.19.6
+  BUILD_VERSION: 20.20.2
 
 jobs:
   node-alpine:

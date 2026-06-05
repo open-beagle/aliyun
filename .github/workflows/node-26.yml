@@ -1,12 +1,12 @@
-name: node-24
+name: node-26
 
 on:
   push:
     branches:
-      - node-24
+      - node-26
 
 env:
-  BUILD_VERSION: 24.16.0
+  BUILD_VERSION: 26.3.0
 
 jobs:
   node-alpine:

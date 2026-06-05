@@ -6,7 +6,7 @@ on:
       - node-22
 
 env:
-  BUILD_VERSION: 22.21.1
+  BUILD_VERSION: 22.22.3
 
 jobs:
   node-alpine:
