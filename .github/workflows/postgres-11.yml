@@ -14,6 +14,8 @@ env:
   BUILD_MAJOR: "11"
   IMAGE_NAME_ALIYUN: registry.cn-qingdao.aliyuncs.com/wod/postgres
   IMAGE_NAME_GHCR: ghcr.io/open-beagle/postgres
+  BASE_DEBIAN: postgres:11.22-bookworm
+  BASE_ALPINE: postgres:11.22-alpine
 
 jobs:
   postgres-debian:
@@ -52,7 +54,7 @@ jobs:
             ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-amd64
             ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-amd64
           build-args: |
-            BASE=postgres:${{ env.BUILD_VERSION }}
+            BASE=${{ env.BASE_DEBIAN }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
@@ -68,7 +70,7 @@ jobs:
             ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-arm64
             ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-arm64
           build-args: |
-            BASE=postgres:${{ env.BUILD_VERSION }}
+            BASE=${{ env.BASE_DEBIAN }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
@@ -124,7 +126,7 @@ jobs:
             ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-amd64
             ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-amd64
           build-args: |
-            BASE=postgres:${{ env.BUILD_VERSION }}-alpine
+            BASE=${{ env.BASE_ALPINE }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}-alpine
 
@@ -140,7 +142,7 @@ jobs:
             ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-arm64
             ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-arm64
           build-args: |
-            BASE=postgres:${{ env.BUILD_VERSION }}-alpine
+            BASE=${{ env.BASE_ALPINE }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}-alpine
 
