@@ -5,9 +5,15 @@ on:
     branches:
       - postgres-18
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   BUILD_VERSION: "18.4"
   BUILD_MAJOR: "18"
+  IMAGE_NAME_ALIYUN: registry.cn-qingdao.aliyuncs.com/wod/postgres
+  IMAGE_NAME_GHCR: ghcr.io/open-beagle/postgres
 
 jobs:
   postgres-debian:
@@ -27,6 +33,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
@@ -36,7 +49,8 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-amd64
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-amd64
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-amd64
           build-args: |
             BASE=postgres:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
@@ -51,19 +65,28 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-arm64
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-arm64
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-arm64
           build-args: |
             BASE=postgres:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
-      - name: Create and push manifest
+      - name: Create and push Aliyun manifest
         run: |
           docker buildx imagetools create \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }} \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_MAJOR }} \
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-arm64
+            --tag ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }} \
+            --tag ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_MAJOR }} \
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-amd64 \
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-arm64
+
+      - name: Create and push GHCR manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }} \
+            --tag ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_MAJOR }} \
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-amd64 \
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-arm64
 
   postgres-alpine:
     runs-on: ubuntu-latest
@@ -82,6 +105,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
@@ -91,7 +121,8 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-amd64
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-amd64
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-amd64
           build-args: |
             BASE=postgres:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
@@ -106,16 +137,25 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-arm64
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-arm64
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-arm64
           build-args: |
             BASE=postgres:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}-alpine
 
-      - name: Create and push manifest
+      - name: Create and push Aliyun manifest
         run: |
           docker buildx imagetools create \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_MAJOR }}-alpine \
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/postgres:${{ env.BUILD_VERSION }}-alpine-arm64
+            --tag ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine \
+            --tag ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_MAJOR }}-alpine \
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-amd64 \
+            ${{ env.IMAGE_NAME_ALIYUN }}:${{ env.BUILD_VERSION }}-alpine-arm64
+
+      - name: Create and push GHCR manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine \
+            --tag ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_MAJOR }}-alpine \
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-amd64 \
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-arm64

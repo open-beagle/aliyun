@@ -1,0 +1,54 @@
+ARG BASE=ghcr.io/open-beagle/postgres:12
+FROM $BASE
+
+ARG AUTHOR=mengkzhaoyun@gmail.com
+ARG VERSION=12-postgis3.6
+ARG DEBIAN_SUITE=bookworm
+ARG POSTGRES_PACKAGE_VERSION=default
+ARG POSTGIS_PACKAGE_VERSION=3.6.3+dfsg-1.pgdg12+1
+ARG POSTGIS_MAJOR=3
+ARG ARCHIVE_APT=false
+
+ENV POSTGIS_MAJOR=$POSTGIS_MAJOR
+ENV POSTGIS_VERSION=$POSTGIS_PACKAGE_VERSION
+
+LABEL maintainer=$AUTHOR \
+      version=$VERSION \
+      org.opencontainers.image.source="https://github.com/open-beagle/aliyun" \
+      org.opencontainers.image.description="PostGIS ${POSTGIS_VERSION} with PostgreSQL ${PG_MAJOR} on Debian ${DEBIAN_SUITE}"
+
+RUN set -eux; \
+    if [ "$ARCHIVE_APT" = "true" ]; then \
+      printf '%s\n' \
+        "deb http://archive.debian.org/debian ${DEBIAN_SUITE} main" \
+        "deb http://archive.debian.org/debian ${DEBIAN_SUITE}-updates main" \
+        "deb http://archive.debian.org/debian-security ${DEBIAN_SUITE}/updates main" \
+        > /etc/apt/sources.list; \
+      printf '%s\n' \
+        'Acquire::Check-Valid-Until "false";' \
+        > /etc/apt/apt.conf.d/99archive; \
+      rm -f /etc/apt/sources.list.d/pgdg.list; \
+      apt-get update; \
+      apt-get install -y --no-install-recommends ca-certificates; \
+      rm -rf /var/lib/apt/lists/*; \
+      printf 'deb [trusted=yes] https://apt-archive.postgresql.org/pub/repos/apt %s-pgdg main %s\n' "$DEBIAN_SUITE" "$PG_MAJOR" \
+        > /etc/apt/sources.list.d/pgdg.list; \
+    fi; \
+    apt-get update; \
+    apt-cache policy "postgresql-$PG_MAJOR" "postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR"; \
+    if [ "$POSTGRES_PACKAGE_VERSION" = "default" ]; then \
+      postgres_packages=""; \
+    else \
+      postgres_packages="libpq5=$POSTGRES_PACKAGE_VERSION postgresql-$PG_MAJOR=$POSTGRES_PACKAGE_VERSION postgresql-client-$PG_MAJOR=$POSTGRES_PACKAGE_VERSION"; \
+    fi; \
+    apt-get install -y --allow-downgrades --no-install-recommends \
+      $postgres_packages \
+      "postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_PACKAGE_VERSION" \
+      "postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts=$POSTGIS_PACKAGE_VERSION"; \
+    rm -rf /var/lib/apt/lists/*; \
+    postgres --version
+
+RUN mkdir -p /docker-entrypoint-initdb.d
+COPY ./postgis/initdb-postgis.sh /docker-entrypoint-initdb.d/10_postgis.sh
+COPY ./postgis/update-postgis.sh /usr/local/bin/update-postgis.sh
+RUN chmod +x /usr/local/bin/update-postgis.sh

@@ -76,6 +76,10 @@ docker tag debian:bookworm registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm 
 docker push registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm
 ```
 
+## postgis
+
+在 `registry.cn-qingdao.aliyuncs.com/wod/postgres` 下维护 PostgreSQL 12-18 的 PostGIS 3.6 变体。更多说明见 [postgis/README.md](postgis/README.md)。
+
 ## victoriametrics
 
 <https://hub.docker.com/r/victoriametrics/vmagent>
@@ -135,4 +139,3 @@ docker pull --platform linux/arm64 victoriametrics/vmstorage:v1.101.0-cluster &&
 docker tag victoriametrics/vmstorage:v1.101.0-cluster registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-arm64 && \
 docker push registry.cn-qingdao.aliyuncs.com/wod/victoriametrics:vmstorage-1.101.0-arm64
 ```
-

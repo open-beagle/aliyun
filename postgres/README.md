@@ -38,9 +38,10 @@ PostgreSQL 大版本通常每年发布一个，并维护 5 年。你从 PostgreS
 - `postgres-12` 分支对应 `.github/workflows/postgres-12.yml`
 - `postgres-11` 分支对应 `.github/workflows/postgres-11.yml`
 
-原有 `.github/workflows/postgres.yml` 属于单版本流水线，现已拆分为上述 `postgres-版本.yml` 流水线。分支推送后触发对应版本构建。镜像统一推送到：
+原有 `.github/workflows/postgres.yml` 属于单版本流水线，现已拆分为上述 `postgres-版本.yml` 流水线。分支推送后触发对应版本构建。镜像默认推送到：
 
 - `registry.cn-qingdao.aliyuncs.com/wod/postgres`
+- `ghcr.io/open-beagle/postgres`
 
 每个版本建议同时维护 Debian 默认变体和 Alpine 变体，并构建 `linux/amd64`、`linux/arm64`。
 

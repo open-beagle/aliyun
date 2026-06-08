@@ -1,0 +1,151 @@
+name: PostGIS-18
+
+on:
+  push:
+    branches:
+      - postgis-18
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/postgres
+  BUILD_VERSION: "18-postgis3.6"
+  BASE_IMAGE: ghcr.io/open-beagle/postgres:18
+  DEBIAN_SUITE: trixie
+  POSTGRES_PACKAGE_VERSION: default
+  POSTGIS_PACKAGE_VERSION: 3.6.3+dfsg-1.pgdg13+1
+  POSTGIS_MAJOR: "3"
+  ARCHIVE_APT: "false"
+
+jobs:
+  postgis-debian:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push AMD64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./postgis/dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
+          build-args: |
+            BASE=${{ env.BASE_IMAGE }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+            DEBIAN_SUITE=${{ env.DEBIAN_SUITE }}
+            POSTGRES_PACKAGE_VERSION=${{ env.POSTGRES_PACKAGE_VERSION }}
+            POSTGIS_PACKAGE_VERSION=${{ env.POSTGIS_PACKAGE_VERSION }}
+            POSTGIS_MAJOR=${{ env.POSTGIS_MAJOR }}
+            ARCHIVE_APT=${{ env.ARCHIVE_APT }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./postgis/dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
+          build-args: |
+            BASE=${{ env.BASE_IMAGE }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+            DEBIAN_SUITE=${{ env.DEBIAN_SUITE }}
+            POSTGRES_PACKAGE_VERSION=${{ env.POSTGRES_PACKAGE_VERSION }}
+            POSTGIS_PACKAGE_VERSION=${{ env.POSTGIS_PACKAGE_VERSION }}
+            POSTGIS_MAJOR=${{ env.POSTGIS_MAJOR }}
+            ARCHIVE_APT=${{ env.ARCHIVE_APT }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test images
+        run: |
+          set -eux
+          for arch in amd64 arm64; do
+            name="postgis-${arch}"
+            docker rm -f "$name" >/dev/null 2>&1 || true
+            docker run -d --rm \
+              --platform "linux/${arch}" \
+              --name "$name" \
+              -e POSTGRES_PASSWORD=postgres \
+              "${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-${arch}" \
+              postgres -c listen_addresses=''
+
+            init_complete=false
+            for i in $(seq 1 90); do
+              if docker logs "$name" 2>&1 | grep -q "PostgreSQL init process complete; ready for start up."; then
+                init_complete=true
+                break
+              fi
+              sleep 2
+            done
+            if [ "$init_complete" != "true" ]; then
+              docker logs "$name"
+              docker rm -f "$name" >/dev/null 2>&1 || true
+              exit 1
+            fi
+
+            ready=false
+            for i in $(seq 1 90); do
+              if docker exec "$name" psql -U postgres -d postgres -tAc "SELECT postgis_lib_version();" >/dev/null 2>&1 &&
+                 docker exec "$name" psql -U postgres -d template_postgis -tAc "SELECT postgis_lib_version();" >/dev/null 2>&1; then
+                ready=true
+                break
+              fi
+              sleep 2
+            done
+            if [ "$ready" != "true" ]; then
+              docker logs "$name"
+              docker rm -f "$name" >/dev/null 2>&1 || true
+              exit 1
+            fi
+
+            docker exec "$name" psql -U postgres -d postgres -tAc "SELECT postgis_lib_version();"
+            docker exec "$name" psql -U postgres -d template_postgis -tAc "SELECT postgis_lib_version();"
+            docker stop --time 30 "$name" >/dev/null || docker kill "$name" >/dev/null || true
+          done
+
+      - name: Create and push manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }} \
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64 \
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
+
+      - name: Image push success
+        run: echo "Docker images pushed successfully to ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}"
