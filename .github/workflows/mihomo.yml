@@ -6,7 +6,7 @@ on:
       - mihomo
 
 env:
-  BUILD_VERSION: v1.19.25
+  BUILD_VERSION: v1.19.27
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/mihomo
 
 jobs:
