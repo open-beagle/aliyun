@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: "v0.21.1"
+  BUILD_VERSION: "v0.25.1"
   CUDA_VERSION: "13.0.3"
 
 jobs:

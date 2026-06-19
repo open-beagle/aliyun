@@ -36,7 +36,7 @@ RUN python -m pip install --no-cache-dir triton
 
 # 部署 ComfyUI 本体
 WORKDIR /app
-ARG COMFYUI_VERSION="v0.21.1"
+ARG COMFYUI_VERSION="v0.25.1"
 RUN git clone --branch ${COMFYUI_VERSION} --depth 1 https://github.com/comfyanonymous/ComfyUI.git .
 RUN python - <<'PY'
 from pathlib import Path
