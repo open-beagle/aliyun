@@ -146,6 +146,18 @@ if [ ! -x "/data/venv/bin/python" ]; then
     python -m venv --system-site-packages /data/venv
     /data/venv/bin/python -m pip install --no-cache-dir --upgrade pip uv
     printf '%s\n' "$IMAGE_ENV_ID" > /data/venv/.image-env-id
+
+    # 将系统 PyTorch 包符号链接到 venv，让 uv pip 也能识别到 torch
+    # (uv 不读 system-site-packages，只看 venv 本地目录)
+    VENV_SITE="$(/data/venv/bin/python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
+    SYS_SITE="$(python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
+    echo "链接系统 PyTorch 到 venv: $SYS_SITE → $VENV_SITE"
+    for pkg in torch torchvision torchaudio triton; do
+        for item in "$SYS_SITE"/${pkg} "$SYS_SITE"/${pkg}-*.dist-info; do
+            [ -e "$item" ] || continue
+            ln -sfn "$item" "$VENV_SITE/$(basename "$item")"
+        done
+    done
 fi
 
 export VIRTUAL_ENV=/data/venv
