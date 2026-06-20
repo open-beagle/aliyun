@@ -27,8 +27,11 @@ EOF
     done
 }
 
+SHUTDOWN=0
+
 stop_comfyui() {
     echo "收到停止信号，正在停止 ComfyUI..."
+    SHUTDOWN=1
 
     if [ -n "$COMFYUI_PID" ] && kill -0 "$COMFYUI_PID" 2>/dev/null; then
         kill "$COMFYUI_PID" 2>/dev/null || true
@@ -45,7 +48,8 @@ show_comfyui_log() {
     echo "ComfyUI 日志文件: $COMFYUI_LOG_FILE"
     echo "开始监控 ComfyUI 日志..."
 
-    tail -n 0 -F "$COMFYUI_LOG_FILE"
+    tail -n 0 -F "$COMFYUI_LOG_FILE" &
+    TAIL_PID=$!
 }
 
 set_comfyui_log_file() {
@@ -156,8 +160,26 @@ echo "用户配置与工作流: /data/user"
 configure_manager_logging /data/user
 set_comfyui_log_file /data/user
 
-echo "后台启动 ComfyUI..."
 echo "ComfyUI 标准输出日志: $COMFYUI_STDIO_LOG_FILE"
-/data/venv/bin/python main.py "$@" >"$COMFYUI_STDIO_LOG_FILE" 2>&1 &
-COMFYUI_PID="$!"
 show_comfyui_log
+
+while [ $SHUTDOWN -eq 0 ]; do
+    echo "启动/重启 ComfyUI 主进程..."
+    # 每次启动追加到 stdio log
+    /data/venv/bin/python main.py "$@" >>"$COMFYUI_STDIO_LOG_FILE" 2>&1 &
+    COMFYUI_PID="$!"
+    
+    set +e
+    wait "$COMFYUI_PID"
+    EXIT_CODE=$?
+    set -e
+    
+    if [ $SHUTDOWN -eq 1 ]; then
+        break
+    fi
+    
+    echo "ComfyUI 进程已退出 (退出码: $EXIT_CODE)。3秒后将自动重启..."
+    sleep 3
+done
+
+kill "$TAIL_PID" 2>/dev/null || true
