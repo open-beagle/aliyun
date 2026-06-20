@@ -72,9 +72,16 @@ import pathlib
 import platform
 import sys
 
+try:
+    import torch
+    torch_ver = torch.__version__
+except Exception:
+    torch_ver = "unknown"
+
 parts = [
     f"python={platform.python_version()}",
     f"executable={sys.executable}",
+    f"torch={torch_ver}",
 ]
 for file_name in ("requirements.txt", "comfy_execution/graph_utils.py"):
     path = pathlib.Path("/app") / file_name
@@ -143,6 +150,23 @@ fi
 
 export VIRTUAL_ENV=/data/venv
 export PATH="/data/venv/bin:$PATH"
+
+# 用户额外依赖: 通过环境变量 EXTRA_PIP_PACKAGES 注入
+# 例如: EXTRA_PIP_PACKAGES="insightface surrealist diffusers"
+# 这些包安装到 /data/venv 中，与 Manager 安装的包统一管理
+if [ -n "${EXTRA_PIP_PACKAGES:-}" ]; then
+    EXTRA_MARKER="/data/venv/.extra-packages-installed"
+    # 仅当包列表变化或 venv 刚重建时才重新安装
+    if [ ! -f "$EXTRA_MARKER" ] || [ "$(cat "$EXTRA_MARKER")" != "$EXTRA_PIP_PACKAGES" ]; then
+        echo "安装用户额外依赖: $EXTRA_PIP_PACKAGES"
+        /data/venv/bin/pip install --no-cache-dir \
+            -i "${PIP_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple/}" \
+            $EXTRA_PIP_PACKAGES
+        printf '%s\n' "$EXTRA_PIP_PACKAGES" > "$EXTRA_MARKER"
+    else
+        echo "用户额外依赖已安装，跳过: $EXTRA_PIP_PACKAGES"
+    fi
+fi
 
 # 自动把容器自带的一些默认工作流(如果有的话)拷贝到挂载的用户目录，避免持久化覆盖导致工作流丢失
 # 新版 ComfyUI 会将 UI 设置和默认工作流保存在 user 目录
