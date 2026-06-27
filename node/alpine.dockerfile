@@ -14,5 +14,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
   cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
   update-ca-certificates && \
   npm config set cafile /etc/ssl/certs/ca-certificates.crt && \
-  yarn config set cafile /etc/ssl/certs/ca-certificates.crt && \
   echo "Asia/Shanghai" >  /etc/timezone
+
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
