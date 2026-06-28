@@ -6,7 +6,7 @@ on:
       - node-26
 
 env:
-  BUILD_VERSION: 26.3.0
+  BUILD_VERSION: 26.4.0
 
 jobs:
   node-alpine:

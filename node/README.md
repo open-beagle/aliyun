@@ -27,16 +27,16 @@ git switch node-26 ;`
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
 
-GitHub Actions 工作流位于 `.github/workflows/node-26.yml`，推送 `node-26` 分支时触发构建。当前构建版本为 `26.3.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
+GitHub Actions 工作流位于 `.github/workflows/node-26.yml`，推送 `node-26` 分支时触发构建。当前构建版本为 `26.4.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0`
 - `registry.cn-qingdao.aliyuncs.com/wod/node:26`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0-arm64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0-alpine`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0-alpine`
 - `registry.cn-qingdao.aliyuncs.com/wod/node:26-alpine`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0-alpine-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:26.3.0-alpine-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0-alpine-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:26.4.0-alpine-arm64`
 
 ## Node 24
 
@@ -61,16 +61,16 @@ git switch node-24 ;`
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
 
-GitHub Actions 工作流位于 `.github/workflows/node-24.yml`，推送 `node-24` 分支时触发构建。当前构建版本为 `24.16.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
+GitHub Actions 工作流位于 `.github/workflows/node-24.yml`，推送 `node-24` 分支时触发构建。当前构建版本为 `24.18.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0`
 - `registry.cn-qingdao.aliyuncs.com/wod/node:24`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0-arm64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0-alpine`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0-alpine`
 - `registry.cn-qingdao.aliyuncs.com/wod/node:24-alpine`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0-alpine-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/node:24.16.0-alpine-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0-alpine-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/node:24.18.0-alpine-arm64`
 
 ## Node 22
 
