@@ -42,14 +42,14 @@ jobs:
           file: ./alpine/alpine.dockerfile
           push: true
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3
           platforms: linux/amd64,linux/arm64
           build-args: |
-            BASE=alpine:3.22.1
+            BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}
-            VERSION=3.22.1
+            VERSION=3.22.5
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -62,13 +62,13 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-amd64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-amd64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3-amd64
           build-args: |
-            BASE=alpine:3.22.1
+            BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}
-            VERSION=3.22.1
+            VERSION=3.22.5
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -81,12 +81,12 @@ jobs:
           push: true
           provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.1-arm64
+            registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-arm64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-arm64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3-arm64
           build-args: |
-            BASE=alpine:3.22.1
+            BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}
-            VERSION=3.22.1
+            VERSION=3.22.5
           cache-from: type=gha
           cache-to: type=gha,mode=max
