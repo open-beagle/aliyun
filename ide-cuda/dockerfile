@@ -37,7 +37,9 @@ RUN apt update && \
         sudo \
         file \
         iptables \
-        iproute2 && \
+        iproute2 \
+        procps \
+        inotify-tools && \
   apt install -y \
         python3 \
         python3-pip \
