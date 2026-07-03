@@ -4,6 +4,7 @@ USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG F5_TTS_VERSION=1.1.20
+ARG PYTORCH_CUDA_INDEX_URL=https://download.pytorch.org/whl/cu124
 
 LABEL github_repo="https://github.com/SWivid/F5-TTS"
 
@@ -17,41 +18,31 @@ RUN set -x \
 
 WORKDIR /workspace
 
-# Pin torch ecosystem versions compatible with PyTorch 2.4.0
-RUN pip install --no-cache-dir \
+# Keep the PyTorch stack on the CUDA 12.4 ABI shipped by the base image.
+# TorchCodec 0.0.3 is the last release matching torch 2.4.
+RUN printf '%s\n' \
+    'torch==2.4.0' \
+    'torchaudio==2.4.0' \
+    'torchvision==0.19.0' \
+    'triton==3.0.0' \
+    'torchcodec==0.0.3' \
+    'gradio==6.10.0' \
+    'huggingface-hub==0.36.2' \
+    'numpy==1.26.4' \
+    'transformers==4.44.2' \
+    > /tmp/f5-tts-constraints.txt
+
+RUN pip install --no-cache-dir --no-deps --index-url "${PYTORCH_CUDA_INDEX_URL}" \
     torchaudio==2.4.0 \
     torchvision==0.19.0
 
 RUN git clone --branch "${F5_TTS_VERSION}" https://github.com/SWivid/F5-TTS.git \
     && cd F5-TTS \
     && git submodule update --init --recursive \
-    && pip install -e . --no-cache-dir --no-deps
+    && pip install --no-cache-dir --extra-index-url "${PYTORCH_CUDA_INDEX_URL}" --constraint /tmp/f5-tts-constraints.txt -e . psutil
 
-# Install remaining deps without touching torch/torchaudio/torchvision
-RUN cd F5-TTS \
-    && pip install --no-cache-dir \
-    transformers==4.44.2 \
-    accelerate \
-    bitsandbytes \
-    cached_path \
-    click \
-    einops \
-    gradio \
-    hydra-core \
-    jieba \
-    jinja2 \
-    matplotlib \
-    numpy \
-    omegaconf \
-    pydub \
-    pypinyin \
-    safetensors \
-    soundfile \
-    tomli \
-    tqdm \
-    vocos \
-    wandb \
-    x_transformers
+RUN pip check \
+    && python -c "import torch; assert torch.__version__.split('+')[0] == '2.4.0', torch.__version__; import torchaudio; assert torchaudio.__version__.split('+')[0] == '2.4.0', torchaudio.__version__; import gradio; assert gradio.__version__ == '6.10.0', gradio.__version__; import torchcodec; import f5_tts.model; import f5_tts.infer.infer_cli; import f5_tts.train.finetune_cli"
 
 ENV SHELL=/bin/bash
 
