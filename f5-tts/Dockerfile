@@ -31,6 +31,8 @@ RUN git clone --branch "${F5_TTS_VERSION}" https://github.com/SWivid/F5-TTS.git 
     && cp /tmp/f5-tts-pyproject.toml pyproject.toml \
     && pip install --no-cache-dir --extra-index-url "${PYTORCH_CUDA_INDEX_URL}" -e .
 
+RUN pip install --no-cache-dir "ninja==1.13.0"
+
 RUN pip check \
     && python -c "import torch; assert torch.__version__.split('+')[0] == '2.4.1', torch.__version__; import torchaudio; assert torchaudio.__version__.split('+')[0] == '2.4.1', torchaudio.__version__; import gradio; assert gradio.__version__ == '6.10.0', gradio.__version__; import torchcodec; import f5_tts.api; import f5_tts.model; import f5_tts.infer.utils_infer; import f5_tts.train.finetune_cli"
 
