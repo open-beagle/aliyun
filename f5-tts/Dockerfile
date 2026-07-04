@@ -1,9 +1,10 @@
-FROM registry.cn-qingdao.aliyuncs.com/wod/pytorch:2.4.1-cuda12.4-cudnn9-devel
+ARG BASE=pytorch/pytorch:2.4.1-cuda12.4-cudnn9-devel
+FROM ${BASE}
 
 USER root
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG F5_TTS_VERSION=1.1.20
+ARG F5_TTS_VERSION=main
 ARG PYTORCH_CUDA_INDEX_URL=https://download.pytorch.org/whl/cu124
 
 LABEL github_repo="https://github.com/SWivid/F5-TTS"

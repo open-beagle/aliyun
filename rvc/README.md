@@ -42,8 +42,10 @@ GitHub Actions 工作流位于 `.github/workflows/rvc.yml`，推送 `rvc` 分支
 
 ```bash
 docker build \
+  --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/pytorch:2.4.1-cuda12.4-cudnn9-devel \
   --build-arg RVC_VERSION=2.2.231006 \
-  -t verdantflare-app:rvc-2.2.231006 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:rvc-2.2.231006 \
+  -f ./rvc/Dockerfile.cn \
   ./rvc
 ```
 

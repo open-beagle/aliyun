@@ -33,6 +33,16 @@ GitHub Actions 工作流位于 `.github/workflows/f5-tts.yml`，推送 `f5-tts` 
 
 - `registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:f5-tts-1.1.20`
 
+## 构建示例
+
+```bash
+docker build \
+  --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/pytorch:2.4.1-cuda12.4-cudnn9-devel \
+  --build-arg F5_TTS_VERSION=1.1.20 \
+  -t verdantflare-app:f5-tts-1.1.20 \
+  ./f5-tts
+```
+
 ## 运行示例
 
 ```bash

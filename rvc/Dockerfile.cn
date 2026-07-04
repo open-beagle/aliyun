@@ -6,10 +6,13 @@ USER root
 ARG DEBIAN_FRONTEND=noninteractive
 ARG RVC_VERSION=main
 ARG PYTORCH_CUDA_INDEX_URL=https://download.pytorch.org/whl/cu124
+ARG PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 
 LABEL github_repo="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI"
 
 RUN set -x \
+    && sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+    && sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
     && apt-get update \
     && apt-get -y install wget curl man git less openssl libssl-dev unzip unar build-essential aria2 tmux vim \
     && apt-get install -y openssh-server sox libsox-fmt-all libsox-fmt-mp3 libsndfile1-dev ffmpeg \
@@ -23,16 +26,17 @@ COPY requirements.txt /tmp/rvc-requirements.txt
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-RUN pip install --no-cache-dir --no-deps --index-url "${PYTORCH_CUDA_INDEX_URL}" \
+RUN pip install --no-cache-dir --no-deps -i "${PIP_INDEX_URL}" --extra-index-url "${PYTORCH_CUDA_INDEX_URL}" \
     torchaudio==2.4.1 \
     torchvision==0.19.1
 
+# Use ghproxy or similar if github is too slow, but pip and apt are usually the main bottlenecks
 RUN git clone --branch "${RVC_VERSION}" --depth 1 \
     https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git rvc \
     && rm -rf rvc/.git
 
 RUN pip install "pip<24.1" \
-    && pip install --no-cache-dir --extra-index-url "${PYTORCH_CUDA_INDEX_URL}" \
+    && pip install --no-cache-dir -i "${PIP_INDEX_URL}" --extra-index-url "${PYTORCH_CUDA_INDEX_URL}" \
     -r /tmp/rvc-requirements.txt "gradio_client==0.2.6"
 
 # Fix fairseq Python 3.11 compatibility:
@@ -40,7 +44,7 @@ RUN pip install "pip<24.1" \
 RUN python -c "import re, glob; [(lambda c, f=f: open(f, 'w').write('from dataclasses import field\n' + re.sub(r'([a-zA-Z0-9_]+):\s*([a-zA-Z0-9_]+Config)\s*=\s*field\(default=\2\(\)\)', r'\1: \2 = field(default_factory=\2)', re.sub(r'([a-zA-Z0-9_]+):\s*([a-zA-Z0-9_]+Config)\s*=\s*\2\(\)', r'\1: \2 = field(default_factory=\2)', c))))(open(f).read()) for f in glob.glob('/opt/conda/lib/python3.11/site-packages/fairseq/**/*.py', recursive=True) if re.search(r'([a-zA-Z0-9_]+):\s*([a-zA-Z0-9_]+Config)\s*=\s*(?:field\(default=)?\2\(\)', open(f).read())]"
 
 # 2. Upgrade omegaconf and hydra-core to avoid hydra's own Python 3.11 mutable defaults bugs
-RUN pip install "omegaconf>=2.3.0" "hydra-core>=1.3.2" --no-deps --no-cache-dir --extra-index-url "${PYTORCH_CUDA_INDEX_URL}"
+RUN pip install "omegaconf>=2.3.0" "hydra-core>=1.3.2" --no-deps --no-cache-dir -i "${PIP_INDEX_URL}"
 
 # 3. Disable hydra_init which crashes on Python 3.11 dataclass _MISSING_TYPE in omegaconf>=2.3.0
 RUN sed -i 's/hydra_init()/# hydra_init()/g' /opt/conda/lib/python3.11/site-packages/fairseq/__init__.py
