@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
 
 env:
-  RVC_COMMIT: "7ef19867780cf703841ebafb565a4e47d1ea86ff"
-  IMAGE_NAME: "registry.cn-qingdao.aliyuncs.com/wod/rvc"
+  RVC_VERSION: "2.2.231006"
+  IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app
 
 # RVC - Retrieval-based Voice Conversion WebUI
 # Custom build with pinned torch ecosystem versions for ABI compatibility
 # - CUDA / PyTorch GPU-accelerated voice conversion
 # - Gradio web UI on port 7865
-# - Model weights downloaded on first run
+# - Model weights downloaded from Hugging Face on first run
 
 jobs:
   build-and-push:
@@ -51,9 +51,9 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ${{ env.IMAGE_NAME }}:main
+            ${{ env.IMAGE_NAME }}:rvc-${{ env.RVC_VERSION }}
           build-args: |
-            RVC_COMMIT=${{ env.RVC_COMMIT }}
+            RVC_VERSION=${{ env.RVC_VERSION }}
 
       - name: Image build success
-        run: echo "rvc:main built and pushed successfully!"
+        run: echo "verdantflare-app:rvc-${{ env.RVC_VERSION }} built and pushed successfully!"

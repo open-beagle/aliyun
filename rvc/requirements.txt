@@ -1,6 +1,6 @@
 # RVC pinned dependencies
-# Derived from upstream poetry.lock (commit 7ef1986)
-# torch, torchaudio, torchvision are installed separately in the Dockerfile
+# Base image provides: torch==2.4.0, torchaudio==2.4.0, torchvision==0.19.0
+# Versions from upstream poetry.lock (main branch, torch 2.4.0 ecosystem)
 
 # --- Core ML ---
 fairseq==0.12.2

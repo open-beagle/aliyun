@@ -8,7 +8,7 @@ on:
 
 env:
   F5_TTS_VERSION: "1.1.20"
-  IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/tts
+  IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app
 
 # F5-TTS - Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching
 # Custom build with pinned torch ecosystem versions for ABI compatibility
@@ -51,9 +51,9 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ${{ env.IMAGE_NAME }}:f5-${{ env.F5_TTS_VERSION }}
+            ${{ env.IMAGE_NAME }}:f5-tts-${{ env.F5_TTS_VERSION }}
           build-args: |
             F5_TTS_VERSION=${{ env.F5_TTS_VERSION }}
 
       - name: Image build success
-        run: echo "tts:f5-${{ env.F5_TTS_VERSION }} built and pushed successfully!"
+        run: echo "verdantflare-app:f5-tts-${{ env.F5_TTS_VERSION }} built and pushed successfully!"
