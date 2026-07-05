@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # 因为官方镜像基于 Ubuntu，可以直接 apt-get
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    git wget curl build-essential ffmpeg libgl1 libglib2.0-0 && \
+    git wget curl build-essential ffmpeg libgl1 libglib2.0-0 python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
 # 先只安装 triton，让 ComfyUI 回退到 PyTorch attention；后续有匹配 wheel 再开启 xformers。
