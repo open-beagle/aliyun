@@ -23,11 +23,11 @@ git switch comfyui ;`
 
 ## 概述
 
-本目录用于构建 ComfyUI 镜像，基于 `nvidia/cuda` 镜像安装 Python、PyTorch cu130、ComfyUI 和 ComfyUI-Manager，并将默认监听地址调整为 `0.0.0.0`，默认运行目录调整为 `/data`。
+本目录用于构建 ComfyUI 镜像，基于 PyTorch 官方镜像 (`pytorch/pytorch:2.12.1-cuda13.2-cudnn9-runtime`) 安装 ComfyUI 和 ComfyUI-Manager，并将默认监听地址调整为 `0.0.0.0`，默认运行目录调整为 `/data`。
 
-GitHub Actions 工作流位于 `.github/workflows/comfyui.yml`，推送 `comfyui` 分支或手动触发时构建。当前构建版本为 `v0.25.1`，CUDA 版本为 `13.0.3`，构建 `linux/amd64` 镜像并推送到：
+GitHub Actions 工作流位于 `.github/workflows/comfyui.yml`，推送 `comfyui` 分支或手动触发时构建。当前构建版本为 `v0.27.0`，默认通过 `BASE` 构建参数传入基础 PyTorch 镜像，构建 `linux/amd64` 镜像并推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.25.1-cu13.0.3`
+- `registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.27.0-pt2.12.1-cu13.2`
 
 ### 启动探活
 

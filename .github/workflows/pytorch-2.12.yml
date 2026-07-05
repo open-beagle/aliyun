@@ -1,9 +1,9 @@
-name: PyTorch 2.1
+name: PyTorch 2.12
 
 on:
   push:
     branches:
-      - pytorch-2.1
+      - pytorch-2.12
   workflow_dispatch:
 
 jobs:
@@ -18,8 +18,8 @@ jobs:
           - devel
 
     env:
-      SOURCE_IMAGE: pytorch/pytorch:2.1.2-cuda12.1-cudnn8-${{ matrix.variant }}
-      TARGET_IMAGE: registry.cn-qingdao.aliyuncs.com/wod/pytorch:2.1.2-cuda12.1-cudnn8-${{ matrix.variant }}
+      SOURCE_IMAGE: pytorch/pytorch:2.12.1-cuda13.2-cudnn9-${{ matrix.variant }}
+      TARGET_IMAGE: registry.cn-qingdao.aliyuncs.com/wod/pytorch:2.12.1-cuda13.2-cudnn9-${{ matrix.variant }}
 
     steps:
       - name: Checkout code

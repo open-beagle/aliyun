@@ -1,43 +1,34 @@
-# 采用 CUDA 13.0：PyTorch cu130 源同时提供 torch、torchvision、torchaudio。
-ARG CUDA_VERSION="13.0.2"
-FROM nvidia/cuda:${CUDA_VERSION}-cudnn-devel-ubuntu24.04
+# 采用 PyTorch 官方镜像作为底座
+# runtime 版本体积更小，适合绝大多数不涉及手搓 C++/CUDA 扩展编译的场景。
+ARG BASE="pytorch/pytorch:2.12.1-cuda13.2-cudnn9-runtime"
+FROM ${BASE}
 
 LABEL maintainer="beagle-news-flow"
-LABEL description="ComfyUI Image - CUDA 13.0"
+LABEL description="ComfyUI Image - PyTorch 2.12.1 CUDA 13.2"
 
-# 环保和网络加速配置 (移除了占位符代理，因为 GitHub Actions 本身在海外，网络通畅。如需本地构建可自行加上)
+# 环保和网络加速配置 (移除了占位符代理，因为 GitHub Actions 本身在海外，网络通畅)
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTHONUTF8=1 \
     HF_ENDPOINT="https://hf-mirror.com" \
     PIP_BREAK_SYSTEM_PACKAGES=1
 
-# 在 Ubuntu 24.04 上安装高版本 Python 和最新工具链，以及必须的图像库依赖
+# 安装系统必须的图像库依赖和基础工具
+# 因为官方镜像基于 Ubuntu，可以直接 apt-get
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    git wget curl build-essential ffmpeg libgl1 libglib2.0-0 \
-    python3.12 python3.12-venv python3.12-dev && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 && \
-    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.12 1 && \
-    python -m pip --version && \
+    git wget curl build-essential ffmpeg libgl1 libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
-# 安装 PyTorch 稳定版。不要使用 --extra-index-url，避免 torchaudio 从 PyPI 混入非 cu130 wheel。
-RUN python -m pip install --no-cache-dir \
-    torch==2.12.0+cu130 \
-    torchvision==0.27.0+cu130 \
-    torchaudio==2.11.0+cu130 \
-    --index-url https://download.pytorch.org/whl/cu130
-
-# xformers 当前没有匹配 PyTorch cu130/Python 3.12 的稳定 wheel，错误 wheel 会导致自定义节点导入失败。
 # 先只安装 triton，让 ComfyUI 回退到 PyTorch attention；后续有匹配 wheel 再开启 xformers。
 RUN python -m pip install --no-cache-dir triton
 
 # 部署 ComfyUI 本体
 WORKDIR /app
-ARG COMFYUI_VERSION="v0.25.1"
+ARG COMFYUI_VERSION="master"
 RUN git clone --branch ${COMFYUI_VERSION} --depth 1 https://github.com/comfyanonymous/ComfyUI.git .
+
+# 修改 ComfyUI 的默认配置 (0.0.0.0 访问及挂载目录等)
 RUN python - <<'PY'
 from pathlib import Path
 
@@ -67,6 +58,8 @@ end += len("\n)")
 text = text[:start] + 'database_default_path = "/data/user/comfyui.db"' + text[end:]
 cli_args.write_text(text)
 PY
+
+# 安装 ComfyUI 官方依赖
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # 挂载 Manager

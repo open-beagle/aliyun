@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: "v0.25.1"
-  CUDA_VERSION: "13.0.3"
+  BUILD_VERSION: "v0.27.0"
+  BASE_IMAGE: "pytorch/pytorch:2.12.1-cuda13.2-cudnn9-runtime"
+  IMAGE_TAG_SUFFIX: "pt2.12.1-cu13.2"
 
 jobs:
   build-and-push:
@@ -51,9 +52,9 @@ jobs:
           push: true
           provenance: false
           build-args: |
-            CUDA_VERSION=${{ env.CUDA_VERSION }}
+            BASE=${{ env.BASE_IMAGE }}
             COMFYUI_VERSION=${{ env.BUILD_VERSION }}
-          tags: registry.cn-qingdao.aliyuncs.com/wod/comfyui:${{ env.BUILD_VERSION }}-cu${{ env.CUDA_VERSION }}
+          tags: registry.cn-qingdao.aliyuncs.com/wod/comfyui:${{ env.BUILD_VERSION }}-${{ env.IMAGE_TAG_SUFFIX }}
 
       - name: Image build success
         run: echo "comfyui:${{ env.BUILD_VERSION }} built and pushed successfully!"
