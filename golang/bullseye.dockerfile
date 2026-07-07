@@ -16,12 +16,11 @@ ENV TZ=Asia/Shanghai
 
 RUN git config --global --add safe.directory '*'
 
-RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
-  sed -i 's/http\:\/\/security.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
-  sed -i 's/http\:\/\/snapshot.debian.org/http\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
+RUN sed -i \
+    -e 's@http://deb.debian.org/debian-security@http://security.debian.org/debian-security@g' \
+    -e 's@http://deb.debian.org/debian@http://ftp.us.debian.org/debian@g' \
+    /etc/apt/sources.list && \
   apt update -y && apt install apt-transport-https ca-certificates -y && \
-  sed -i 's/http\:\/\/mirrors.tuna.tsinghua.edu.cn/https\:\/\/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
-  apt update -y && \
   apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 sudo tzdata && \
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
   echo "Asia/Shanghai" > /etc/timezone

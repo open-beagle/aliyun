@@ -14,8 +14,7 @@ COPY --from=xx / /
 ENV GOPROXY=${GOPROXY}
 ENV TZ=Asia/Shanghai
 
-RUN sed -i "s@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g" /etc/apk/repositories && \
-  apk update && \
+RUN apk update && \
   apk --no-cache --update add git bash curl tzdata alpine-sdk linux-headers sudo clang lld && \
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 

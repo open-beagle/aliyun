@@ -16,7 +16,10 @@ ENV TZ=Asia/Shanghai
 
 RUN git config --global --add safe.directory '*'
 
-RUN sed -i 's/http\:\/\/deb.debian.org/http\:\/\/ftp.cn.debian.org/g' /etc/apt/sources.list.d/debian.sources && \
+RUN sed -i \
+    -e 's@http://deb.debian.org/debian-security@http://security.debian.org/debian-security@g' \
+    -e 's@http://deb.debian.org/debian@http://ftp.us.debian.org/debian@g' \
+    /etc/apt/sources.list.d/debian.sources && \
   apt update -y && apt install apt-transport-https ca-certificates -y && \
   apt install -y rsync pkg-config build-essential crossbuild-essential-arm64 sudo tzdata && \
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \

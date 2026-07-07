@@ -49,19 +49,83 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Login to Aliyun Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: registry.cn-qingdao.aliyuncs.com
-          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
-          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 构建多架构镜像
+      - name: Build and push GHCR multi-platform Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./golang/alpine.dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine
+            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}-alpine
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
+            BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ env.GOPROXY_GHCR }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push GHCR AMD64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./golang/alpine.dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-amd64
+          platforms: linux/amd64
+          build-args: |
+            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
+            BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ env.GOPROXY_GHCR }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push GHCR ARM64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./golang/alpine.dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-arm64
+          platforms: linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
+            BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ env.GOPROXY_GHCR }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+          # 使用缓存
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
       # 构建多架构镜像
       - name: Build and push Aliyun multi-platform Docker images
@@ -79,27 +143,6 @@ jobs:
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-alpine
             GOPROXY=${{ env.GOPROXY_ALIYUN }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Build and push GHCR multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./golang/alpine.dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine
-            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}-alpine
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
-            BASE=golang:${{ env.BUILD_VERSION }}-alpine
-            GOPROXY=${{ env.GOPROXY_GHCR }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
           # 使用缓存
@@ -127,26 +170,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Build and push GHCR AMD64 Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./golang/alpine.dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-amd64
-          platforms: linux/amd64
-          build-args: |
-            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
-            BASE=golang:${{ env.BUILD_VERSION }}-alpine
-            GOPROXY=${{ env.GOPROXY_GHCR }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
       # 构建并推送 ARM64 架构镜像
       - name: Build and push Aliyun ARM64 Docker image
         uses: docker/build-push-action@v5
@@ -168,26 +191,6 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Build and push GHCR ARM64 Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./golang/alpine.dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-alpine-arm64
-          platforms: linux/arm64
-          build-args: |
-            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
-            BASE=golang:${{ env.BUILD_VERSION }}-alpine
-            GOPROXY=${{ env.GOPROXY_GHCR }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-          # 使用缓存
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
       # 更新缓存
       - name: Move cache
         run: |
@@ -199,6 +202,7 @@ jobs:
 
   golang-bullseye:
     runs-on: ubuntu-latest
+    needs: golang-alpine
 
     steps:
       - name: Checkout code
@@ -218,19 +222,59 @@ jobs:
             image=moby/buildkit:master
             network=host
 
-      - name: Login to Aliyun Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: registry.cn-qingdao.aliyuncs.com
-          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
-          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 构建并推送 AMD64 架构镜像
+      - name: Build and push GHCR AMD64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./golang/bullseye.dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye-amd64
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}
+            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}-bullseye
+            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}
+          platforms: linux/amd64
+          build-args: |
+            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
+            BASE=golang:${{ env.BUILD_VERSION }}-bullseye
+            GOPROXY=${{ env.GOPROXY_GHCR }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      # 构建并推送 ARM64 架构镜像
+      - name: Build and push GHCR ARM64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./golang/bullseye-arch.dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye-arm64
+          platforms: linux/arm64
+          build-args: |
+            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
+            BASE=golang:${{ env.BUILD_VERSION }}-bullseye
+            GOPROXY=${{ env.GOPROXY_GHCR }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
+
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-qingdao.aliyuncs.com
+          username: ${{ secrets.REGISTRY_USER_ALIYUN }}
+          password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push Aliyun AMD64 Docker image
@@ -254,27 +298,6 @@ jobs:
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
-      - name: Build and push GHCR AMD64 Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./golang/bullseye.dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye-amd64
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}
-            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}-bullseye
-            ${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.release }}
-          platforms: linux/amd64
-          build-args: |
-            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
-            BASE=golang:${{ env.BUILD_VERSION }}-bullseye
-            GOPROXY=${{ env.GOPROXY_GHCR }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
       # 构建并推送 ARM64 架构镜像
       - name: Build and push Aliyun ARM64 Docker image
         uses: docker/build-push-action@v5
@@ -290,23 +313,6 @@ jobs:
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-bullseye
             GOPROXY=${{ env.GOPROXY_ALIYUN }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
-      - name: Build and push GHCR ARM64 Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./golang/bullseye-arch.dockerfile
-          push: true
-          provenance: false
-          tags: |
-            ${{ env.IMAGE_NAME_GHCR }}:${{ env.BUILD_VERSION }}-bullseye-arm64
-          platforms: linux/arm64
-          build-args: |
-            XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
-            BASE=golang:${{ env.BUILD_VERSION }}-bullseye
-            GOPROXY=${{ env.GOPROXY_GHCR }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
