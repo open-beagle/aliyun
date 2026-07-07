@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - golang-1.26
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  packages: write
 
 env:
   BUILD_VERSION: 1.26.4
