@@ -1,9 +1,9 @@
-name: golang-1.26
+name: golang-1.22
 
 on:
   push:
     branches:
-      - golang-1.26
+      - golang-1.22
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   packages: write
 
 env:
-  BUILD_VERSION: 1.26.4
+  BUILD_VERSION: 1.22.12
   XX_VERSION: 1.9.0
 
 jobs:

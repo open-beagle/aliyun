@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - golang-1.20
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 env:
   BUILD_VERSION: 1.20.14
@@ -12,6 +17,16 @@ env:
 jobs:
   golang-alpine:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: aliyun
+            image_name: registry.cn-qingdao.aliyuncs.com/wod/golang
+            goproxy: https://goproxy.cn
+          - registry: ghcr
+            image_name: ghcr.io/open-beagle/golang
+            goproxy: https://proxy.golang.org,direct
 
     steps:
       - name: Checkout code
@@ -41,11 +56,20 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Login to Aliyun Container Registry
+        if: matrix.registry == 'aliyun'
         uses: docker/login-action@v2
         with:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        if: matrix.registry == 'ghcr'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # 构建多架构镜像
       - name: Build and push multi-platform Docker images
@@ -54,13 +78,15 @@ jobs:
           context: .
           file: ./golang/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-alpine
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ steps.version.outputs.release }}-alpine
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-alpine
+            ${{ matrix.image_name }}:${{ steps.version.outputs.release }}-alpine
           platforms: linux/amd64,linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ matrix.goproxy }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
           # 使用缓存
@@ -74,12 +100,14 @@ jobs:
           context: .
           file: ./golang/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-alpine-amd64
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-alpine-amd64
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ matrix.goproxy }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
           # 使用缓存
@@ -93,12 +121,14 @@ jobs:
           context: .
           file: ./golang/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-alpine-arm64
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-alpine-arm64
           platforms: linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-alpine
+            GOPROXY=${{ matrix.goproxy }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
           # 使用缓存
@@ -112,10 +142,20 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Image push success
-        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
+        run: echo "Docker images and manifests pushed successfully to ${{ matrix.image_name }}"
 
   golang-bullseye:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: aliyun
+            image_name: registry.cn-qingdao.aliyuncs.com/wod/golang
+            goproxy: https://goproxy.cn
+          - registry: ghcr
+            image_name: ghcr.io/open-beagle/golang
+            goproxy: https://proxy.golang.org,direct
 
     steps:
       - name: Checkout code
@@ -136,11 +176,20 @@ jobs:
             network=host
 
       - name: Login to Aliyun Container Registry
+        if: matrix.registry == 'aliyun'
         uses: docker/login-action@v2
         with:
           registry: registry.cn-qingdao.aliyuncs.com
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
+
+      - name: Login to GitHub Container Registry
+        if: matrix.registry == 'ghcr'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
@@ -149,16 +198,18 @@ jobs:
           context: .
           file: ./golang/bullseye.dockerfile
           push: true
+          provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-bullseye-amd64
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-bullseye
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ steps.version.outputs.release }}-bullseye
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ steps.version.outputs.release }}
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-bullseye-amd64
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-bullseye
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}
+            ${{ matrix.image_name }}:${{ steps.version.outputs.release }}-bullseye
+            ${{ matrix.image_name }}:${{ steps.version.outputs.release }}
           platforms: linux/amd64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-bullseye
+            GOPROXY=${{ matrix.goproxy }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
@@ -169,14 +220,16 @@ jobs:
           context: .
           file: ./golang/bullseye-arch.dockerfile
           push: true
+          provenance: false
           tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/golang:${{ env.BUILD_VERSION }}-bullseye-arm64
+            ${{ matrix.image_name }}:${{ env.BUILD_VERSION }}-bullseye-arm64
           platforms: linux/arm64
           build-args: |
             XXBASE=tonistiigi/xx:${{ env.XX_VERSION }}
             BASE=golang:${{ env.BUILD_VERSION }}-bullseye
+            GOPROXY=${{ matrix.goproxy }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
       - name: Image push success
-        run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/golang"
+        run: echo "Docker images and manifests pushed successfully to ${{ matrix.image_name }}"

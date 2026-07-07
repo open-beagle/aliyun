@@ -6,11 +6,12 @@ FROM $BASE
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
 ARG VERSION=1.24-bullseye
+ARG GOPROXY=https://goproxy.cn
 LABEL maintainer=${AUTHOR} version=${VERSION}
 
 COPY --from=xx / /
 
-ENV GOPROXY=https://goproxy.cn
+ENV GOPROXY=${GOPROXY}
 ENV TZ=Asia/Shanghai
 
 RUN git config --global --add safe.directory '*'
