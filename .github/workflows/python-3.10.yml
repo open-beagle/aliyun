@@ -129,24 +129,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # 构建多架构镜像
-      - name: Build and push multi-platform Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./python/debian.dockerfile
-          push: true
-          tags: |
-            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-bookworm
-            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-bookworm
-            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}
-            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BASE=python:${{ env.BUILD_VERSION }}
-            AUTHOR=${{ github.repository_owner }}
-            VERSION=${{ env.BUILD_VERSION }}
-
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
         uses: docker/build-push-action@v5
@@ -159,6 +141,10 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-bookworm-amd64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-amd64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-amd64
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-bookworm
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}
+            registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}
           platforms: linux/amd64
           build-args: |
             BASE=python:${{ env.BUILD_VERSION }}
