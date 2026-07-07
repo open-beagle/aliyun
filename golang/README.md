@@ -85,6 +85,8 @@ git switch golang-1.26 ;`
 
 GitHub Actions 工作流文件位于 `.github/workflows/golang-*.yml`，分别推送至对应的迭代分支时会触发构建，并同步推送到阿里云容器镜像服务与 GitHub Container Registry。
 
+GHCR 推送使用 `GHCR_USERNAME` 与 `GHCR_TOKEN` secrets。`ghcr.io/open-beagle/golang` 是组织级已有 package，`open-beagle/aliyun` 的 `GITHUB_TOKEN` 默认不能写入；`GHCR_TOKEN` 需要具备 `write:packages` 权限。
+
 ## 镜像
 
 所有 tag 都同步推送到两个仓库：
