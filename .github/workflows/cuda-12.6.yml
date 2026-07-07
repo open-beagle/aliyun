@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: registry.cn-qingdao.aliyuncs.com/wod/cuda
 
 jobs:
-  cuda-ubuntu22:
+  cuda-runtime-ubuntu22:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,7 +52,7 @@ jobs:
 
   cuda-devel-ubuntu22:
     runs-on: ubuntu-latest
-    needs: cudnn-ubuntu22
+    needs: cuda-runtime-ubuntu22
 
     steps:
       - name: Free Disk Space

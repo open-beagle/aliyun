@@ -93,7 +93,7 @@ jobs:
 
   cuda-runtime-ubuntu24:
     runs-on: ubuntu-latest
-    needs: cudnn-devel-ubuntu22
+    needs: cuda-devel-ubuntu22
 
     steps:
       - name: Free Disk Space
