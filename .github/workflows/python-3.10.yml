@@ -48,6 +48,7 @@ jobs:
           context: .
           file: ./python/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-alpine
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-alpine
@@ -67,6 +68,7 @@ jobs:
           context: .
           file: ./python/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-alpine-amd64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-alpine-amd64
@@ -86,6 +88,7 @@ jobs:
           context: .
           file: ./python/alpine.dockerfile
           push: true
+          provenance: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-alpine-arm64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-alpine-arm64
@@ -136,6 +139,7 @@ jobs:
           context: .
           file: ./python/debian.dockerfile
           push: true
+          provenance: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-bookworm-amd64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-bookworm-amd64
@@ -158,6 +162,7 @@ jobs:
           context: .
           file: ./python/debian.dockerfile
           push: true
+          provenance: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.BUILD_VERSION }}-bookworm-arm64
             registry.cn-qingdao.aliyuncs.com/wod/python:${{ env.RELEASE_VERSION}}-bookworm-arm64
