@@ -8,7 +8,7 @@ on:
 
 env:
   BUILD_VERSION: "v0.27.0"
-  BASE_IMAGE: "pytorch/pytorch:2.11.0-cuda13.0-cudnn9-runtime"
+  BASE_IMAGE: "pytorch/pytorch:2.11.0-cuda13.0-cudnn9-devel"
   IMAGE_TAG_SUFFIX: "pt2.11.0-cu13.0"
 
 jobs:
