@@ -10,7 +10,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTHONUTF8=1 \
     HF_ENDPOINT="https://hf-mirror.com" \
-    PIP_BREAK_SYSTEM_PACKAGES=1
+    PIP_BREAK_SYSTEM_PACKAGES=1 \
+    CUDA_HOME=/usr/local/cuda \
+    CUDA_PATH=/usr/local/cuda
+ENV PATH="${CUDA_HOME}/bin:${PATH}" \
+    LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
 
 # 安装系统必须的图像库依赖和基础工具
 # 因为官方镜像基于 Ubuntu，可以直接 apt-get
