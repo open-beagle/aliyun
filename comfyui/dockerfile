@@ -1,6 +1,5 @@
-# 采用 PyTorch 官方镜像作为底座
-# runtime 版本体积更小，适合绝大多数不涉及手搓 C++/CUDA 扩展编译的场景。
-ARG BASE="pytorch/pytorch:2.11.0-cuda13.0-cudnn9-runtime"
+# 采用 PyTorch 官方 devel 镜像作为底座，保留 CUDA 编译链用于 SageAttention 等扩展。
+ARG BASE="pytorch/pytorch:2.11.0-cuda13.0-cudnn9-devel"
 FROM ${BASE}
 
 LABEL maintainer="beagle-news-flow"
@@ -23,6 +22,10 @@ RUN apt-get update && \
 # 锁定 PyTorch 生态包，避免 ComfyUI requirements.txt 中裸 torch 包触发解析漂移。
 COPY configure_comfyui.py pytorch-stack.env pytorch_stack.py /opt/comfyui-build/
 RUN python /opt/comfyui-build/pytorch_stack.py install-stack
+
+ARG SAGEATTENTION_VERSION="2.2.0"
+RUN python -m pip install --no-cache-dir ninja packaging && \
+    python -m pip install --no-cache-dir --no-build-isolation "sageattention==${SAGEATTENTION_VERSION}"
 
 # 部署 ComfyUI 本体
 WORKDIR /app

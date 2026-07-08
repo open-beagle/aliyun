@@ -23,13 +23,13 @@ git switch comfyui ;`
 
 ## 概述
 
-本目录用于构建 ComfyUI 镜像，基于 PyTorch 官方镜像 (`pytorch/pytorch:2.11.0-cuda13.0-cudnn9-runtime`) 安装 ComfyUI 和 ComfyUI-Manager，并将默认监听地址调整为 `0.0.0.0`，默认运行目录调整为 `/data`。
+本目录用于构建 ComfyUI 镜像，基于 PyTorch 官方 devel 镜像 (`pytorch/pytorch:2.11.0-cuda13.0-cudnn9-devel`) 安装 ComfyUI 和 ComfyUI-Manager，并将默认监听地址调整为 `0.0.0.0`，默认运行目录调整为 `/data`。
 
 GitHub Actions 工作流位于 `.github/workflows/comfyui.yml`，推送 `comfyui` 分支或手动触发时构建。当前构建版本为 `v0.27.0`，默认通过 `BASE` 构建参数传入基础 PyTorch 镜像，构建 `linux/amd64` 镜像并推送到：
 
 - `registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.27.0-pt2.11.0-cu13.0`
 
-镜像内 PyTorch 生态包由 `pytorch-stack.env` 锁定为 `torch==2.11.0+cu130`、`torchvision==0.26.0+cu130`、`torchaudio==2.11.0+cu130`。`pytorch_stack.py` 会用这组版本安装三件套、带 constraints 安装 ComfyUI/Manager 依赖，并在构建末尾导入三件套做版本断言，避免裸 `requirements.txt` 将 torch 生态包解析到不匹配的 CUDA ABI。`configure_comfyui.py` 负责修改上游 ComfyUI 默认监听地址、运行目录和数据库路径。
+镜像内 PyTorch 生态包由 `pytorch-stack.env` 锁定为 `torch==2.11.0+cu130`、`torchvision==0.26.0+cu130`、`torchaudio==2.11.0+cu130`。`pytorch_stack.py` 会用这组版本安装三件套、带 constraints 安装 ComfyUI/Manager 依赖，并在构建末尾导入三件套做版本断言，避免裸 `requirements.txt` 将 torch 生态包解析到不匹配的 CUDA ABI。SageAttention 固定安装为 `sageattention==2.2.0`，用于支持 KJNodes 的 SageAttention patch 节点。`configure_comfyui.py` 负责修改上游 ComfyUI 默认监听地址、运行目录和数据库路径。
 
 ### 启动探活
 
