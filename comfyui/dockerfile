@@ -1,10 +1,10 @@
 # 采用 PyTorch 官方镜像作为底座
 # runtime 版本体积更小，适合绝大多数不涉及手搓 C++/CUDA 扩展编译的场景。
-ARG BASE="pytorch/pytorch:2.12.1-cuda13.2-cudnn9-runtime"
+ARG BASE="pytorch/pytorch:2.11.0-cuda13.0-cudnn9-runtime"
 FROM ${BASE}
 
 LABEL maintainer="beagle-news-flow"
-LABEL description="ComfyUI Image - PyTorch 2.12.1 CUDA 13.2"
+LABEL description="ComfyUI Image - PyTorch 2.11.0 CUDA 13.0"
 
 # 环保和网络加速配置 (移除了占位符代理，因为 GitHub Actions 本身在海外，网络通畅)
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -20,8 +20,9 @@ RUN apt-get update && \
     git wget curl build-essential ffmpeg libgl1 libglib2.0-0 python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
-# 先只安装 triton，让 ComfyUI 回退到 PyTorch attention；后续有匹配 wheel 再开启 xformers。
-RUN python -m pip install --no-cache-dir triton
+# 锁定 PyTorch 生态包，避免 ComfyUI requirements.txt 中裸 torch 包触发解析漂移。
+COPY configure_comfyui.py pytorch-stack.env pytorch_stack.py /opt/comfyui-build/
+RUN python /opt/comfyui-build/pytorch_stack.py install-stack
 
 # 部署 ComfyUI 本体
 WORKDIR /app
@@ -29,46 +30,20 @@ ARG COMFYUI_VERSION="master"
 RUN git clone --branch ${COMFYUI_VERSION} --depth 1 https://github.com/comfyanonymous/ComfyUI.git .
 
 # 修改 ComfyUI 的默认配置 (0.0.0.0 访问及挂载目录等)
-RUN python - <<'PY'
-from pathlib import Path
-
-def replace_once(path: str, old: str, new: str) -> None:
-    file_path = Path(path)
-    text = file_path.read_text()
-    if old not in text:
-        raise RuntimeError(f"Expected text not found in {path}: {old!r}")
-    file_path.write_text(text.replace(old, new, 1))
-
-cli_args = Path("comfy/cli_args.py")
-replace_once("comfy/cli_args.py", 'default="127.0.0.1"', 'default="0.0.0.0"')
-replace_once(
-    "folder_paths.py",
-    "base_path = os.path.dirname(os.path.realpath(__file__))",
-    'base_path = "/data"',
-)
-
-text = cli_args.read_text()
-start = text.find("database_default_path = os.path.abspath(\n")
-if start == -1:
-    raise RuntimeError("Expected database_default_path block not found in comfy/cli_args.py")
-end = text.find("\n)", start)
-if end == -1:
-    raise RuntimeError("Expected database_default_path block terminator not found in comfy/cli_args.py")
-end += len("\n)")
-text = text[:start] + 'database_default_path = "/data/user/comfyui.db"' + text[end:]
-cli_args.write_text(text)
-PY
+RUN python /opt/comfyui-build/configure_comfyui.py /app
 
 # 安装 ComfyUI 官方依赖
-RUN python -m pip install --no-cache-dir -r requirements.txt
+RUN python /opt/comfyui-build/pytorch_stack.py requirements requirements.txt
 
 # 挂载 Manager
 WORKDIR /app/custom_nodes
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
-    python -m pip install --no-cache-dir -r /app/custom_nodes/ComfyUI-Manager/requirements.txt && \
+    python /opt/comfyui-build/pytorch_stack.py requirements /app/custom_nodes/ComfyUI-Manager/requirements.txt && \
     python -c "import git, uv; print('ComfyUI-Manager package checks passed')"
 
 WORKDIR /app
+RUN python /opt/comfyui-build/pytorch_stack.py verify
+
 # 准备 K8s 启动脚本
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

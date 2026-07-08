@@ -68,20 +68,35 @@ set_comfyui_log_file() {
 image_env_id() {
     python - <<'PY'
 import hashlib
+from importlib import metadata
 import pathlib
 import platform
 import sys
 
+def package_version(name):
+    try:
+        return metadata.version(name)
+    except metadata.PackageNotFoundError:
+        return "missing"
+    except Exception as exc:
+        return f"error:{type(exc).__name__}"
+
 try:
     import torch
     torch_ver = torch.__version__
+    torch_cuda = torch.version.cuda or "none"
 except Exception:
     torch_ver = "unknown"
+    torch_cuda = "unknown"
 
 parts = [
     f"python={platform.python_version()}",
     f"executable={sys.executable}",
     f"torch={torch_ver}",
+    f"torch_cuda={torch_cuda}",
+    f"torchvision={package_version('torchvision')}",
+    f"torchaudio={package_version('torchaudio')}",
+    f"triton={package_version('triton')}",
 ]
 for file_name in ("requirements.txt", "comfy_execution/graph_utils.py"):
     path = pathlib.Path("/app") / file_name
