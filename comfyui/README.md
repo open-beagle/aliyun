@@ -29,7 +29,7 @@ GitHub Actions 工作流位于 `.github/workflows/comfyui.yml`，推送 `comfyui
 
 - `registry.cn-qingdao.aliyuncs.com/wod/comfyui:v0.27.0-pt2.11.0-cu13.0`
 
-镜像内 PyTorch 生态包由 `pytorch-stack.env` 锁定为 `torch==2.11.0+cu130`、`torchvision==0.26.0+cu130`、`torchaudio==2.11.0+cu130`。`pytorch_stack.py` 会用这组版本安装三件套、带 constraints 安装 ComfyUI/Manager 依赖，并在构建末尾导入三件套做版本断言，避免裸 `requirements.txt` 将 torch 生态包解析到不匹配的 CUDA ABI。SageAttention 固定安装为 `sageattention==2.2.0`，用于支持 KJNodes 的 SageAttention patch 节点。`configure_comfyui.py` 负责修改上游 ComfyUI 默认监听地址、运行目录和数据库路径。
+镜像内 PyTorch 生态包由 `pytorch-stack.env` 锁定为 `torch==2.11.0+cu130`、`torchvision==0.26.0+cu130`、`torchaudio==2.11.0+cu130`。`pytorch_stack.py` 会用这组版本安装三件套、带 constraints 安装 ComfyUI/Manager 依赖，并在构建末尾导入三件套做版本断言，避免裸 `requirements.txt` 将 torch 生态包解析到不匹配的 CUDA ABI。SageAttention 固定从官方 `v2.2.0` 标签安装，用于支持 KJNodes 的 SageAttention patch 节点，默认按 RTX 4090 的 `TORCH_CUDA_ARCH_LIST=8.9` 构建。`configure_comfyui.py` 负责修改上游 ComfyUI 默认监听地址、运行目录和数据库路径。
 
 ### 启动探活
 

@@ -23,9 +23,14 @@ RUN apt-get update && \
 COPY configure_comfyui.py pytorch-stack.env pytorch_stack.py /opt/comfyui-build/
 RUN python /opt/comfyui-build/pytorch_stack.py install-stack
 
-ARG SAGEATTENTION_VERSION="2.2.0"
+ARG SAGEATTENTION_REF="v2.2.0"
+ARG SAGEATTENTION_CUDA_ARCH_LIST="8.9"
+ARG SAGEATTENTION_MAX_JOBS="4"
 RUN python -m pip install --no-cache-dir ninja packaging && \
-    python -m pip install --no-cache-dir --no-build-isolation "sageattention==${SAGEATTENTION_VERSION}"
+    TORCH_CUDA_ARCH_LIST="${SAGEATTENTION_CUDA_ARCH_LIST}" \
+    MAX_JOBS="${SAGEATTENTION_MAX_JOBS}" \
+    python -m pip install --no-cache-dir --no-build-isolation \
+        "git+https://github.com/thu-ml/SageAttention.git@${SAGEATTENTION_REF}"
 
 # 部署 ComfyUI 本体
 WORKDIR /app
