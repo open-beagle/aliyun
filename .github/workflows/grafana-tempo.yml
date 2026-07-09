@@ -39,7 +39,7 @@ jobs:
           platforms: linux/amd64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/tempo:${{ env.TEMPO_VERSION }}-amd64
+          tags: registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-${{ env.TEMPO_VERSION }}-amd64
           build-args: BASE=grafana/tempo:${{ env.TEMPO_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -52,7 +52,7 @@ jobs:
           platforms: linux/arm64
           push: true
           provenance: false
-          tags: registry.cn-qingdao.aliyuncs.com/wod/tempo:${{ env.TEMPO_VERSION }}-arm64
+          tags: registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-${{ env.TEMPO_VERSION }}-arm64
           build-args: BASE=grafana/tempo:${{ env.TEMPO_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -60,9 +60,9 @@ jobs:
       - name: Create and push Tempo manifest
         run: |
           docker buildx imagetools create \
-            --tag registry.cn-qingdao.aliyuncs.com/wod/tempo:${{ env.TEMPO_VERSION }} \
-            registry.cn-qingdao.aliyuncs.com/wod/tempo:${{ env.TEMPO_VERSION }}-amd64 \
-            registry.cn-qingdao.aliyuncs.com/wod/tempo:${{ env.TEMPO_VERSION }}-arm64
+            --tag registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-${{ env.TEMPO_VERSION }} \
+            registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-${{ env.TEMPO_VERSION }}-amd64 \
+            registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-${{ env.TEMPO_VERSION }}-arm64
 
       - name: Pipeline Completed
         run: echo "Tempo multi-arch image successfully built and pushed!"

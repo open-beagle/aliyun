@@ -17,8 +17,8 @@
 
 - **上游拉取源**：`grafana/tempo:3.0.2`
 - **私有库推送 Tag**：
-  - **架构特定 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/tempo:3.0.2-amd64` 和 `-arm64`
-  - **聚合多架构 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/tempo:3.0.2`
+  - **架构特定 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-3.0.2-amd64` 和 `-arm64`
+  - **聚合多架构 Tag**：`registry.cn-qingdao.aliyuncs.com/wod/grafana:tempo-3.0.2`
 
 ---
 
