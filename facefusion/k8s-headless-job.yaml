@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: facefusion-pvc
+  labels:
+    app: facefusion
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: facefusion-workdir-pvc
+  labels:
+    app: facefusion
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: facefusion-headless
+  labels:
+    app: facefusion
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: facefusion
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: facefusion
+          image: registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda
+          imagePullPolicy: IfNotPresent
+          command: ["python", "facefusion.py"]
+          args:
+            - headless-run
+            - --source-paths
+            - /data/input/head.jpg
+            - --target-path
+            - /data/input/source.mp4
+            - --output-path
+            - /data/output/final.mp4
+            - --processors
+            - face_swapper
+            - face_enhancer
+            - --execution-providers
+            - cuda
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: workdir
+              mountPath: /data
+            - name: data
+              mountPath: /facefusion/.assets
+              subPath: assets
+            - name: data
+              mountPath: /facefusion/.caches
+              subPath: caches
+            - name: data
+              mountPath: /facefusion/.jobs
+              subPath: jobs
+      volumes:
+        - name: workdir
+          persistentVolumeClaim:
+            claimName: facefusion-workdir-pvc
+        - name: data
+          persistentVolumeClaim:
+            claimName: facefusion-pvc
