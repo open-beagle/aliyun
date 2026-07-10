@@ -30,7 +30,7 @@ git switch facefusion ;`
 本 Dockerfile 基于官方 `facefusion-docker/Dockerfile.cuda`，做了以下处理：
 
 - FaceFusion 固定为 `3.7.1`
-- CUDA 基础镜像固定为 `docker.io/nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04`
+- CUDA 基础镜像固定为 `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.9.1-cudnn-runtime-ubuntu24.04`
 - 安装 `onnxruntime-gpu` CUDA 版本依赖
 - 默认监听 `0.0.0.0:7860`
 - 默认入口为 `python facefusion.py`，默认命令为 `run --execution-providers cuda`
@@ -40,12 +40,21 @@ GitHub Actions 工作流位于 `.github/workflows/facefusion.yml`，推送 `face
 
 - `registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda`
 
+构建前先推送 CUDA 12.9 base：
+
+```bash
+git switch cuda-12.9 && \
+  git merge main --ff-only && \
+  git push origin cuda-12.9 && \
+  git switch facefusion
+```
+
 ## 构建示例
 
 ```bash
 docker build \
   --build-arg FACEFUSION_VERSION=3.7.1 \
-  --build-arg BASE=docker.io/nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04 \
+  --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/cuda:12.9.1-cudnn-runtime-ubuntu24.04 \
   -t registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda \
   ./facefusion
 ```

@@ -1,4 +1,4 @@
-ARG BASE=docker.io/nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04
+ARG BASE=nvidia/cuda:12.9.1-cudnn-runtime-ubuntu24.04
 FROM ${BASE}
 
 ARG FACEFUSION_VERSION=3.7.1

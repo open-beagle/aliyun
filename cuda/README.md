@@ -25,6 +25,13 @@ git switch cuda-13.0 && \
   git switch main
 ```
 
+```bash
+git switch cuda-12.9 && \
+  git merge main --ff-only && \
+  git push origin cuda-12.9 && \
+  git switch main
+```
+
 ```powershell
 git switch cuda-12.6 ;`
   git merge main --ff-only ;`
@@ -46,6 +53,13 @@ git switch cuda-13.0 ;`
   git switch main
 ```
 
+```powershell
+git switch cuda-12.9 ;`
+  git merge main --ff-only ;`
+  git push origin cuda-12.9 ;`
+  git switch main
+```
+
 ## 镜像
 
 CUDA 12.6.3：
@@ -62,6 +76,10 @@ CUDA 12.8.2：
 - `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.8.2-runtime-ubuntu24.04`
 - `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.8.2-devel-ubuntu24.04`
 - `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.8.2-cudnn-devel-ubuntu24.04`
+
+CUDA 12.9.1：
+
+- `registry.cn-qingdao.aliyuncs.com/wod/cuda:12.9.1-cudnn-runtime-ubuntu24.04`
 
 CUDA 13.0.3：
 
