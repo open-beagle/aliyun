@@ -38,7 +38,7 @@ git switch facefusion ;`
 
 GitHub Actions 工作流位于 `.github/workflows/facefusion.yml`，推送 `facefusion` 分支或手动触发工作流时执行构建。推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda`
+- `registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1`
 
 构建前先推送 CUDA 12.9 base：
 
@@ -55,7 +55,7 @@ git switch cuda-12.9 && \
 docker build \
   --build-arg FACEFUSION_VERSION=3.7.1 \
   --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/cuda:12.9.1-cudnn-runtime-ubuntu24.04 \
-  -t registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda \
+  -t registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1 \
   ./facefusion
 ```
 
@@ -76,7 +76,7 @@ docker run --gpus all --rm -it \
   -v $(pwd)/assets:/facefusion/.assets \
   -v $(pwd)/caches:/facefusion/.caches \
   -v $(pwd)/jobs:/facefusion/.jobs \
-  registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda
+  registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1
 ```
 
 访问 `http://localhost:7870`。
@@ -89,7 +89,7 @@ docker run --gpus all --rm -it \
   -v $(pwd)/assets:/facefusion/.assets \
   -v $(pwd)/caches:/facefusion/.caches \
   -v $(pwd)/jobs:/facefusion/.jobs \
-  registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda \
+  registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1 \
   headless-run \
   --source-paths /data/input/head.jpg \
   --target-path /data/input/source.mp4 \

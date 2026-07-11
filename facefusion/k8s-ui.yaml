@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: facefusion
-          image: registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1-cuda
+          image: registry.cn-qingdao.aliyuncs.com/wod/verdantflare-app:facefusion-3.7.1
           imagePullPolicy: IfNotPresent
           command: ["python", "facefusion.py"]
           args: ["run", "--execution-providers", "cuda"]

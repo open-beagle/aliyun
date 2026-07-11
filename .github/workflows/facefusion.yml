@@ -55,10 +55,10 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ${{ env.IMAGE_NAME }}:facefusion-${{ env.FACEFUSION_VERSION }}-cuda
+            ${{ env.IMAGE_NAME }}:facefusion-${{ env.FACEFUSION_VERSION }}
           build-args: |
             BASE=${{ env.BASE_IMAGE }}
             FACEFUSION_VERSION=${{ env.FACEFUSION_VERSION }}
 
       - name: Image build success
-        run: echo "verdantflare-app:facefusion-${{ env.FACEFUSION_VERSION }}-cuda built and pushed successfully!"
+        run: echo "verdantflare-app:facefusion-${{ env.FACEFUSION_VERSION }} built and pushed successfully!"
