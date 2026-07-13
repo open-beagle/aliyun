@@ -8,10 +8,13 @@ LABEL maintainer=$AUTHOR version=$VERSION
 ENV PATH=/opt/bin:$PATH
 ENV LD_LIBRARY_PATH /usr/glibc-compat/lib:/usr/lib
 ENV _CONTAINERS_USERNS_CONFIGURED=""
+ENV TZ=Asia/Shanghai
 
 COPY ./ide/ssh/ssh* /etc/ssh/
+COPY ./debian/debian-13.sources /etc/apt/sources.list.d/debian.sources
 
 RUN apt update && \
+  ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
   apt install -y \
         curl \
         wget \
@@ -29,26 +32,51 @@ RUN apt update && \
         pkg-config \
         lsof \
         iputils-ping \
+        dnsutils \
+        net-tools \
+        telnet \
         sudo \
         file \
         iptables \
-        iproute2 && \
+        iproute2 \
+        procps \
+        inotify-tools \
+        bubblewrap \
+        ripgrep && \
   apt install -y \
         python3 \
+        python3-pip \
+        python3-venv \
         connect-proxy \
         openssh-server \
         openssh-client \
         podman \
         crun \
-        fuse-overlayfs && \
+        fuse-overlayfs \
+        postgresql-client \
+        redis-tools && \
   apt clean && \
   sed -i 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config  && \
   chmod 600 /etc/ssh/ssh_host*  && \
-  echo "export PATH=$HOME/.local/bin:$PATH" >> $HOME/.bashrc
+  printf '[global]\nindex-url = https://mirrors.aliyun.com/pypi/simple/\ntrusted-host = mirrors.aliyun.com\n' > /etc/pip.conf
 
-COPY ./debian/debian-13.sources /etc/apt/sources.list.d/debian.sources
+RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
+  if [ -n "$existing_user" ] && [ "$existing_user" != "code" ]; then \
+    usermod -l code -d /home/code -m "$existing_user" && \
+    groupmod -n code $(getent group 1000 | cut -d: -f1); \
+  elif [ -z "$existing_user" ]; then \
+    useradd -m -u 1000 -s /bin/bash -d /home/code code; \
+  fi && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd && \
+  chmod 0440 /etc/sudoers.d/nopasswd && \
+  echo "code:100000:65536" >> /etc/subuid && \
+  echo "code:100000:65536" >> /etc/subgid && \
+  echo 'export PATH=$HOME/.local/bin:$PATH' >> /home/code/.bashrc && \
+  chown code:code /home/code/.bashrc
 
-RUN adduser --gecos '' --disabled-password code && \
-  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd 
+USER code
+WORKDIR /home/code
 
-# USER code
+RUN mkdir -p /home/code/.config/containers && \
+  printf '[storage]\ndriver = "vfs"\nrunroot = "/home/code/.local/share/containers/runroot"\ngraphroot = "/home/code/.local/share/containers/storage"\n\n[storage.options]\nforce_mask = "700"\n' > /home/code/.config/containers/storage.conf && \
+  printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /home/code/.config/containers/containers.conf

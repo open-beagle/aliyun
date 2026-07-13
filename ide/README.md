@@ -27,7 +27,14 @@ git switch ide ;`
 
 ## 概述
 
-本目录用于构建通用 IDE 开发环境镜像，基于 Debian Trixie。镜像预置 SSH 服务端与客户端、Python 3、Podman 运行时和常用的构建、网络与命令行工具，并创建具有免密 `sudo` 权限的 `code` 用户。
+本目录用于构建通用 IDE 开发环境镜像，基于 Debian Trixie。镜像预置以下开发环境：
+
+- **Codex CLI 依赖**：`bubblewrap` 和 `ripgrep`。
+- **开发工具链**：Python 3、`pip`、`venv`、`build-essential`、`pkg-config`、Git 与常用命令行工具；PyPI 默认使用阿里云镜像。
+- **服务与容器工具**：SSH 服务端与客户端、Podman、crun、fuse-overlayfs、PostgreSQL 客户端与 Redis 工具。
+- **网络诊断工具**：`dnsutils`、`net-tools`、`telnet`、`inotify-tools`、`iptables` 与 `iproute2`。
+
+镜像会以 UID/GID 1000 创建或复用 `code` 用户，并配置免密 `sudo` 与 rootless Podman 存储目录。
 
 GitHub Actions 工作流位于 `.github/workflows/ide.yml`。推送到 `ide` 分支会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到阿里云容器镜像服务。
 

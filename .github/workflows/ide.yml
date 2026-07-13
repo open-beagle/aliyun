@@ -41,6 +41,8 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-amd64
           build-args: |
             BASE=debian:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_NUMBER }}
           # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -58,6 +60,8 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }}-arm64
           build-args: |
             BASE=debian:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_NUMBER }}
           # Enable caching
           cache-from: type=gha
           cache-to: type=gha,mode=max
