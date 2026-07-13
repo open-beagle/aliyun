@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
 
     steps:
       - name: Checkout code
@@ -35,6 +37,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push multi-platform Docker images
         uses: docker/build-push-action@v5
         with:
@@ -45,6 +54,9 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22.5
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22
+            ghcr.io/${{ github.repository_owner }}/alpine:3
           platforms: linux/amd64,linux/arm64
           build-args: |
             BASE=alpine:3.22.5
@@ -65,6 +77,9 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-amd64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-amd64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3-amd64
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22.5-amd64
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22-amd64
+            ghcr.io/${{ github.repository_owner }}/alpine:3-amd64
           build-args: |
             BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}
@@ -84,6 +99,9 @@ jobs:
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-arm64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-arm64
             registry.cn-qingdao.aliyuncs.com/wod/alpine:3-arm64
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22.5-arm64
+            ghcr.io/${{ github.repository_owner }}/alpine:3.22-arm64
+            ghcr.io/${{ github.repository_owner }}/alpine:3-arm64
           build-args: |
             BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}

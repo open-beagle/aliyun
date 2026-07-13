@@ -36,7 +36,7 @@ git switch alpine ;`
 - **常用工具**: 安装 `bash`、`ca-certificates`、`curl`、`iptables`、`iproute2` 等基础工具。
 - **证书配置**: 导入 Beagle 内部 CA 证书（`beagle-ca.crt`）以信任内部服务。
 
-GitHub Actions 工作流文件位于 `.github/workflows/alpine.yml`，推送到 `alpine` 分支时会触发构建并推送到阿里云容器镜像服务。支持 `linux/amd64` 和 `linux/arm64` 多架构。
+GitHub Actions 工作流文件位于 `.github/workflows/alpine.yml`，推送到 `alpine` 分支时会触发构建并推送到阿里云容器镜像服务和 GitHub Container Registry（GHCR）。支持 `linux/amd64` 和 `linux/arm64` 多架构。
 
 ## 镜像
 
@@ -46,14 +46,23 @@ GitHub Actions 工作流文件位于 `.github/workflows/alpine.yml`，推送到 
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3`
+  - `ghcr.io/open-beagle/alpine:3.22.5`
+  - `ghcr.io/open-beagle/alpine:3.22`
+  - `ghcr.io/open-beagle/alpine:3`
 - **AMD64**
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-amd64`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-amd64`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3-amd64`
+  - `ghcr.io/open-beagle/alpine:3.22.5-amd64`
+  - `ghcr.io/open-beagle/alpine:3.22-amd64`
+  - `ghcr.io/open-beagle/alpine:3-amd64`
 - **ARM64**
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-arm64`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22-arm64`
   - `registry.cn-qingdao.aliyuncs.com/wod/alpine:3-arm64`
+  - `ghcr.io/open-beagle/alpine:3.22.5-arm64`
+  - `ghcr.io/open-beagle/alpine:3.22-arm64`
+  - `ghcr.io/open-beagle/alpine:3-arm64`
 
 ## 构建
 
@@ -65,6 +74,7 @@ docker build \
   --build-arg AUTHOR=open-beagle \
   --build-arg VERSION=3.22.5 \
   -t registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5 \
+  -t ghcr.io/open-beagle/alpine:3.22.5 \
   -f alpine/alpine.dockerfile .
 ```
 
@@ -74,6 +84,9 @@ docker build \
 docker push registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5
 docker push registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-amd64
 docker push registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-arm64
+docker push ghcr.io/open-beagle/alpine:3.22.5
+docker push ghcr.io/open-beagle/alpine:3.22.5-amd64
+docker push ghcr.io/open-beagle/alpine:3.22.5-arm64
 ```
 
 ## 运行
@@ -82,5 +95,14 @@ docker push registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5-arm64
 docker run --rm -it \
   -v $(pwd):/workspace \
   registry.cn-qingdao.aliyuncs.com/wod/alpine:3.22.5 \
+  bash
+```
+
+或从 GHCR 拉取：
+
+```bash
+docker run --rm -it \
+  -v $(pwd):/workspace \
+  ghcr.io/open-beagle/alpine:3.22.5 \
   bash
 ```

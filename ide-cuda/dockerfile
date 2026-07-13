@@ -39,7 +39,9 @@ RUN apt update && \
         iptables \
         iproute2 \
         procps \
-        inotify-tools && \
+        inotify-tools \
+        bubblewrap \
+        ripgrep && \
   apt install -y \
         python3 \
         python3-pip \
@@ -55,7 +57,13 @@ RUN apt update && \
   apt clean && \
   sed -i 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config  && \
   chmod 600 /etc/ssh/ssh_host*  && \
-  echo "export PATH=$HOME/.local/bin:$PATH" >> $HOME/.bashrc
+  echo "export PATH=$HOME/.local/bin:$PATH" >> $HOME/.bashrc && \
+  pip3 config set global.index-url "https://mirrors.aliyun.com/pypi/simple/" && \
+  pip3 config set global.trusted-host "mirrors.aliyun.com" && \
+  sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true && \
+  sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true && \
+  sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null || true && \
+  sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null || true
 
 RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
   if [ -n "$existing_user" ] && [ "$existing_user" != "code" ]; then \
@@ -75,3 +83,9 @@ WORKDIR /home/code
 RUN mkdir -p /home/code/.config/containers && \
   printf '[storage]\ndriver = "vfs"\nrunroot = "/home/code/.local/share/containers/runroot"\ngraphroot = "/home/code/.local/share/containers/storage"\n\n[storage.options]\nforce_mask = "700"\n' > /home/code/.config/containers/storage.conf && \
   printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /home/code/.config/containers/containers.conf
+
+# 提升 inotify watches 上限 (需要 privileged 或 sysctl 权限)
+RUN echo 'fs.inotify.max_user_watches=524288' | sudo tee /etc/sysctl.d/99-inotify.conf > /dev/null && \
+    echo 'fs.inotify.max_user_instances=1024' | sudo tee -a /etc/sysctl.d/99-inotify.conf > /dev/null && \
+    echo '# 尝试提升 inotify watches (仅 privileged 容器生效)' >> /home/code/.bashrc && \
+    echo 'sudo sysctl -p /etc/sysctl.d/99-inotify.conf 2>/dev/null || true' >> /home/code/.bashrc
