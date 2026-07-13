@@ -10,18 +10,32 @@
 ### Bash
 
 ```bash
+# 通用 IDE 镜像
 git switch ide && \
-  git merge main --ff-only && \
-  git push origin ide && \
+  git reset --hard main && \
+  git push --force-with-lease origin ide && \
+  git switch main
+
+# CUDA IDE 镜像
+git switch ide-cuda && \
+  git reset --hard main && \
+  git push --force-with-lease origin ide-cuda && \
   git switch main
 ```
 
 ### PowerShell
 
 ```powershell
+# 通用 IDE 镜像
 git switch ide ;`
-  git merge main --ff-only ;`
-  git push origin ide ;`
+  git reset --hard main ;`
+  git push --force-with-lease origin ide ;`
+  git switch main
+
+# CUDA IDE 镜像
+git switch ide-cuda ;`
+  git reset --hard main ;`
+  git push --force-with-lease origin ide-cuda ;`
   git switch main
 ```
 
@@ -36,7 +50,7 @@ git switch ide ;`
 
 镜像会以 UID/GID 1000 创建或复用 `code` 用户，并配置免密 `sudo` 与 rootless Podman 存储目录。
 
-GitHub Actions 工作流位于 `.github/workflows/ide.yml`。推送到 `ide` 分支会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到阿里云容器镜像服务。
+GitHub Actions 工作流位于 `.github/workflows/ide.yml` 和 `.github/workflows/ide-cuda.yml`。推送到 `ide` 分支会构建 `linux/amd64` 和 `linux/arm64` 通用 IDE 镜像；推送到 `ide-cuda` 分支会构建 AMD64 CUDA IDE 镜像。两者均推送到阿里云容器镜像服务。
 
 ## 镜像
 
