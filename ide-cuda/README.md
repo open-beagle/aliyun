@@ -11,8 +11,8 @@
 
 ```bash
 git switch ide-cuda && \
-  git merge main --ff-only && \
-  git push origin ide-cuda && \
+  git reset --hard main && \
+  git push --force-with-lease origin ide-cuda && \
   git switch main
 ```
 
@@ -20,8 +20,8 @@ git switch ide-cuda && \
 
 ```powershell
 git switch ide-cuda ;`
-  git merge main --ff-only ;`
-  git push origin ide-cuda ;`
+  git reset --hard main ;`
+  git push --force-with-lease origin ide-cuda ;`
   git switch main
 ```
 
