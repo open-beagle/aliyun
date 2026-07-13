@@ -1,11 +1,15 @@
-# Ide-cuda
+# IDE CUDA
+
+## Github 地址
+
+- 上游项目：https://developer.nvidia.com/cuda-toolkit
+- 上游镜像：https://hub.docker.com/r/nvidia/cuda
 
 ## 迭代命令
 
 ### Bash
 
 ```bash
-# ide-cuda 迭代
 git switch ide-cuda && \
   git merge main --ff-only && \
   git push origin ide-cuda && \
@@ -15,7 +19,6 @@ git switch ide-cuda && \
 ### PowerShell
 
 ```powershell
-# ide-cuda 迭代
 git switch ide-cuda ;`
   git merge main --ff-only ;`
   git push origin ide-cuda ;`
@@ -24,15 +27,43 @@ git switch ide-cuda ;`
 
 ## 概述
 
-本目录用于构建 Ide-cuda 镜像，基于上游项目进行定制开发，主要集成了 Beagle 内部环境的配置（如加速源、CA 证书、时区等）。
+本目录用于构建 CUDA IDE 开发环境镜像，基于 `nvidia/cuda:12.6.3-devel-ubuntu24.04`。镜像包含 CUDA 开发环境、Python 3 与 `pip`、SSH 服务端和客户端、Podman 运行时，以及 PostgreSQL、Redis、网络诊断和常用构建工具。
 
-推送到 `ide-cuda` 分支时，会触发相应的 GitHub Actions 工作流构建镜像并推送到阿里云容器镜像服务。
+镜像会以 UID/GID 1000 创建或复用 `code` 用户，并配置免密 `sudo` 与 rootless Podman 存储目录。
 
-### 主要特性
+GitHub Actions 工作流位于 `.github/workflows/ide-cuda.yml`。推送到 `ide-cuda` 分支会构建并推送 AMD64 镜像到阿里云容器镜像服务。
 
-- **中国镜像加速**：APT 源替换为 `mirrors.aliyun.com`，pip 源替换为阿里云 PyPI 镜像。
-- **Codex CLI 支持**：预装 `bubblewrap`（沙箱隔离）和 `ripgrep`（代码搜索），满足 OpenAI Codex CLI 运行依赖。
-- **VS Code Remote-SSH 优化**：
-  - 预写 `fs.inotify.max_user_watches=524288` sysctl 配置，容器启动时自动尝试提升上限。
-  - 预置 Machine-level `settings.json`，配置 `files.watcherExclude` 排除 `node_modules`、`.cache`、`vendor` 等高噪音目录。
+## 镜像
 
+### CUDA 12.6.3 (Ubuntu 24.04)
+
+- **AMD64**
+  - `registry.cn-qingdao.aliyuncs.com/wod/ide:cuda12.6.3-devel-ubuntu24.04`
+
+## 构建
+
+```bash
+docker build \
+  --build-arg BASE=nvidia/cuda:12.6.3-devel-ubuntu24.04 \
+  --build-arg AUTHOR=open-beagle \
+  --build-arg VERSION=12.6.3-devel-ubuntu24.04 \
+  -t registry.cn-qingdao.aliyuncs.com/wod/ide:cuda12.6.3-devel-ubuntu24.04 \
+  -f ide-cuda/dockerfile .
+```
+
+## 推送
+
+```bash
+docker push registry.cn-qingdao.aliyuncs.com/wod/ide:cuda12.6.3-devel-ubuntu24.04
+```
+
+## 运行
+
+主机需要安装 NVIDIA Container Toolkit，才能将 GPU 暴露给容器：
+
+```bash
+docker run --rm -it --gpus all \
+  -v $(pwd):/workspace \
+  registry.cn-qingdao.aliyuncs.com/wod/ide:cuda12.6.3-devel-ubuntu24.04 \
+  bash
+```
