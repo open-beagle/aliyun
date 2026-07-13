@@ -83,9 +83,3 @@ WORKDIR /home/code
 RUN mkdir -p /home/code/.config/containers && \
   printf '[storage]\ndriver = "vfs"\nrunroot = "/home/code/.local/share/containers/runroot"\ngraphroot = "/home/code/.local/share/containers/storage"\n\n[storage.options]\nforce_mask = "700"\n' > /home/code/.config/containers/storage.conf && \
   printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /home/code/.config/containers/containers.conf
-
-# 提升 inotify watches 上限 (需要 privileged 或 sysctl 权限)
-RUN echo 'fs.inotify.max_user_watches=524288' | sudo tee /etc/sysctl.d/99-inotify.conf > /dev/null && \
-    echo 'fs.inotify.max_user_instances=1024' | sudo tee -a /etc/sysctl.d/99-inotify.conf > /dev/null && \
-    echo '# 尝试提升 inotify watches (仅 privileged 容器生效)' >> /home/code/.bashrc && \
-    echo 'sudo sysctl -p /etc/sysctl.d/99-inotify.conf 2>/dev/null || true' >> /home/code/.bashrc
