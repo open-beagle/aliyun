@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./ide-cuda/dockerfile
+          file: ./ide/dockerfile
           platforms: linux/amd64
           push: true
           provenance: false
@@ -39,6 +39,8 @@ jobs:
             ${{ env.IMAGE_NAME }}:cuda${{ env.BUILD_VERSION }}
           build-args: |
             BASE=nvidia/cuda:${{ env.BUILD_VERSION }}
+            AUTHOR=${{ github.repository_owner }}
+            VERSION=${{ env.BUILD_VERSION }}
 
       - name: Build complete
         run: echo "IDE-CUDA image pushed successfully!"

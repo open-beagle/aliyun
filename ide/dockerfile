@@ -1,0 +1,93 @@
+ARG BASE=debian:trixie
+FROM $BASE
+
+ARG AUTHOR
+ARG VERSION
+LABEL maintainer=$AUTHOR version=$VERSION
+
+ENV PATH=/opt/bin:$PATH \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/glibc-compat/lib:/usr/lib \
+    _CONTAINERS_USERNS_CONFIGURED="" \
+    TZ=Asia/Shanghai
+
+COPY ./ide/ssh/ssh* /etc/ssh/
+COPY ./debian/debian-13.sources /tmp/debian.sources
+
+RUN set -eux; \
+    . /etc/os-release; \
+    if [ "$ID" = "debian" ]; then \
+      cp /tmp/debian.sources /etc/apt/sources.list.d/debian.sources; \
+    else \
+      sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true; \
+      sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true; \
+      sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null || true; \
+      sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null || true; \
+    fi; \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime; \
+    echo $TZ > /etc/timezone; \
+    apt-get update; \
+    apt-get install -y \
+      curl \
+      wget \
+      git \
+      vim \
+      nano \
+      htop \
+      tree \
+      jq \
+      unzip \
+      ca-certificates \
+      gnupg \
+      lsb-release \
+      build-essential \
+      pkg-config \
+      lsof \
+      iputils-ping \
+      dnsutils \
+      net-tools \
+      telnet \
+      sudo \
+      file \
+      iptables \
+      iproute2 \
+      procps \
+      inotify-tools \
+      bubblewrap \
+      ripgrep \
+      python3 \
+      python3-pip \
+      python3-venv \
+      connect-proxy \
+      openssh-server \
+      openssh-client \
+      podman \
+      crun \
+      fuse-overlayfs \
+      postgresql-client \
+      redis-tools; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/* /tmp/debian.sources; \
+    sed -i 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config; \
+    chmod 600 /etc/ssh/ssh_host*
+
+RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
+  if [ -n "$existing_user" ] && [ "$existing_user" != "code" ]; then \
+    usermod -l code -d /home/code -m "$existing_user" && \
+    groupmod -n code $(getent group 1000 | cut -d: -f1); \
+  elif [ -z "$existing_user" ]; then \
+    useradd -m -u 1000 -s /bin/bash -d /home/code code; \
+  fi && \
+  echo "code ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd && \
+  chmod 0440 /etc/sudoers.d/nopasswd && \
+  echo "code:100000:65536" >> /etc/subuid && \
+  echo "code:100000:65536" >> /etc/subgid && \
+  echo 'export PATH=$HOME/.local/bin:$PATH' >> /home/code/.bashrc && \
+  printf '[global]\nindex-url = https://mirrors.aliyun.com/pypi/simple/\ntrusted-host = mirrors.aliyun.com\n' > /etc/pip.conf && \
+  chown code:code /home/code/.bashrc
+
+USER code
+WORKDIR /home/code
+
+RUN mkdir -p /home/code/.config/containers && \
+  printf '[storage]\ndriver = "vfs"\nrunroot = "/home/code/.local/share/containers/runroot"\ngraphroot = "/home/code/.local/share/containers/storage"\n\n[storage.options]\nforce_mask = "700"\n' > /home/code/.config/containers/storage.conf && \
+  printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /home/code/.config/containers/containers.conf

@@ -32,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./ide/debian.dockerfile
+          file: ./ide/dockerfile
           platforms: linux/amd64
           push: true
           provenance: false
@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./ide/debian.dockerfile
+          file: ./ide/dockerfile
           platforms: linux/arm64
           push: true
           provenance: false
