@@ -58,6 +58,8 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/alpine:3.22
             ghcr.io/${{ github.repository_owner }}/alpine:3
           platforms: linux/amd64,linux/arm64
+          provenance: false
+          sbom: false
           build-args: |
             BASE=alpine:3.22.5
             AUTHOR=${{ github.repository_owner }}
