@@ -50,6 +50,8 @@ jobs:
           context: .
           file: ./node/alpine.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}-alpine
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ steps.version.outputs.release }}-alpine
@@ -67,6 +69,8 @@ jobs:
           context: .
           file: ./node/alpine.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}-alpine-amd64
           platforms: linux/amd64
@@ -83,6 +87,8 @@ jobs:
           context: .
           file: ./node/alpine.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}-alpine-arm64
           platforms: linux/arm64
@@ -134,6 +140,8 @@ jobs:
           context: .
           file: ./node/debian.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ steps.version.outputs.release }}
@@ -149,6 +157,8 @@ jobs:
           context: .
           file: ./node/debian.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}-amd64
           platforms: linux/amd64
@@ -163,6 +173,8 @@ jobs:
           context: .
           file: ./node/debian.dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             registry.cn-qingdao.aliyuncs.com/wod/node:${{ env.BUILD_VERSION }}-arm64
           platforms: linux/arm64
