@@ -7,7 +7,8 @@
 ## 特性说明
 
 - **预装 pnpm**：所有镜像均预装了对应兼容版本的 `pnpm`：
-  - Node 18 ~ Node 26：预装最新版 `pnpm` (`pnpm@latest`)
+  - Node 22 ~ Node 26：预装 `pnpm` 最新版 (`pnpm@latest`)
+  - Node 18 ~ Node 20：预装 `pnpm@9` (pnpm 10+ 需要 Node >= 22.13 的内置 `node:sqlite` 模块)
   - Node 16：预装 `pnpm@8`
   - Node 14：预装 `pnpm@7`
   - Node 12：预装 `pnpm@6`

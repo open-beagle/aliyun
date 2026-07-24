@@ -63,7 +63,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -84,7 +84,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -105,7 +105,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -164,7 +164,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
@@ -182,7 +182,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image

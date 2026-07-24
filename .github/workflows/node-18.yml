@@ -60,7 +60,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -79,7 +79,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -98,7 +98,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -153,7 +153,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
 
       - name: Build and push AMD64 Docker image
         uses: docker/build-push-action@v5
@@ -170,7 +170,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
 
       - name: Build and push ARM64 Docker image
         uses: docker/build-push-action@v5
