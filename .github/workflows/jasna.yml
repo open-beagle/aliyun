@@ -38,6 +38,8 @@ jobs:
       - name: Build Jasna standalone binary via Builder Image
         uses: docker/build-push-action@v5
         with:
+          provenance: false
+          sbom: false
           context: ./jasna
           file: ./jasna/dockerfile.build
           platforms: linux/amd64
@@ -57,6 +59,7 @@ jobs:
       - name: Build and push jasna runtime image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./jasna
           file: ./jasna/dockerfile
           platforms: linux/amd64

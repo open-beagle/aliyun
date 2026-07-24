@@ -34,6 +34,7 @@ jobs:
       - name: Build and push Tempo AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./grafana/tempo.dockerfile
           platforms: linux/amd64
@@ -47,6 +48,7 @@ jobs:
       - name: Build and push Tempo ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./grafana/tempo.dockerfile
           platforms: linux/arm64

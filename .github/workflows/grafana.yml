@@ -34,6 +34,7 @@ jobs:
       - name: Build and push Grafana AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./grafana/grafana.dockerfile
           platforms: linux/amd64
@@ -47,6 +48,7 @@ jobs:
       - name: Build and push Grafana ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./grafana/grafana.dockerfile
           platforms: linux/arm64

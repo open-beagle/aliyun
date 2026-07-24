@@ -39,6 +39,7 @@ jobs:
       - name: Build and push otel-collector amd64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./jaeger/otel-collector.dockerfile
           platforms: linux/amd64
@@ -53,6 +54,7 @@ jobs:
       - name: Build and push otel-collector arm64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./jaeger/otel-collector.dockerfile
           platforms: linux/arm64
@@ -110,6 +112,7 @@ jobs:
       - name: Build and push jaeger amd64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./jaeger/jaeger.dockerfile
           platforms: linux/amd64
@@ -124,6 +127,7 @@ jobs:
       - name: Build and push jaeger arm64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./jaeger/jaeger.dockerfile
           platforms: linux/arm64

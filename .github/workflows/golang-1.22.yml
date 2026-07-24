@@ -60,6 +60,7 @@ jobs:
       - name: Build and push GHCR multi-platform Docker images
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -82,6 +83,7 @@ jobs:
       - name: Build and push GHCR AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -103,6 +105,7 @@ jobs:
       - name: Build and push GHCR ARM64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -131,6 +134,7 @@ jobs:
       - name: Build and push Aliyun multi-platform Docker images
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -153,6 +157,7 @@ jobs:
       - name: Build and push Aliyun AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -174,6 +179,7 @@ jobs:
       - name: Build and push Aliyun ARM64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/alpine.dockerfile
           push: true
@@ -233,6 +239,7 @@ jobs:
       - name: Build and push GHCR AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/bookworm.dockerfile
           push: true
@@ -255,6 +262,7 @@ jobs:
       - name: Build and push GHCR ARM64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/bookworm-arch.dockerfile
           push: true
@@ -280,6 +288,7 @@ jobs:
       - name: Build and push Aliyun AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/bookworm.dockerfile
           push: true
@@ -302,6 +311,7 @@ jobs:
       - name: Build and push Aliyun ARM64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./golang/bookworm-arch.dockerfile
           push: true

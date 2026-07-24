@@ -41,6 +41,8 @@ jobs:
       - name: Build and push multi-platform Docker images
         uses: docker/build-push-action@v5
         with:
+          provenance: false
+          sbom: false
           context: .
           file: ./new-api/dockerfile
           push: true
@@ -57,6 +59,7 @@ jobs:
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./new-api/dockerfile
           platforms: linux/amd64
@@ -74,6 +77,7 @@ jobs:
       - name: Build and push ARM64 image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./new-api/dockerfile
           platforms: linux/arm64

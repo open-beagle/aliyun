@@ -45,6 +45,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./f5-tts
           file: ./f5-tts/Dockerfile
           platforms: linux/amd64

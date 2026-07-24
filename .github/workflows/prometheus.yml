@@ -38,6 +38,7 @@ jobs:
       - name: Build and push Alertmanager AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/alertmanager.dockerfile
           platforms: linux/amd64
@@ -51,6 +52,7 @@ jobs:
       - name: Build and push Alertmanager ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/alertmanager.dockerfile
           platforms: linux/arm64
@@ -72,6 +74,7 @@ jobs:
       - name: Build and push Node Exporter AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/node-exporter.dockerfile
           platforms: linux/amd64
@@ -85,6 +88,7 @@ jobs:
       - name: Build and push Node Exporter ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/node-exporter.dockerfile
           platforms: linux/arm64
@@ -106,6 +110,7 @@ jobs:
       - name: Build and push Kube State Metrics AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/kube-state-metrics.dockerfile
           platforms: linux/amd64
@@ -119,6 +124,7 @@ jobs:
       - name: Build and push Kube State Metrics ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/kube-state-metrics.dockerfile
           platforms: linux/arm64
@@ -140,6 +146,7 @@ jobs:
       - name: Build and push k8s-sidecar AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/k8s-sidecar.dockerfile
           platforms: linux/amd64
@@ -153,6 +160,7 @@ jobs:
       - name: Build and push k8s-sidecar ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./prometheus/k8s-sidecar.dockerfile
           platforms: linux/arm64

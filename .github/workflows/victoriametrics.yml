@@ -34,6 +34,7 @@ jobs:
       - name: Build and push vmagent AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmagent.dockerfile
           platforms: linux/amd64
@@ -47,6 +48,7 @@ jobs:
       - name: Build and push vmagent ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmagent.dockerfile
           platforms: linux/arm64
@@ -68,6 +70,7 @@ jobs:
       - name: Build and push vminsert AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vminsert.dockerfile
           platforms: linux/amd64
@@ -81,6 +84,7 @@ jobs:
       - name: Build and push vminsert ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vminsert.dockerfile
           platforms: linux/arm64
@@ -102,6 +106,7 @@ jobs:
       - name: Build and push vmselect AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmselect.dockerfile
           platforms: linux/amd64
@@ -115,6 +120,7 @@ jobs:
       - name: Build and push vmselect ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmselect.dockerfile
           platforms: linux/arm64
@@ -136,6 +142,7 @@ jobs:
       - name: Build and push vmstorage AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmstorage.dockerfile
           platforms: linux/amd64
@@ -149,6 +156,7 @@ jobs:
       - name: Build and push vmstorage ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmstorage.dockerfile
           platforms: linux/arm64
@@ -170,6 +178,7 @@ jobs:
       - name: Build and push operator AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/operator.dockerfile
           platforms: linux/amd64
@@ -183,6 +192,7 @@ jobs:
       - name: Build and push operator ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/operator.dockerfile
           platforms: linux/arm64
@@ -204,6 +214,7 @@ jobs:
       - name: Build and push config-reloader AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/config-reloader.dockerfile
           platforms: linux/amd64
@@ -217,6 +228,7 @@ jobs:
       - name: Build and push config-reloader ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/config-reloader.dockerfile
           platforms: linux/arm64
@@ -238,6 +250,7 @@ jobs:
       - name: Build and push vmalert AMD64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmalert.dockerfile
           platforms: linux/amd64
@@ -251,6 +264,7 @@ jobs:
       - name: Build and push vmalert ARM64
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./victoriametrics/vmalert.dockerfile
           platforms: linux/arm64

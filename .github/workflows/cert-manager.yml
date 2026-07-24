@@ -46,6 +46,7 @@ jobs:
       - name: Build and push ${{ matrix.tag }}
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./cert-manager/dockerfile
           platforms: linux/amd64,linux/arm64
@@ -76,6 +77,7 @@ jobs:
       - name: Build and push alidns-webhook
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./cert-manager/dockerfile
           platforms: linux/amd64
@@ -109,6 +111,7 @@ jobs:
       - name: Build and push reflector
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./cert-manager/dockerfile
           platforms: linux/amd64,linux/arm64

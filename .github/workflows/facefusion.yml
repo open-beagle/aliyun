@@ -49,6 +49,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./facefusion
           file: ./facefusion/Dockerfile
           platforms: linux/amd64

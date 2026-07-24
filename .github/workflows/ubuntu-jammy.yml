@@ -33,6 +33,7 @@ jobs:
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./ubuntu
           file: ./ubuntu/Dockerfile
           platforms: linux/amd64
@@ -51,6 +52,7 @@ jobs:
       - name: Build and push ARM64 image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./ubuntu
           file: ./ubuntu/Dockerfile
           platforms: linux/arm64

@@ -39,6 +39,7 @@ jobs:
       - name: Build and push AMD64 image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./jupyter/dockerfile
           platforms: linux/amd64

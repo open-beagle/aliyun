@@ -45,6 +45,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./rvc
           file: ./rvc/Dockerfile
           platforms: linux/amd64

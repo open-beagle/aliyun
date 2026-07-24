@@ -38,6 +38,7 @@ jobs:
       - name: Build and push lada image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./lada
           file: ./lada/dockerfile
           platforms: linux/amd64

@@ -30,6 +30,7 @@ jobs:
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./xray/dockerfile
           platforms: linux/amd64,linux/arm64

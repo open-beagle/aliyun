@@ -42,6 +42,7 @@ jobs:
       - name: Build and push signoz
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/signoz.dockerfile
           platforms: linux/amd64,linux/arm64
@@ -56,6 +57,7 @@ jobs:
       - name: Build and push otel-collector
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/otel-collector.dockerfile
           platforms: linux/amd64,linux/arm64
@@ -70,6 +72,7 @@ jobs:
       - name: Build and push schema-migrator
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/schema-migrator.dockerfile
           platforms: linux/amd64,linux/arm64
@@ -84,6 +87,7 @@ jobs:
       - name: Build and push zookeeper
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/zookeeper.dockerfile
           platforms: linux/amd64,linux/arm64
@@ -98,6 +102,7 @@ jobs:
       - name: Build and push clickhouse-operator (amd64 only)
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/clickhouse-operator.dockerfile
           platforms: linux/amd64
@@ -112,6 +117,7 @@ jobs:
       - name: Build and push metrics-exporter (amd64 only)
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/metrics-exporter.dockerfile
           platforms: linux/amd64
@@ -126,6 +132,7 @@ jobs:
       - name: Build and push k8s-wait-for (amd64 only)
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./signoz/k8s-wait-for.dockerfile
           platforms: linux/amd64

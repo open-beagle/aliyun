@@ -31,6 +31,7 @@ jobs:
       - name: Build and push video2x
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./video2x/dockerfile
           platforms: linux/amd64

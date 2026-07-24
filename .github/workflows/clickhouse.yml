@@ -52,6 +52,7 @@ jobs:
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./clickhouse/clickhouse-server.dockerfile
           platforms: linux/amd64,linux/arm64
@@ -70,6 +71,7 @@ jobs:
       - name: Build and push AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./clickhouse/clickhouse-server.dockerfile
           push: true
@@ -88,6 +90,7 @@ jobs:
       - name: Build and push ARM64 Docker image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: .
           file: ./clickhouse/clickhouse-server.dockerfile
           push: true

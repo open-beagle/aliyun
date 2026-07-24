@@ -39,6 +39,7 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./banana-slides
           file: ./banana-slides/dockerfile.frontend
           platforms: linux/amd64
@@ -84,6 +85,7 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
+          sbom: false
           context: ./banana-slides
           file: ./banana-slides/dockerfile.backend
           platforms: linux/amd64

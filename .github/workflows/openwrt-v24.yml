@@ -30,6 +30,8 @@ jobs:
       - name: Build and push x86-64 Docker images
         uses: docker/build-push-action@v5
         with:
+          provenance: false
+          sbom: false
           context: .
           file: ./openwrt/dockerfile
           push: true
@@ -44,6 +46,8 @@ jobs:
       - name: Build and push rockchip-armv8 Docker images
         uses: docker/build-push-action@v5
         with:
+          provenance: false
+          sbom: false
           context: .
           file: ./openwrt/dockerfile
           push: true
