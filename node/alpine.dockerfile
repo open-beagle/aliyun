@@ -17,6 +17,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
   update-ca-certificates && \
   npm config set cafile /etc/ssl/certs/ca-certificates.crt && \
   echo "Asia/Shanghai" >  /etc/timezone && \
-  npm install -g pnpm@${PNPM_VERSION}
+  npm config set registry https://registry.npmmirror.com && \
+  npm install -g pnpm@${PNPM_VERSION} && \
+  pnpm config set registry https://registry.npmmirror.com
 
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt

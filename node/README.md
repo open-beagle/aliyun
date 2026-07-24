@@ -6,6 +6,7 @@
 
 ## 特性说明
 
+- **国内镜像源加速**：已默认配置 `npm` 与 `pnpm` 的 registry 为国内镜像源 `https://registry.npmmirror.com`。
 - **预装 pnpm**：所有镜像均预装了对应兼容版本的 `pnpm`：
   - Node 22 ~ Node 26：预装 `pnpm` 最新版 (`pnpm@latest`)
   - Node 18 ~ Node 20：预装 `pnpm@9` (pnpm 10+ 需要 Node >= 22.13 的内置 `node:sqlite` 模块)
