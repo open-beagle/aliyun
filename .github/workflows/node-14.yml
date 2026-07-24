@@ -63,6 +63,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -83,6 +84,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -103,6 +105,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}-alpine
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
           # 使用缓存
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -161,6 +164,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
 
       # 构建并推送 AMD64 架构镜像
       - name: Build and push AMD64 Docker image
@@ -178,6 +182,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
 
       # 构建并推送 ARM64 架构镜像
       - name: Build and push ARM64 Docker image
@@ -195,6 +200,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
+            PNPM_VERSION=7
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/node"

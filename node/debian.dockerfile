@@ -1,7 +1,11 @@
 ARG BASE
+ARG PNPM_VERSION=latest
 
 FROM ${BASE}
 
 ARG AUTHOR
 ARG VERSION
+ARG PNPM_VERSION=latest
 LABEL maintainer=${AUTHOR} version=${VERSION}
+
+RUN npm install -g pnpm@${PNPM_VERSION}
