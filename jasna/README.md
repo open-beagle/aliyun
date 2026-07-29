@@ -1,5 +1,18 @@
 # Jasna 镜像
 
+> 🚨 **【强制性规则】绝对禁止直接在触发分支上发起任何提交或修改！**  
+> 所有配置变更、镜像版本升级必须且只能在 `main` 分支完成。触发分支仅作为 CI/CD 自动构建的专用触发分支。
+
+---
+
+## 🚫 严禁事项与操作铁律
+
+1. **禁止直接 Commit**：不得擅自在构建分支修改 Dockerfile、README 或工作流。
+2. **禁止产生脏 Merge 提交**：若出现 `refusing to merge unrelated histories` 报错，**严禁**使用常规 `git merge` 或乱加参数强行合并，必须统一使用 `git reset --hard main` 强制对齐主干历史！
+3. **保持提交历史纯粹**：触发分支的 HEAD 必须镜像级对齐 `main` 分支。
+
+---
+
 基于 CUDA 13.0.3 构建的 [Jasna](https://github.com/Kruk2/jasna) 完整应用镜像。
 
 Jasna 是一个 GPU 加速的视频马赛克检测与修复工具，基于 BasicVSR++ + TensorRT 实现超快速处理。
@@ -48,15 +61,15 @@ Jasna 是一个 GPU 加速的视频马赛克检测与修复工具，基于 Basic
 
 ```bash
 git switch jasna && \
-  git merge main --ff-only && \
-  git push origin jasna && \
+  git reset --hard main && \
+  git push origin jasna --force && \
   git switch main
 ```
 
 ```powershell
 git switch jasna ;`
-  git merge main --ff-only ;`
-  git push origin jasna ;`
+  git reset --hard main ;`
+  git push origin jasna --force ;`
   git switch main
 ```
 

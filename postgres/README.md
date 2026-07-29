@@ -1,5 +1,18 @@
 # Postgres
 
+> 🚨 **【强制性规则】绝对禁止直接在触发分支上发起任何提交或修改！**  
+> 所有配置变更、镜像版本升级必须且只能在 `main` 分支完成。触发分支仅作为 CI/CD 自动构建的专用触发分支。
+
+---
+
+## 🚫 严禁事项与操作铁律
+
+1. **禁止直接 Commit**：不得擅自在构建分支修改 Dockerfile、README 或工作流。
+2. **禁止产生脏 Merge 提交**：若出现 `refusing to merge unrelated histories` 报错，**严禁**使用常规 `git merge` 或乱加参数强行合并，必须统一使用 `git reset --hard main` 强制对齐主干历史！
+3. **保持提交历史纯粹**：触发分支的 HEAD 必须镜像级对齐 `main` 分支。
+
+---
+
 ## 上游镜像
 
 - Docker Hub：https://hub.docker.com/_/postgres
@@ -49,23 +62,23 @@ PostgreSQL 13、12、11 已经 EOL，流水线仍可保留，但只建议在存�
 
 ## Postgres 18
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-18 && \
-  git merge main --ff-only && \
-  git push origin postgres-18 && \
+  git reset --hard main && \
+  git push origin postgres-18 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-18 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-18 ;`
+  git reset --hard main ;`
+  git push origin postgres-18 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -85,23 +98,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-18.yml`，推送 `pos
 
 ## Postgres 17
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-17 && \
-  git merge main --ff-only && \
-  git push origin postgres-17 && \
+  git reset --hard main && \
+  git push origin postgres-17 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-17 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-17 ;`
+  git reset --hard main ;`
+  git push origin postgres-17 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -121,23 +134,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-17.yml`，推送 `pos
 
 ## Postgres 16
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-16 && \
-  git merge main --ff-only && \
-  git push origin postgres-16 && \
+  git reset --hard main && \
+  git push origin postgres-16 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-16 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-16 ;`
+  git reset --hard main ;`
+  git push origin postgres-16 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -157,23 +170,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-16.yml`，推送 `pos
 
 ## Postgres 15
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-15 && \
-  git merge main --ff-only && \
-  git push origin postgres-15 && \
+  git reset --hard main && \
+  git push origin postgres-15 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-15 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-15 ;`
+  git reset --hard main ;`
+  git push origin postgres-15 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -193,23 +206,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-15.yml`，推送 `pos
 
 ## Postgres 14
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-14 && \
-  git merge main --ff-only && \
-  git push origin postgres-14 && \
+  git reset --hard main && \
+  git push origin postgres-14 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-14 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-14 ;`
+  git reset --hard main ;`
+  git push origin postgres-14 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -229,23 +242,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-14.yml`，推送 `pos
 
 ## Postgres 13
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-13 && \
-  git merge main --ff-only && \
-  git push origin postgres-13 && \
+  git reset --hard main && \
+  git push origin postgres-13 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-13 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-13 ;`
+  git reset --hard main ;`
+  git push origin postgres-13 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -265,23 +278,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-13.yml`，推送 `pos
 
 ## Postgres 12
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-12 && \
-  git merge main --ff-only && \
-  git push origin postgres-12 && \
+  git reset --hard main && \
+  git push origin postgres-12 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-12 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-12 ;`
+  git reset --hard main ;`
+  git push origin postgres-12 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 
@@ -301,23 +314,23 @@ GitHub Actions 工作流位于 `.github/workflows/postgres-12.yml`，推送 `pos
 
 ## Postgres 11
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch postgres-11 && \
-  git merge main --ff-only && \
-  git push origin postgres-11 && \
+  git reset --hard main && \
+  git push origin postgres-11 --force && \
   git switch main
 ```
 
 ```powershell
 git switch postgres-11 ;`
-  git merge main --ff-only ;`
-  git push origin postgres-11 ;`
+  git reset --hard main ;`
+  git push origin postgres-11 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 基于上游 `postgres` 镜像补充镜像元数据。
 

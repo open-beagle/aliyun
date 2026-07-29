@@ -1,5 +1,18 @@
 # Video2X (Aliyun Mirror)
 
+> 🚨 **【强制性规则】绝对禁止直接在触发分支上发起任何提交或修改！**  
+> 所有配置变更、镜像版本升级必须且只能在 `main` 分支完成。触发分支仅作为 CI/CD 自动构建的专用触发分支。
+
+---
+
+## 🚫 严禁事项与操作铁律
+
+1. **禁止直接 Commit**：不得擅自在构建分支修改 Dockerfile、README 或工作流。
+2. **禁止产生脏 Merge 提交**：若出现 `refusing to merge unrelated histories` 报错，**严禁**使用常规 `git merge` 或乱加参数强行合并，必须统一使用 `git reset --hard main` 强制对齐主干历史！
+3. **保持提交历史纯粹**：触发分支的 HEAD 必须镜像级对齐 `main` 分支。
+
+---
+
 此目录包含了同步 `ghcr.io/k4yt3x/video2x` 到阿里云容器镜像服务的相关配置。
 
 ## 如何运行
@@ -170,14 +183,14 @@ Real-ESRGAN 官方 ncnn 说明可参考 [Real-ESRGAN-ncnn-vulkan](https://github
 
 ```bash
 git switch video2x && \
-  git merge main --ff-only && \
-  git push origin video2x && \
+  git reset --hard main && \
+  git push origin video2x --force && \
   git switch main
 ```
 
 ```powershell
 git switch video2x ;`
-  git merge main --ff-only ;`
-  git push origin video2x ;`
+  git reset --hard main ;`
+  git push origin video2x --force ;`
   git switch main
 ```

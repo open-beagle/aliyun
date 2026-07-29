@@ -1,5 +1,18 @@
 # Node
 
+> 🚨 **【强制性规则】绝对禁止直接在触发分支上发起任何提交或修改！**  
+> 所有配置变更、镜像版本升级必须且只能在 `main` 分支完成。触发分支仅作为 CI/CD 自动构建的专用触发分支。
+
+---
+
+## 🚫 严禁事项与操作铁律
+
+1. **禁止直接 Commit**：不得擅自在构建分支修改 Dockerfile、README 或工作流。
+2. **禁止产生脏 Merge 提交**：若出现 `refusing to merge unrelated histories` 报错，**严禁**使用常规 `git merge` 或乱加参数强行合并，必须统一使用 `git reset --hard main` 强制对齐主干历史！
+3. **保持提交历史纯粹**：触发分支的 HEAD 必须镜像级对齐 `main` 分支。
+
+---
+
 ## 上游镜像
 
 - Docker Hub：https://hub.docker.com/_/node
@@ -18,23 +31,23 @@
 
 ## Node 26
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-26 && \
-  git merge main --ff-only && \
-  git push origin node-26 && \
+  git reset --hard main && \
+  git push origin node-26 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-26 ;`
-  git merge main --ff-only ;`
-  git push origin node-26 ;`
+  git reset --hard main ;`
+  git push origin node-26 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -52,23 +65,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-26.yml`，推送 `node-26
 
 ## Node 24
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-24 && \
-  git merge main --ff-only && \
-  git push origin node-24 && \
+  git reset --hard main && \
+  git push origin node-24 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-24 ;`
-  git merge main --ff-only ;`
-  git push origin node-24 ;`
+  git reset --hard main ;`
+  git push origin node-24 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -86,23 +99,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-24.yml`，推送 `node-24
 
 ## Node 22
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-22 && \
-  git merge main --ff-only && \
-  git push origin node-22 && \
+  git reset --hard main && \
+  git push origin node-22 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-22 ;`
-  git merge main --ff-only ;`
-  git push origin node-22 ;`
+  git reset --hard main ;`
+  git push origin node-22 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -120,23 +133,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-22.yml`，推送 `node-22
 
 ## Node 20
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-20 && \
-  git merge main --ff-only && \
-  git push origin node-20 && \
+  git reset --hard main && \
+  git push origin node-20 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-20 ;`
-  git merge main --ff-only ;`
-  git push origin node-20 ;`
+  git reset --hard main ;`
+  git push origin node-20 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -154,23 +167,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-20.yml`，推送 `node-20
 
 ## Node 18
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-18 && \
-  git merge main --ff-only && \
-  git push origin node-18 && \
+  git reset --hard main && \
+  git push origin node-18 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-18 ;`
-  git merge main --ff-only ;`
-  git push origin node-18 ;`
+  git reset --hard main ;`
+  git push origin node-18 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -188,23 +201,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-18.yml`，推送 `node-18
 
 ## Node 16
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-16 && \
-  git merge main --ff-only && \
-  git push origin node-16 && \
+  git reset --hard main && \
+  git push origin node-16 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-16 ;`
-  git merge main --ff-only ;`
-  git push origin node-16 ;`
+  git reset --hard main ;`
+  git push origin node-16 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -222,23 +235,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-16.yml`，推送 `node-16
 
 ## Node 14
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-14 && \
-  git merge main --ff-only && \
-  git push origin node-14 && \
+  git reset --hard main && \
+  git push origin node-14 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-14 ;`
-  git merge main --ff-only ;`
-  git push origin node-14 ;`
+  git reset --hard main ;`
+  git push origin node-14 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
@@ -256,23 +269,23 @@ GitHub Actions 工作流位于 `.github/workflows/node-14.yml`，推送 `node-14
 
 ## Node 12
 
-### 迭代命令
+### 🔄 标准迭代与强制对齐命令
 
 ```bash
 git switch node-12 && \
-  git merge main --ff-only && \
-  git push origin node-12 && \
+  git reset --hard main && \
+  git push origin node-12 --force && \
   git switch main
 ```
 
 ```powershell
 git switch node-12 ;`
-  git merge main --ff-only ;`
-  git push origin node-12 ;`
+  git reset --hard main ;`
+  git push origin node-12 --force ;`
   git switch main
 ```
 
-### 概述
+### 📌 概述与镜像构建说明
 
 - Debian 镜像直接基于上游 `node` 镜像打包。
 - Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
