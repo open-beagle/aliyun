@@ -26,8 +26,9 @@
   - Node 16：预装 `pnpm@8`
   - Node 14：预装 `pnpm@7`
   - Node 12：预装 `pnpm@6`
-- **Debian 镜像**：基于上游 `node` 镜像打包，预装 `pnpm`。
-- **Alpine 镜像**：基于上游 `node` 镜像，替换 Alpine 镜像源为阿里云镜像，增加 `Asia/Shanghai` 时区配置，配置 `beagle-ca.crt` 证书，并预装 `pnpm`。
+- **预装 git**：所有镜像均预装 `git` 命令行工具。
+- **Debian 镜像**：基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- **Alpine 镜像**：基于上游 `node` 镜像，替换 Alpine 镜像源为阿里云镜像，增加 `Asia/Shanghai` 时区配置，配置 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 ## Node 26
 
@@ -49,8 +50,8 @@ git switch node-26 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-26.yml`，推送 `node-26` 分支时触发构建。当前构建版本为 `26.4.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -83,8 +84,8 @@ git switch node-24 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-24.yml`，推送 `node-24` 分支时触发构建。当前构建版本为 `24.18.0`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -117,8 +118,8 @@ git switch node-22 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-22.yml`，推送 `node-22` 分支时触发构建。当前构建版本为 `22.22.3`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -151,8 +152,8 @@ git switch node-20 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-20.yml`，推送 `node-20` 分支时触发构建。当前构建版本为 `20.20.2`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -185,8 +186,8 @@ git switch node-18 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-18.yml`，推送 `node-18` 分支时触发构建。当前构建版本为 `18.20.8`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -219,8 +220,8 @@ git switch node-16 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-16.yml`，推送 `node-16` 分支时触发构建。当前构建版本为 `16.20.2`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -253,8 +254,8 @@ git switch node-14 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-14.yml`，推送 `node-14` 分支时触发构建。当前构建版本为 `14.21.3`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
@@ -287,8 +288,8 @@ git switch node-12 ;`
 
 ### 📌 概述与镜像构建说明
 
-- Debian 镜像直接基于上游 `node` 镜像打包。
-- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，并配置了 `beagle-ca.crt` 证书。
+- Debian 镜像基于上游 `node` 镜像打包，预装 `pnpm` 与 `git`。
+- Alpine 镜像基于上游 `node` 镜像，替换了 Alpine 镜像源为阿里云镜像，增加了 `Asia/Shanghai` 时区配置，配置了 `beagle-ca.crt` 证书，并预装 `pnpm` 与 `git`。
 
 GitHub Actions 工作流位于 `.github/workflows/node-12.yml`，推送 `node-12` 分支时触发构建。当前构建版本为 `12.22.12`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
