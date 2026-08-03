@@ -187,7 +187,7 @@ jobs:
             BASE=node:${{ env.BUILD_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
-            PNPM_VERSION=latest
+            PNPM_VERSION=9
 
       - name: Image push success
         run: echo "Docker images and manifests pushed successfully to registry.cn-qingdao.aliyuncs.com/wod/node"
