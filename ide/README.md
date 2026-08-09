@@ -62,7 +62,7 @@ git switch ide-cuda ;`
 - **开发工具链**：Python 3、`pip`、`venv`、`build-essential`、`pkg-config`、Git 与常用命令行工具；PyPI 默认使用阿里云镜像。
 - **服务与容器工具**：SSH 服务端与客户端、Podman、crun、fuse-overlayfs、PostgreSQL 客户端与 Redis 工具。
 - **网络诊断工具**：`dnsutils`、`net-tools`、`telnet`、`inotify-tools`、`iptables` 与 `iproute2`。
-- **无头浏览器与中文字体**：Chromium 与 Noto CJK 字体，用于前端自动化与截图（目前仅通用 IDE 镜像预装）。
+- **无头浏览器与 Playwright 支持**：Chromium、Noto CJK 字体、Python Playwright 及全局 Chromium 驱动（`PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`），开箱即用支持前端自动化与截图。
 
 镜像会以 UID/GID 1000 创建或复用 `code` 用户，并配置免密 `sudo`、rootless Podman 存储目录和 CUDA 库路径。
 

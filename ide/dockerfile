@@ -8,7 +8,8 @@ LABEL maintainer=$AUTHOR version=$VERSION
 ENV PATH=/opt/bin:$PATH \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/glibc-compat/lib:/usr/lib \
     _CONTAINERS_USERNS_CONFIGURED="" \
-    TZ=Asia/Shanghai
+    TZ=Asia/Shanghai \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 COPY ./ide/ssh/ssh* /etc/ssh/
 COPY ./debian/debian-13.sources /tmp/debian.sources
@@ -57,6 +58,7 @@ RUN set -eux; \
       python3 \
       python3-pip \
       python3-venv \
+      fonts-noto-cjk \
       connect-proxy \
       openssh-server \
       openssh-client \
@@ -66,7 +68,7 @@ RUN set -eux; \
       postgresql-client \
       redis-tools; \
     if [ "$ID" = "debian" ]; then \
-      apt-get install -y chromium fonts-noto-cjk; \
+      apt-get install -y chromium; \
     fi; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/debian.sources; \
@@ -86,7 +88,12 @@ RUN existing_user=$(getent passwd 1000 | cut -d: -f1) && \
   echo "code:100000:65536" >> /etc/subgid && \
   echo 'export PATH=$HOME/.local/bin:$PATH' >> /home/code/.bashrc && \
   printf '[global]\nindex-url = https://mirrors.aliyun.com/pypi/simple/\ntrusted-host = mirrors.aliyun.com\n' > /etc/pip.conf && \
-  chown code:code /home/code/.bashrc
+  pip3 install --no-cache-dir --break-system-packages playwright && \
+  mkdir -p /ms-playwright && \
+  playwright install-deps chromium && \
+  playwright install chromium && \
+  apt-get clean && rm -rf /var/lib/apt/lists/* && \
+  chown -R code:code /ms-playwright /home/code/.bashrc
 
 USER code
 WORKDIR /home/code
