@@ -60,7 +60,7 @@ git switch ide-cuda ;`
 
 - **Codex CLI 依赖**：`bubblewrap` 和 `ripgrep`。
 - **开发工具链**：Python 3、`pip`、`venv`、`build-essential`、`pkg-config`、Git 与常用命令行工具；PyPI 默认使用阿里云镜像。
-- **桌面应用构建与交叉编译**：`libgtk-3-dev`、`libwebkit2gtk-4.1-dev`、`libsoup-3.0-dev`（Wails/GTK3/WebKit2GTK/libsoup3 原生桌面构建依赖）及 `gcc-mingw-w64-x86-64`、`g++-mingw-w64-x86-64`（MinGW-w64 Windows 64位交叉编译工具链，默认启用 posix 线程模型）。
+- **桌面应用构建与交叉编译**：`libgtk-4-dev`、`libwebkitgtk-6.0-dev`、`libsoup-3.0-dev`（Wails v3/GTK4/WebKitGTK 6.0/libsoup3 原生桌面构建依赖）及 `gcc-mingw-w64-x86-64`、`g++-mingw-w64-x86-64`（MinGW-w64 Windows 64位交叉编译工具链，默认启用 posix 线程模型）。
 - **服务与容器工具**：SSH 服务端与客户端、Podman、crun、fuse-overlayfs、PostgreSQL 客户端与 Redis 工具。
 - **网络诊断工具**：`dnsutils`、`net-tools`、`telnet`、`inotify-tools`、`iptables` 与 `iproute2`。
 - **无头浏览器与 Playwright 支持**：Chromium、Noto CJK 字体、Python Playwright 及全局 Chromium 驱动（`PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`），开箱即用支持前端自动化与截图。
