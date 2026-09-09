@@ -35,12 +35,13 @@ git switch sub2api ;`
 
 ## 📌 概述与镜像构建说明
 
-本目录用于构建 Sub2API 镜像，基于上游 `weishaw/sub2api` 镜像补充维护者、版本标签和 `Asia/Shanghai` 时区配置。
+本目录用于构建 Sub2API 镜像，基于上游 `weishaw/sub2api:0.2.3` 镜像底座补充维护者、时区配置，并通过多阶段构建合入 PR #6874 补丁（修复 OpenAI 下线 `gpt-5.4-mini` 并支持 GPT Image 2.5 系列模型）。
 
-GitHub Actions 工作流位于 `.github/workflows/sub2api.yml`，推送 `sub2api` 分支或手动触发工作流时执行构建。当前构建版本为 `0.2.3`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
+GitHub Actions 工作流位于 `.github/workflows/sub2api.yml`，推送 `sub2api` 分支或手动触发工作流时执行构建。当前构建版本为 `0.2.3-pr6874`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3`
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874-arm64`
 
-其中不带架构后缀的版本标签为多平台镜像，可按运行环境自动选择架构。
+其中不带架构后缀的版本标签为多平台镜像，可按运行环境自动选择架构。构建完成后会自动通过 `kubectl set image` 滚动更新到 `beagle-ide` 命名空间。
+

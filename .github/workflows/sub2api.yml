@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: 0.2.3
+  BUILD_VERSION: 0.2.3-pr6874
+  BASE_VERSION: 0.2.3
   SOURCE_IMAGE: weishaw/sub2api
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 
@@ -41,7 +42,7 @@ jobs:
             ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}
           platforms: linux/amd64,linux/arm64
           build-args: |
-            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }}
+            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BASE_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
@@ -57,7 +58,7 @@ jobs:
             ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-amd64
           platforms: linux/amd64
           build-args: |
-            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }}
+            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BASE_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
@@ -73,7 +74,7 @@ jobs:
             ${{ env.TARGET_REGISTRY }}:${{ env.BUILD_VERSION }}-arm64
           platforms: linux/arm64
           build-args: |
-            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BUILD_VERSION }}
+            BASE=${{ env.SOURCE_IMAGE }}:${{ env.BASE_VERSION }}
             AUTHOR=${{ github.repository_owner }}
             VERSION=${{ env.BUILD_VERSION }}
 
