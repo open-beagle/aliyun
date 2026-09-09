@@ -3,7 +3,7 @@
 # =============================================================================
 
 ARG NODE_IMAGE=node:24-alpine
-ARG GOLANG_IMAGE=golang:1.26-alpine
+ARG GOLANG_IMAGE=golang:alpine
 ARG BASE=weishaw/sub2api:0.2.3
 
 # -----------------------------------------------------------------------------
@@ -29,6 +29,9 @@ FROM --platform=$BUILDPLATFORM ${GOLANG_IMAGE} AS backend-builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=0.2.3-pr6874
+ARG GOPROXY=https://goproxy.cn,direct
+ENV GOPROXY=${GOPROXY}
+ENV GOTOOLCHAIN=auto
 
 WORKDIR /app
 COPY --from=frontend-builder /app /app
