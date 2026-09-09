@@ -16,7 +16,7 @@ RUN apk add --no-cache git && \
     git clone --depth=1 https://github.com/Wei-Shaw/sub2api.git . && \
     git fetch origin pull/6874/head:pr && \
     git checkout pr && \
-    corepack enable && corepack prepare pnpm@latest --activate && \
+    corepack enable && corepack prepare pnpm@9 --activate && \
     cd frontend && \
     pnpm install --frozen-lockfile && \
     pnpm run build
