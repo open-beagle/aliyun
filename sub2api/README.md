@@ -35,13 +35,13 @@ git switch sub2api ;`
 
 ## 📌 概述与镜像构建说明
 
-本目录用于构建 Sub2API 镜像，基于上游 `weishaw/sub2api:0.2.3` 镜像底座补充维护者、时区配置，并通过多阶段构建合入 PR #6874 补丁（修复 OpenAI 下线 `gpt-5.4-mini` 并支持 GPT Image 2.5 系列模型）。
+本目录用于构建 Sub2API 镜像。由于上游官方已发布 `0.2.4` 并原生合入了 PR #6874 补丁（修复 OpenAI 下线 `gpt-5.4-mini` 并支持 GPT Image 2.5 系列模型），当前已切回基于上游官方 `weishaw/sub2api:0.2.4` 镜像底座补充维护者与时区配置的轻量构建模式（历史多阶段补丁构建文件已归档为 `dockerfile.pr6874`）。
 
-GitHub Actions 工作流位于 `.github/workflows/sub2api.yml`，推送 `sub2api` 分支或手动触发工作流时执行构建。当前构建版本为 `0.2.3-pr6874`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
+GitHub Actions 工作流位于 `.github/workflows/sub2api.yml`，推送 `sub2api` 分支或手动触发工作流时执行构建。当前构建版本为 `0.2.4`，会构建 `linux/amd64` 和 `linux/arm64` 镜像，并推送到：
 
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874`
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874-amd64`
-- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.3-pr6874-arm64`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.4`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.4-amd64`
+- `registry.cn-qingdao.aliyuncs.com/wod/sub2api:0.2.4-arm64`
 
 其中不带架构后缀的版本标签为多平台镜像，可按运行环境自动选择架构。构建完成后会自动通过 `kubectl set image` 滚动更新到 `beagle-ide` 命名空间。
 

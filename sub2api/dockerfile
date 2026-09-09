@@ -1,63 +1,13 @@
-# =============================================================================
-# Sub2API Multi-Stage Dockerfile (PR #6874 Temporary Patch)
-# =============================================================================
+ARG BASE=weishaw/sub2api:0.2.4
 
-ARG NODE_IMAGE=node:24-alpine
-ARG GOLANG_IMAGE=golang:alpine
-ARG BASE=weishaw/sub2api:0.2.3
-
-# -----------------------------------------------------------------------------
-# Stage 1: Build Frontend (from upstream PR #6874)
-# -----------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM ${NODE_IMAGE} AS frontend-builder
-
-WORKDIR /app
-RUN apk add --no-cache git && \
-    git clone --depth=1 https://github.com/Wei-Shaw/sub2api.git . && \
-    git fetch origin pull/6874/head:pr && \
-    git checkout pr && \
-    corepack enable && corepack prepare pnpm@9 --activate && \
-    cd frontend && \
-    pnpm install --frozen-lockfile && \
-    pnpm run build
-
-# -----------------------------------------------------------------------------
-# Stage 2: Build Backend (embed compiled frontend)
-# -----------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM ${GOLANG_IMAGE} AS backend-builder
-
-ARG TARGETOS
-ARG TARGETARCH
-ARG VERSION=0.2.3-pr6874
-ARG GOPROXY=https://goproxy.cn,direct
-ENV GOPROXY=${GOPROXY}
-ENV GOTOOLCHAIN=auto
-
-WORKDIR /app
-COPY --from=frontend-builder /app /app
-
-RUN apk add --no-cache git ca-certificates tzdata && \
-    cd /app/backend && \
-    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
-      -tags embed \
-      -ldflags="-s -w -X 'github.com/Wei-Shaw/sub2api/internal/config.Version=${VERSION}'" \
-      -o /app/sub2api-bin \
-      ./cmd/server
-
-# -----------------------------------------------------------------------------
-# Stage 3: Final Runtime Image (based on official release 0.2.3)
-# -----------------------------------------------------------------------------
 FROM ${BASE}
 
 ARG AUTHOR=mengkzhaoyun@gmail.com
-ARG VERSION=0.2.3-pr6874
+ARG VERSION=0.2.4
 LABEL maintainer=${AUTHOR} version=${VERSION}
 
 ENV TZ=Asia/Shanghai \
     TIMEZONE=Asia/Shanghai
-
-COPY --from=backend-builder /app/sub2api-bin /app/sub2api
-COPY --from=backend-builder /app/backend/resources /app/resources
 
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone
