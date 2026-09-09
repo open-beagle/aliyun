@@ -18,7 +18,7 @@
 - 上游项目：https://github.com/Wei-Shaw/sub2api
 
 ## 🔄 标准迭代与强制对齐命令
-
+ 
 ```bash
 git switch sub2api && \
   git reset --hard main && \
