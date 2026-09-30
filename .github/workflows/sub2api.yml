@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BUILD_VERSION: 0.2.7
+  BUILD_VERSION: 0.2.11
   SOURCE_IMAGE: weishaw/sub2api
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 
@@ -91,9 +91,9 @@ jobs:
 
       - name: Configure Kubernetes access
         env:
-          KUBERNETES_SERVER: ${{ secrets.KUBERNETES_SERVER }}
-          KUBERNETES_TOKEN: ${{ secrets.KUBERNETES_TOKEN }}
-          KUBERNETES_CA: ${{ secrets.KUBERNETES_CA }}
+          KUBERNETES_SERVER: ${{ secrets.KUBERNETES_ALIYUN_SERVER }}
+          KUBERNETES_TOKEN: ${{ secrets.KUBERNETES_ALIYUN_TOKEN }}
+          KUBERNETES_CA: ${{ secrets.KUBERNETES_ALIYUN_CA }}
         run: |
           set -eu
           test -n "$KUBERNETES_SERVER"
@@ -102,22 +102,22 @@ jobs:
           if [ -n "$KUBERNETES_CA" ]; then
             ca_file="$RUNNER_TEMP/kubernetes-ca.crt"
             printf '%s\n' "$KUBERNETES_CA" > "$ca_file"
-            kubectl config set-cluster beagle-ide \
+            kubectl config set-cluster beagle-k8s \
               --server="$KUBERNETES_SERVER" \
               --certificate-authority="$ca_file" \
               --embed-certs=true
           else
-            kubectl config set-cluster beagle-ide \
+            kubectl config set-cluster beagle-k8s \
               --server="$KUBERNETES_SERVER" \
               --insecure-skip-tls-verify=true
           fi
 
           kubectl config set-credentials github-actions --token="$KUBERNETES_TOKEN"
-          kubectl config set-context beagle-ide \
-            --cluster=beagle-ide \
+          kubectl config set-context beagle-k8s \
+            --cluster=beagle-k8s \
             --user=github-actions \
-            --namespace=beagle-ide
-          kubectl config use-context beagle-ide
+            --namespace=beagle-cloud-ide
+          kubectl config use-context beagle-k8s
 
       - name: Update API deployment
         run: |
