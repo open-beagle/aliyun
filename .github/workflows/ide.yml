@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
+
     env:
       BUILD_NUMBER: "13"
       BUILD_VERSION: trixie
@@ -74,7 +74,7 @@ jobs:
             --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}} \
             --tag ${{ env.IMAGE_NAME }}:${{ env.BUILD_VERSION }} \
             ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-amd64 \
-            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64            
+            ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER}}-arm64
 
       - name: All builds and manifests complete
         run: echo "Single-architecture images and multi-arch manifests pushed successfully!"
