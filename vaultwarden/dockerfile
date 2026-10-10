@@ -1,4 +1,4 @@
-ARG BASE=vaultwarden/server:1.37.3
+ARG BASE=vaultwarden/server:1.37.4
 
 FROM alpine:latest AS tzdata
 RUN apk add --no-cache tzdata

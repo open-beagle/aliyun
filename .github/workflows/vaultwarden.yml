@@ -6,7 +6,7 @@ on:
       - vaultwarden
 
 env:
-  BUILD_VERSION: 1.37.3
+  BUILD_VERSION: 1.37.4
 
 jobs:
   build-and-push:
