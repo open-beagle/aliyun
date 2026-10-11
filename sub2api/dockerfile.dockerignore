@@ -1,0 +1,13 @@
+**
+!upstream/
+!upstream/backend/
+!upstream/backend/**
+!upstream/frontend/
+!upstream/frontend/**
+!upstream/docs/
+!upstream/docs/legal/
+!upstream/docs/legal/**
+upstream/**/.git
+upstream/**/node_modules
+upstream/**/*_test.go
+upstream/**/.env*
