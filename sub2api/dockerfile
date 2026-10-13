@@ -11,8 +11,8 @@ RUN pnpm run build
 FROM --platform=$BUILDPLATFORM golang:1.27.2-alpine AS backend
 ARG TARGETOS
 ARG TARGETARCH
-ARG VERSION=0.2.16
-ARG UPSTREAM_COMMIT=f2669c8cf62555cd92389b3f55920e9e6e7c6ff2
+ARG VERSION=0.2.16-fix
+ARG UPSTREAM_COMMIT=01842576b3d5c1e2545b5a99ad555d36e28ed306
 ENV GOPROXY=https://proxy.golang.org,direct
 WORKDIR /src/backend
 RUN apk add --no-cache git ca-certificates
@@ -26,8 +26,8 @@ RUN --mount=type=cache,id=sub2api-gomod,target=/go/pkg/mod \
     -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${UPSTREAM_COMMIT}+grok-tier -X main.BuildType=release" \
     -o /out/sub2api ./cmd/server
 
-FROM weishaw/sub2api:0.2.15
-ARG VERSION=0.2.16
+FROM weishaw/sub2api:0.2.16
+ARG VERSION=0.2.16-fix
 LABEL version=${VERSION}
 ENV TZ=Asia/Shanghai TIMEZONE=Asia/Shanghai
 COPY --from=backend --chown=sub2api:sub2api /out/sub2api /app/sub2api

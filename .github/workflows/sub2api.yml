@@ -1,7 +1,7 @@
 name: sub2api
 on:
   push:
-    branches: [release]
+    branches: [sub2api, release]
     paths: [sub2api/**, .github/workflows/sub2api.yml]
   workflow_dispatch:
 permissions:
@@ -10,8 +10,8 @@ concurrency:
   group: sub2api-release
   cancel-in-progress: false
 env:
-  BUILD_VERSION: 0.2.16
-  UPSTREAM_COMMIT: f2669c8cf62555cd92389b3f55920e9e6e7c6ff2
+  BUILD_VERSION: 0.2.16-fix
+  UPSTREAM_COMMIT: 01842576b3d5c1e2545b5a99ad555d36e28ed306
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 jobs:
   build-and-push:
