@@ -1,7 +1,8 @@
 name: sub2api
 on:
   push:
-    branches: [sub2api, release]
+    branches:
+      - sub2api
     paths: [sub2api/**, .github/workflows/sub2api.yml]
   workflow_dispatch:
 permissions:
