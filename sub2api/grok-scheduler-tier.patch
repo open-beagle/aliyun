@@ -1,14 +1,14 @@
 --- a/backend/internal/repository/scheduler_cache.go
 +++ b/backend/internal/repository/scheduler_cache.go
-@@ -10,6 +10,7 @@
- 	"strconv"
+@@ -14,6 +14,7 @@ import (
+ 	"sync/atomic"
  	"time"
  
 +	"github.com/Wei-Shaw/sub2api/internal/pkg/xai"
  	"github.com/Wei-Shaw/sub2api/internal/service"
  	"github.com/redis/go-redis/v9"
- )
-@@ -863,7 +864,7 @@
+ 	"github.com/tidwall/gjson"
+@@ -1155,7 +1156,7 @@ func (c *schedulerCache) mgetChunked(ctx context.Context, keys []string) ([]any,
  }
  
  func buildSchedulerMetadataAccount(account service.Account) service.Account {
@@ -17,7 +17,7 @@
  		ID:                      account.ID,
  		Name:                    account.Name,
  		Platform:                account.Platform,
-@@ -892,6 +893,21 @@
+@@ -1184,6 +1185,21 @@ func buildSchedulerMetadataAccount(account service.Account) service.Account {
  		Credentials:             filterSchedulerCredentials(account.Credentials),
  		Extra:                   filterSchedulerExtra(account.Extra),
  	}
