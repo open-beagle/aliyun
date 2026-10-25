@@ -86,7 +86,7 @@ jobs:
           kubectl config set-context beagle-k8s \
             --cluster=beagle-k8s \
             --user=github-actions \
-            --namespace=beagle-cloud-ide
+            --namespace=verdantflare
           kubectl config use-context beagle-k8s
 
       - name: Update API deployment
