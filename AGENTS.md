@@ -6,27 +6,22 @@
 
 ## 1. 项目分支模型与流转规范 (Branching Workflow)
 
-本仓库采用“主干 + 开发 + 组件触发分支”的多分支构建模型：
+本仓库采用“主干 + 组件触发分支”的多分支构建模型：
 
 ### 1.1 分支角色定义
 
-- **`main`**：项目唯一主干与发布基准线（Single Source of Truth），保障历史纯粹。
-- **`dev`**：日常开发、补丁编写与功能自测分支。
+- **`main`**：项目唯一主干与发布基准线（Single Source of Truth），日常开发、补丁编写与功能自测均在 `main` 完成，保障历史纯粹。
 - **`<component_branch>`**：组件 CI 构建专用触发指针（如 `sub2api`、`redis-7` 等 40+ 分支），不承载日常提交。
 
-### 1.2 标准流转三步法 (简洁闭环)
+### 1.2 标准流转两步法 (简洁闭环)
 
-1. **开发自测**：在 `dev` 分支完成编码与单元测试：
+1. **主干开发与推送**：在 `main` 分支完成编码、自测并推送：
    ```bash
-   git push origin dev
+   git switch main && git push origin main
    ```
-2. **合入主干**：验证通过后同步并推送至 `main`：
+2. **强制对齐触发构建**：触发分支通过 `reset --hard` 镜像级对齐主干并强推（**严禁常规 merge**）：
    ```bash
-   git switch main && git merge dev --ff-only && git push origin main
-   ```
-3. **强制对齐触发构建**：触发分支通过 `reset --hard` 镜像级对齐主干并强推（**严禁常规 merge**）：
-   ```bash
-   git switch <service_branch> && git reset --hard main && git push origin <service_branch> --force && git switch dev
+   git switch <service_branch> && git reset --hard main && git push origin <service_branch> --force && git switch main
    ```
 
 ---
@@ -70,7 +65,7 @@
 
 ### 3.2 Git 分支操作禁忌
 
-1. 🚫 **严禁在组件触发分支直接提交修改**：所有 Dockerfile、配置、补丁和 README 的修改必须且只能在 `main`（或日常开发分支）上提交。
+1. 🚫 **严禁在组件触发分支直接提交修改**：所有 Dockerfile、配置、补丁和 README 的修改必须且只能在 `main` 分支上提交。
 2. 🚫 **严禁产生脏 Merge 提交**：在触发分支遇到任何冲突、历史分叉或 `refusing to merge unrelated histories` 时，**严禁**使用常规 `git merge`，更不得使用 `--allow-unrelated-histories` 强行合并。
 3. 🚫 **严禁破坏触发分支的镜像纯粹性**：触发分支仅作为 GitHub Actions 的触发指针，其 HEAD 必须通过 `git reset --hard main` 始终 100% 对齐主分支。
 
