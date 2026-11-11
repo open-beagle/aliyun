@@ -11,8 +11,8 @@ concurrency:
   group: sub2api-release
   cancel-in-progress: false
 env:
-  BUILD_VERSION: 0.2.20-fix
-  UPSTREAM_REF: v0.2.20
+  BUILD_VERSION: 0.2.21-fix
+  UPSTREAM_REF: v0.2.21
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 jobs:
   build-and-push:
