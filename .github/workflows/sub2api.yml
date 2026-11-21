@@ -11,8 +11,8 @@ concurrency:
   group: sub2api-release
   cancel-in-progress: false
 env:
-  BUILD_VERSION: 0.2.23-fix
-  UPSTREAM_REF: v0.2.23
+  BUILD_VERSION: 0.2.24-fix
+  UPSTREAM_REF: v0.2.24
   TARGET_REGISTRY: registry.cn-qingdao.aliyuncs.com/wod/sub2api
 jobs:
   build-and-push:
@@ -36,6 +36,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
       - uses: docker/build-push-action@v6
+        id: build
         with:
           context: .
           file: sub2api/dockerfile
@@ -49,6 +50,20 @@ jobs:
           build-args: |
             VERSION=${{ env.BUILD_VERSION }}
             UPSTREAM_REF=${{ env.UPSTREAM_REF }}
+      - name: Publish architecture tags
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          manifest="$(docker buildx imagetools inspect --raw "$TARGET_REGISTRY@$IMAGE_DIGEST")"
+          for arch in amd64 arm64; do
+            digest="$(jq -er --arg arch "$arch" '
+              [.manifests[] | select(.platform.os == "linux" and .platform.architecture == $arch) | .digest]
+              | if length == 1 then .[0] else error("expected one manifest for linux/" + $arch) end
+            ' <<< "$manifest")"
+            docker buildx imagetools create --prefer-index=false \
+              --tag "$TARGET_REGISTRY:$BUILD_VERSION-$arch" "$TARGET_REGISTRY@$digest"
+          done
 
   deploy:
     name: Deploy API to Kubernetes
